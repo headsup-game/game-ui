@@ -1,6 +1,8 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from 'react';
+import web3, { connectMetaMask } from '../../utils/web3';
+import { getPlayerCards, getCommunityCards } from '../../utils/contract';
 
 interface Card {
   rank: string;
@@ -21,39 +23,57 @@ const PokerTable: React.FC = () => {
   const [shownCommunityCards, setShownCommunityCards] = useState<Card[]>([]);
   const [logMessages, setLogMessages] = useState<string[]>([]);
   const [winningParticipant, setWinningParticipant] = useState<number | null>(null);
-  const communityCardsRef = useRef(-1);
+  const [isMetaMaskConnected, setIsMetaMaskConnected] = useState<boolean>(false);
+  const communityCardsRef = useRef(0);
+
+const handleMetaMaskConnect = async () => {
+    const isConnected = await connectMetaMask();
+    setIsMetaMaskConnected(isConnected);
+    if (isConnected) {
+        setGameState('start');
+        fetchParticipants(); // Call the fetchParticipants function when MetaMask is connected
+    }
+};
 
   useEffect(() => {
-    if (gameState === 'start') {
-      fetchParticipants();
-    } else if (gameState === 'showCommunity') {
-      communityCardsRef.current = 0;
-      showCommunityCards();
-    } else if (gameState === 'determineWinner') {
-      setTimeout(fetchWinner, 1000);
+    if (isMetaMaskConnected) {
+      if (gameState === 'start') {
+        fetchParticipants();
+      } else if (gameState === 'showCommunity') {
+        communityCardsRef.current = 0;
+        showCommunityCards();
+      } else if (gameState === 'determineWinner') {
+        setTimeout(fetchWinner, 1000);
+      }
     }
-  }, [gameState]);
+  }, [gameState, isMetaMaskConnected]);
 
-  const fetchParticipants = () => {
-    fetch('/api/participants')
-      .then(res => res.json())
-      .then(data => {
-        setParticipants(data);
-        setGameState('deal');
-        setLogMessages(prev => [...prev, 'Participants cards dealt']);
-      })
-      .catch(err => console.error(err));
+  const fetchParticipants = async () => {
+    try {
+      const participantACards = await getPlayerCards(0); // Fetch cards for participant A
+      const participantBCards = await getPlayerCards(1); // Fetch cards for participant B
+
+      setParticipants([
+        { cards: participantACards },
+        { cards: participantBCards },
+      ]);
+
+      setGameState('deal');
+      setLogMessages(prev => [...prev, 'Participants cards dealt']);
+    } catch (error) {
+      console.error(error);
+    }
   };
 
-  const fetchCommunityCards = () => {
-    fetch('/api/community-cards')
-      .then(res => res.json())
-      .then(data => {
-        setCommunityCards(data);
-        setGameState('showCommunity');
-        setLogMessages(prev => [...prev, 'Fetching community cards...']);
-      })
-      .catch(err => console.error(err));
+  const fetchCommunityCards = async () => {
+    try {
+      const communityCards = await getCommunityCards();
+      setCommunityCards(communityCards);
+      setGameState('showCommunity');
+      setLogMessages(prev => [...prev, 'Fetching community cards...']);
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const fetchWinner = () => {
@@ -90,36 +110,41 @@ const PokerTable: React.FC = () => {
   return (
     <div className="poker-table">
       <h1>Poker Table</h1>
-      <div className="table">
-        {participants.length >= 1 && (
-          <div className={`participant participant-left ${winningParticipant === 0 ? 'winner' : ''}`}>
-            <h2>Participant A</h2>
+      {!isMetaMaskConnected && (
+        <button onClick={handleMetaMaskConnect}>Connect MetaMask</button>
+      )}
+      {isMetaMaskConnected && (
+        <div className="table">
+          {participants.length >= 1 && (
+            <div className={`participant participant-left ${winningParticipant === 0 ? 'winner' : ''}`}>
+              <h2>Participant A</h2>
+              <div className="cards">
+                {participants[0].cards.map((card, i) => (
+                  card && <img key={i} src={card.image} alt={`${card.rank} of ${card.suit}`} />
+                ))}
+              </div>
+            </div>
+          )}
+          <div className="community-cards">
+            <h2>Community Cards</h2>
             <div className="cards">
-              {participants[0].cards.map((card, i) => (
-                card && <img key={i} src={card.image} alt={`${card.rank} of ${card.suit}`} />
+              {shownCommunityCards.map((card, index) => (
+                card && <img key={index} src={card.image} alt={`${card.rank} of ${card.suit}`} />
               ))}
             </div>
           </div>
-        )}
-        <div className="community-cards">
-          <h2>Community Cards</h2>
-          <div className="cards">
-            {shownCommunityCards.map((card, index) => (
-              card && <img key={index} src={card.image} alt={`${card.rank} of ${card.suit}`} />
-            ))}
-          </div>
+          {participants.length >= 2 && (
+            <div className={`participant participant-right ${winningParticipant === 1 ? 'winner' : ''}`}>
+              <h2>Participant B</h2>
+              <div className="cards">
+                {participants[1].cards.map((card, i) => (
+                  card && <img key={i} src={card.image} alt={`${card.rank} of ${card.suit}`} />
+                ))}
+              </div>
+            </div>
+          )}
         </div>
-        {participants.length >= 2 && (
-          <div className={`participant participant-right ${winningParticipant === 1 ? 'winner' : ''}`}>
-            <h2>Participant B</h2>
-            <div className="cards">
-              {participants[1].cards.map((card, i) => (
-                card && <img key={i} src={card.image} alt={`${card.rank} of ${card.suit}`} />
-              ))}
-            </div>
-          </div>
-        )}
-      </div>
+      )}
       <div className="log-messages">
         {logMessages.map((msg, index) => (
           <div key={index}>{msg}</div>
@@ -176,6 +201,11 @@ const PokerTable: React.FC = () => {
           padding: 10px;
           border-radius: 5px;
           width: 80%;
+        }
+        button {
+          padding: 10px 20px;
+          font-size: 16px;
+          cursor: pointer;
         }
       `}</style>
     </div>
