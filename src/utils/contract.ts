@@ -9,7 +9,7 @@ const contractAddress = '0x1316Ab99694687CBF965cAa00085646b45c1D62D';
 
 const contract = new web3.eth.Contract(contractABI, contractAddress);
 
-export const getPlayerCards = async (player: number) => {
+export const getPlayerCardsFromContract = async (player: number) => {
     const cards = await contract.methods.totalSupply(player).call() as Uint256;
     return [];
     // return cards.map((card: any) => ({
@@ -19,7 +19,7 @@ export const getPlayerCards = async (player: number) => {
     // }));
 };
 
-export const getCommunityCards = async () => {
+export const getCommunityCardsFromContract = async () => {
     const cards = await contract.methods.getCommunityCards().call() as any[];
     return cards.map((card: any) => ({
         rank: card.rank,

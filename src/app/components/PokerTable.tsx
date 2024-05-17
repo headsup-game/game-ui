@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import web3, { connectMetaMask } from '../../utils/web3';
-import { getPlayerCards, getCommunityCards } from '../../utils/contract';
+import { getPlayerCardsFromContract, getCommunityCardsFromContract } from '../../utils/contract';
 
 interface Card {
   rank: string;
@@ -23,11 +23,12 @@ const PokerTable: React.FC = () => {
   const [shownCommunityCards, setShownCommunityCards] = useState<Card[]>([]);
   const [logMessages, setLogMessages] = useState<string[]>([]);
   const [winningParticipant, setWinningParticipant] = useState<number | null>(null);
-  const [isMetaMaskConnected, setIsMetaMaskConnected] = useState<boolean>(false);
+  const [isMetaMaskConnected, setIsMetaMaskConnected] = useState<boolean>(true);
   const communityCardsRef = useRef(0);
 
 const handleMetaMaskConnect = async () => {
-    const isConnected = await connectMetaMask();
+    // const isConnected = await connectMetaMask();
+    const isConnected = true;
     setIsMetaMaskConnected(isConnected);
     if (isConnected) {
         setGameState('start');
@@ -36,7 +37,6 @@ const handleMetaMaskConnect = async () => {
 };
 
   useEffect(() => {
-    if (isMetaMaskConnected) {
       if (gameState === 'start') {
         fetchParticipants();
       } else if (gameState === 'showCommunity') {
@@ -45,29 +45,62 @@ const handleMetaMaskConnect = async () => {
       } else if (gameState === 'determineWinner') {
         setTimeout(fetchWinner, 1000);
       }
-    }
   }, [gameState, isMetaMaskConnected]);
 
-  const fetchParticipants = async () => {
+const fetchParticipants = async () => {
     try {
-      const participantACards = await getPlayerCards(0); // Fetch cards for participant A
-      const participantBCards = await getPlayerCards(1); // Fetch cards for participant B
+        let participantACards: Card[];
+        let participantBCards: Card[];
 
-      setParticipants([
-        { cards: participantACards },
-        { cards: participantBCards },
-      ]);
+        // Use the appropriate implementation based on the environment
+        if (process.env.NODE_ENV === 'production') {
+            // Fetch cards from the smart contract
+            participantACards = await getPlayerCardsFromContract(0);
+            participantBCards = await getPlayerCardsFromContract(1);
+        } else {
+            // Fetch cards from the local API
+            participantACards = [
+                { rank: 'Q', suit: 'hearts', image: '/images/queen_of_hearts.png' },
+                { rank: 'J', suit: 'hearts', image: '/images/jack_of_hearts.png' }
+            ]
+            participantBCards = [
+                { rank: 'A', suit: 'hearts', image: '/images/ace_of_hearts.png' },
+                { rank: 'K', suit: 'hearts', image: '/images/king_of_hearts.png' }
+            ];
+        }
 
-      setGameState('deal');
-      setLogMessages(prev => [...prev, 'Participants cards dealt']);
+        setParticipants([
+            { cards: participantACards },
+            { cards: participantBCards },
+        ]);
+
+        setGameState('deal');
+        setLogMessages(prev => [...prev, 'Participants cards dealt']);
     } catch (error) {
-      console.error(error);
+        console.error(error);
     }
-  };
+};
+
+const getPlayerCardsFromAPI = async (participantId: number): Promise<Card[]> => {
+    return fetch('/api/participants')
+    .then(res => res.json()[participantId])
+};
 
   const fetchCommunityCards = async () => {
+    let communityCards: Card[] = [];
     try {
-      const communityCards = await getCommunityCards();
+        // Use the appropriate implementation based on the environment
+        if (process.env.NODE_ENV === 'production') {            // Fetch cards from the smart contract
+            communityCards = await getCommunityCardsFromContract();
+        } else {
+            communityCards = [
+                { rank: '2', suit: 'clubs', image: '/images/2_of_clubs.png' },
+                { rank: '3', suit: 'clubs', image: '/images/3_of_clubs.png' },
+                { rank: '4', suit: 'clubs', image: '/images/4_of_clubs.png' },
+                { rank: '5', suit: 'clubs', image: '/images/5_of_clubs.png' },
+                { rank: '6', suit: 'clubs', image: '/images/6_of_clubs.png' }
+            ]
+        }
       setCommunityCards(communityCards);
       setGameState('showCommunity');
       setLogMessages(prev => [...prev, 'Fetching community cards...']);
