@@ -1,6 +1,6 @@
 import { Uint256 } from 'web3';
 import Web3 from './web3';
-let web3: Web3 | undefined;
+let web3: (typeof Web3) | undefined;
 let contract: any | undefined;
 
 const contractABI = [
