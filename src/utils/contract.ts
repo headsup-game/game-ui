@@ -2,6 +2,11 @@ import { Uint256 } from 'web3';
 import Web3 from './web3';
 let web3: (typeof Web3) | undefined;
 let contract: any | undefined;
+declare global {
+    interface Window {
+      ethereum: any;
+    }
+  }
 
 const contractAddress = '0x1316Ab99694687CBF965cAa00085646b45c1D62D';
 
