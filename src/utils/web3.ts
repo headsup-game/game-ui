@@ -5,8 +5,8 @@ let web3: Web3 | undefined;
 if (typeof window !== 'undefined' && (window as any).ethereum !== 'undefined') {
     web3 = new Web3((window as any).ethereum);
 } else {
-  const provider = new Web3.providers.HttpProvider('https://mainnet.infura.io/v3/YOUR_INFURA_PROJECT_ID');
-  web3 = new Web3(provider);
+    const provider = new Web3.providers.HttpProvider(process.env.INFURIA_URL || ''); // Provide a default value for INFURIA_URL
+    web3 = new Web3(provider);
 }
 
 export const connectMetaMask = async () => {
