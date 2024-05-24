@@ -10,6 +10,29 @@ interface Card {
   image: string;
 }
 
+const rankMap: Record<string, string> = {
+    '0': '2',
+    '1': '3',
+    '2': '4',
+    '3': '5',
+    '4': '6',
+    '5': '7',
+    '6': '8',
+    '7': '9',
+    '8': '10',
+    '9': 'jack',
+    '10': 'queen',
+    '11': 'king',
+    '12': 'ace'
+}
+
+const suitMap: Record<string, string> = {
+    '0': 'hearts',
+    '1': 'diamonds',
+    '2': 'clubs',
+    '3': 'Spades'
+}
+
 interface Participant {
   cards: Card[];
 }
@@ -23,12 +46,12 @@ const PokerTable: React.FC = () => {
   const [shownCommunityCards, setShownCommunityCards] = useState<Card[]>([]);
   const [logMessages, setLogMessages] = useState<string[]>([]);
   const [winningParticipant, setWinningParticipant] = useState<number | null>(null);
-  const [isMetaMaskConnected, setIsMetaMaskConnected] = useState<boolean>(true);
+  const [isMetaMaskConnected, setIsMetaMaskConnected] = useState<boolean>(false);
   const communityCardsRef = useRef(0);
 
 const handleMetaMaskConnect = async () => {
-    // const isConnected = await connectMetaMask();
-    const isConnected = true;
+    const isConnected = await connectMetaMask();
+    // const isConnected = false;
     setIsMetaMaskConnected(isConnected);
     if (isConnected) {
         setGameState('start');
@@ -53,10 +76,11 @@ const fetchParticipants = async () => {
         let participantBCards: Card[];
 
         // Use the appropriate implementation based on the environment
-        if (process.env.NODE_ENV === 'production') {
+        if (true) {
             // Fetch cards from the smart contract
-            participantACards = await getPlayerCardsFromContract(0);
-            participantBCards = await getPlayerCardsFromContract(1);
+            const playerCards = await getPlayerCardsFromContract(1);
+            // participantACards = await getPlayerCardsFromContract(0);
+            // participantBCards = await getPlayerCardsFromContract(1);
         } else {
             // Fetch cards from the local API
             participantACards = [
@@ -69,10 +93,10 @@ const fetchParticipants = async () => {
             ];
         }
 
-        setParticipants([
-            { cards: participantACards },
-            { cards: participantBCards },
-        ]);
+        // setParticipants([
+        //     { cards: participantACards },
+        //     { cards: participantBCards },
+        // ]);
 
         setGameState('deal');
         setLogMessages(prev => [...prev, 'Participants cards dealt']);
