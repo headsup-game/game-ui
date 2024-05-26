@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import web3, { connectMetaMask, removeDisconnection } from '../../utils/web3';
-import { getPlayerCardsFromContract, getCommunityCardsFromContract, getWinnerFromContract, cardDTO } from '../../utils/contract';
+import { getPlayerCardsFromContract, getCommunityCardsFromContract, getWinnerFromContract, cardDTO, betOnPlayerA, betOnPlayerB, claimWinnings, getCurrentEpoch, getMinEntry } from '../../utils/contract';
 
 interface Card {
   rank: string;
@@ -53,14 +53,22 @@ const PokerTable: React.FC = () => {
   const [winningParticipant, setWinningParticipant] = useState<number | null>(null);
   const [isMetaMaskConnected, setIsMetaMaskConnected] = useState<boolean>(false);
   const communityCardsRef = useRef(0);
+  const [betAmount, setBetAmount] = useState<string>('0.001');
+  const [currentEpoch, setCurrentEpoch] = useState<number>(0);
+  const [minEntry, setMinEntry] = useState<number>(0);
+  const [countdown, setCountdown] = useState<number>(30);
+
+
   const handleMetaMaskConnect = async () => {
     const isConnected = await connectMetaMask();
     // const isConnected = false;
     setIsMetaMaskConnected(isConnected);
     if (isConnected) {
       setGameState('start');
-      await fetchParticipants(); // Call the fetchParticipants function when MetaMask is connected
+      await fetchParticipantCards(); // Call the fetchParticipants function when MetaMask is connected
     }
+    setCurrentEpoch(await getCurrentEpoch());
+    setMinEntry(await getMinEntry());
   };
 
   const handleMetaMaskDisconnect = async () => {
@@ -69,6 +77,12 @@ const PokerTable: React.FC = () => {
   }
 
   useEffect(() => {
+    const setCurrentEpochAsync = async () => {
+      setCurrentEpoch(await getCurrentEpoch());
+    };
+
+    setCurrentEpochAsync();
+
     if (gameState === 'start') {
       // fetchParticipants();
     } else if (gameState === 'showCommunity') {
@@ -79,31 +93,16 @@ const PokerTable: React.FC = () => {
     }
   }, [gameState, isMetaMaskConnected]);
 
-  const fetchParticipants = async () => {
+  const fetchParticipantCards = async () => {
     try {
       let participantACards: Card[];
       let participantBCards: Card[];
 
-      // Use the appropriate implementation based on the environment
-      if (true) {
-        // Fetch cards from the smart contract
-        const playerCardsResponseFromContract = await getPlayerCardsFromContract(1);
-        participantACards = playerCardsResponseFromContract[0].map(mapCards);
-        participantBCards = playerCardsResponseFromContract[1].map(mapCards);
-
-        // participantACards = await getPlayerCardsFromContract(0);
-        // participantBCards = await getPlayerCardsFromContract(1);
-      } else {
-        // Fetch cards from the local API
-        participantACards = [
-          { rank: 'Q', suit: 'hearts', image: '/images/queen_of_hearts.png' },
-          { rank: 'J', suit: 'hearts', image: '/images/jack_of_hearts.png' }
-        ]
-        participantBCards = [
-          { rank: 'A', suit: 'hearts', image: '/images/ace_of_hearts.png' },
-          { rank: 'K', suit: 'hearts', image: '/images/king_of_hearts.png' }
-        ];
-      }
+      //TODO: Use the appropriate network based on the environment
+      // Fetch cards from the smart contract
+      const playerCardsResponseFromContract = await getPlayerCardsFromContract(1);
+      participantACards = playerCardsResponseFromContract[0].map(mapCards);
+      participantBCards = playerCardsResponseFromContract[1].map(mapCards);
 
       setParticipants([
         { cards: participantACards },
@@ -115,11 +114,6 @@ const PokerTable: React.FC = () => {
     } catch (error) {
       console.error(error);
     }
-  };
-
-  const getPlayerCardsFromAPI = async (participantId: number): Promise<Card[]> => {
-    return fetch('/api/participants')
-      .then(res => res.json()[participantId])
   };
 
   // TODO: If community cards for a round are not available, fetch them from the contract
@@ -161,13 +155,67 @@ const PokerTable: React.FC = () => {
     showNextCard();
   };
 
+  // TODO: Right now the community cards are being called for after a timeout. However, in production, the community cards will be called based on state change of the game.
   useEffect(() => {
     if (gameState === 'deal') {
       setTimeout(() => {
         fetchCommunityCards();
-      }, 1000);
+      }, 30000);
+      // TODO: Show a countdown to the community cards in the UI.
     }
   }, [gameState]);
+
+  const handleBetOnPlayerA = async () => {
+    try {
+      await betOnPlayerA(betAmount, currentEpoch);
+      setLogMessages(prev => [...prev, 'Bet on Player A placed']);
+    } catch (error) {
+      console.error('Error betting on Player A:', error);
+    }
+  };
+
+  const handleBetOnPlayerB = async () => {
+    try {
+      await betOnPlayerB(betAmount, currentEpoch);
+      setLogMessages(prev => [...prev, 'Bet on Player B placed']);
+    } catch (error) {
+      console.error('Error betting on Player B:', error);
+    }
+  };
+
+  const handleClaimWinnings = async () => {
+    try {
+      if (currentEpoch !== null) {
+        await claimWinnings(currentEpoch);
+        setLogMessages(prev => [...prev, 'Winnings claimed']);
+      }
+    } catch (error) {
+      console.error('Error claiming winnings:', error);
+    }
+  };
+
+  useEffect(() => {
+    let countdownInterval: NodeJS.Timeout;
+    if (gameState === 'deal') {
+      setCountdown(30);
+      countdownInterval = setInterval(() => {
+        setCountdown(prev => {
+          if (prev === 1) {
+            clearInterval(countdownInterval);
+            fetchCommunityCards();
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
+    return () => clearInterval(countdownInterval);
+  }, [gameState]);
+
+  // DONE: Alongside some options like 0.001, 0.01, 0.1, 1, add a custom input field to allow the user to enter a custom amount
+  // TODO: Interpret game state based on the following logic: if getPlayerCards response is [[],[]], the player cards are not dealt yet. If getCommunityCards response is [], the community cards are not dealt yet. If winner response is -1, the winner is not determined yet.
+  // TODO: Based on the game state available in the UI, show the betting button active/inactive.
+  // TODO: The user should be able to claim the winnings using a button in the UI. It will call the method claim in the contract.
 
   return (
     <div className="poker-table">
@@ -184,6 +232,20 @@ const PokerTable: React.FC = () => {
                   card && <img key={i} src={card.image} alt={`${card.rank} of ${card.suit}`} />
                 ))}
               </div>
+              <select value={betAmount} onChange={(e) => setBetAmount(e.target.value)}>
+                <option value="0.001">0.001 ETH</option>
+                <option value="0.01">0.01 ETH</option>
+                <option value="0.1">0.1 ETH</option>
+                <option value="1">1 ETH</option>
+              </select>
+              <input
+                type="text"
+                value={betAmount}
+                onChange={(e) => setBetAmount(e.target.value)}
+                placeholder="Enter custom amount"
+              />
+
+              <button onClick={handleBetOnPlayerA}>Bet on Player A</button>
             </div>
           )}
           <div className="community-cards">
@@ -194,6 +256,11 @@ const PokerTable: React.FC = () => {
               ))}
             </div>
           </div>
+          {countdown > 0 && (
+            <div className="countdown">
+              Community cards will be revealed in: {countdown} seconds
+            </div>
+          )}
           {participants.length >= 2 && (
             <div className={`participant participant-right ${winningParticipant === 1 ? 'winner' : ''}`}>
               <h2>Participant B</h2>
@@ -202,15 +269,33 @@ const PokerTable: React.FC = () => {
                   card && <img key={i} src={card.image} alt={`${card.rank} of ${card.suit}`} />
                 ))}
               </div>
+              <select value={betAmount} onChange={(e) => setBetAmount(e.target.value)}>
+                <option value="0.001">0.001 ETH</option>
+                <option value="0.01">0.01 ETH</option>
+                <option value="0.1">0.1 ETH</option>
+                <option value="1">1 ETH</option>
+              </select>
+              <input
+                type="text"
+                value={betAmount}
+                onChange={(e) => setBetAmount(e.target.value)}
+                placeholder="Enter custom amount"
+              />
+
+              <button onClick={handleBetOnPlayerB} disabled={gameState !== 'start'}>Bet on Player B</button>
             </div>
           )}
         </div>
       )}
+      <div className="betting-controls">
+        <h2>Place Your Bet</h2>
+      </div>
       <div className="log-messages">
         {logMessages.map((msg, index) => (
           <div key={index}>{msg}</div>
         ))}
       </div>
+      <button onClick={handleClaimWinnings}>Claim Winnings</button>
       <style jsx>{`
         .poker-table {
           display: flex;
@@ -263,14 +348,17 @@ const PokerTable: React.FC = () => {
           border-radius: 5px;
           width: 80%;
         }
+        .betting-controls {
+          margin-top: 20px;
+        }
         button {
           padding: 10px 20px;
           font-size: 16px;
           cursor: pointer;
+          margin-top: 10px;
         }
       `}</style>
     </div>
   );
 };
-
 export default PokerTable;

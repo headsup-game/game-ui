@@ -56,6 +56,81 @@ export const getWinnerFromContract = async (round: number) => {
     const winner = await contract.methods.winner(round).call() as number;
     return winner;
 }
+export const betOnPlayerA = async (amount: string, round: number) => {
+    if (!contract) {
+        throw new Error("Contract not initialized");
+    }
+    const accounts = await web3.eth.getAccounts();
+    try {
+        await contract.methods.betOnPlayerA(round).send({
+            from: accounts[0],
+            value: web3.utils.toWei(amount, 'ether')
+        });
+    } catch (error) {
+        console.error('Error betting on Player A:', error);
+        throw error;
+    }
+};
+
+export const betOnPlayerB = async (amount: string, round: number) => {
+    if (!contract) {
+        throw new Error("Contract not initialized");
+    }
+    const accounts = await web3.eth.getAccounts();
+    try {
+        await contract.methods.betOnPlayerB(round).send({
+            from: accounts[0],
+            value: web3.utils.toWei(amount, 'ether')
+        });
+    } catch (error) {
+        console.error('Error betting on Player B:', error);
+        throw error;
+    }
+};
+
+
+export const claimWinnings = async (round: number) => {
+    if (!contract) {
+        throw new Error("Contract not initialized");
+    }
+    const accounts = await web3.eth.getAccounts();
+    try {
+        await contract.methods.claim([round]).send({
+            from: accounts[0]
+        });
+    } catch (error) {
+        console.error('Error claiming winnings:', error);
+        throw error;
+    }
+};
+
+export const getCurrentEpoch = async () => {
+    if (!contract) {
+        throw new Error("Contract not initialized");
+    }
+    const accounts = await web3.eth.getAccounts();
+    try {
+        const currentEpoch = await contract.methods.currentEpoch().call() as number;
+        return currentEpoch;
+    } catch (error) {
+        console.error('Error getting current epoch:', error);
+        throw error;
+    }
+};
+
+export const getMinEntry = async () => {
+    if (!contract) {
+        throw new Error("Contract not initialized");
+    }
+    const accounts = await web3.eth.getAccounts();
+    try {
+        const minEntry = await contract.methods.minEntry().call() as number;
+        return minEntry;
+    } catch (error) {
+        console.error('Error getting min entry:', error);
+        throw error;
+    }
+};
 
 // Call initializeContract to ensure contract is initialized
 initializeContract(web3 as Web3);
