@@ -56,7 +56,7 @@ export const getWinnerFromContract = async (round: number) => {
     const winner = await contract.methods.winner(round).call() as number;
     return winner;
 }
-export const betOnPlayerA = async (amount: string, round: number) => {
+export const betOnPlayerAInContract = async (amount: string, round: number) => {
     if (!contract) {
         throw new Error("Contract not initialized");
     }
@@ -72,7 +72,7 @@ export const betOnPlayerA = async (amount: string, round: number) => {
     }
 };
 
-export const betOnPlayerB = async (amount: string, round: number) => {
+export const betOnPlayerBInContract = async (amount: string, round: number) => {
     if (!contract) {
         throw new Error("Contract not initialized");
     }
@@ -89,7 +89,7 @@ export const betOnPlayerB = async (amount: string, round: number) => {
 };
 
 
-export const claimWinnings = async (round: number) => {
+export const claimWinningsFromContract = async (round: number) => {
     if (!contract) {
         throw new Error("Contract not initialized");
     }
@@ -104,7 +104,7 @@ export const claimWinnings = async (round: number) => {
     }
 };
 
-export const getCurrentEpoch = async () => {
+export const getCurrentEpochFromContract = async () => {
     if (!contract) {
         throw new Error("Contract not initialized");
     }
@@ -118,7 +118,7 @@ export const getCurrentEpoch = async () => {
     }
 };
 
-export const getMinEntry = async () => {
+export const getMinEntryFromContract = async () => {
     if (!contract) {
         throw new Error("Contract not initialized");
     }

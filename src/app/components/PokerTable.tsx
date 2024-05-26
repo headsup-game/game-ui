@@ -2,35 +2,8 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import web3, { connectMetaMask, removeDisconnection } from '../../utils/web3';
-import { getPlayerCardsFromContract, getCommunityCardsFromContract, getWinnerFromContract, cardDTO, betOnPlayerA, betOnPlayerB, claimWinnings, getCurrentEpoch, getMinEntry } from '../../utils/contract';
-
-interface Card {
-  rank: string;
-  suit: string;
-  image: string;
-}
-const rankMap: Record<string, string> = {
-  0: '2',
-  1: '3',
-  2: '4',
-  3: '5',
-  4: '6',
-  5: '7',
-  6: '8',
-  7: '9',
-  8: '10',
-  9: 'jack',
-  10: 'queen',
-  11: 'king',
-  12: 'ace'
-}
-
-const suitMap: Record<string, string> = {
-  0: 'hearts',
-  1: 'diamonds',
-  2: 'clubs',
-  3: 'spades'
-}
+import { getPlayerCardsFromContract, getCommunityCardsFromContract, getWinnerFromContract, cardDTO, betOnPlayerAInContract, betOnPlayerBInContract, claimWinningsFromContract, getCurrentEpochFromContract, getMinEntryFromContract } from '../../utils/contract';
+import { Card, rankMap, suitMap } from './Card';
 
 const mapCards = (card: cardDTO): Card => ({
   rank: rankMap[card.rank],
@@ -67,8 +40,8 @@ const PokerTable: React.FC = () => {
       setGameState('start');
       await fetchParticipantCards(); // Call the fetchParticipants function when MetaMask is connected
     }
-    setCurrentEpoch(await getCurrentEpoch());
-    setMinEntry(await getMinEntry());
+    setCurrentEpoch(await getCurrentEpochFromContract());
+    setMinEntry(await getMinEntryFromContract());
   };
 
   const handleMetaMaskDisconnect = async () => {
@@ -78,7 +51,7 @@ const PokerTable: React.FC = () => {
 
   useEffect(() => {
     const setCurrentEpochAsync = async () => {
-      setCurrentEpoch(await getCurrentEpoch());
+      setCurrentEpoch(await getCurrentEpochFromContract());
     };
 
     setCurrentEpochAsync();
@@ -167,7 +140,7 @@ const PokerTable: React.FC = () => {
 
   const handleBetOnPlayerA = async () => {
     try {
-      await betOnPlayerA(betAmount, currentEpoch);
+      await betOnPlayerAInContract(betAmount, currentEpoch);
       setLogMessages(prev => [...prev, 'Bet on Player A placed']);
     } catch (error) {
       console.error('Error betting on Player A:', error);
@@ -176,17 +149,17 @@ const PokerTable: React.FC = () => {
 
   const handleBetOnPlayerB = async () => {
     try {
-      await betOnPlayerB(betAmount, currentEpoch);
+      await betOnPlayerBInContract(betAmount, currentEpoch);
       setLogMessages(prev => [...prev, 'Bet on Player B placed']);
     } catch (error) {
       console.error('Error betting on Player B:', error);
     }
   };
 
-  const handleClaimWinnings = async () => {
+  const claimWinnings = async () => {
     try {
       if (currentEpoch !== null) {
-        await claimWinnings(currentEpoch);
+        await claimWinningsFromContract(currentEpoch);
         setLogMessages(prev => [...prev, 'Winnings claimed']);
       }
     } catch (error) {
@@ -295,7 +268,7 @@ const PokerTable: React.FC = () => {
           <div key={index}>{msg}</div>
         ))}
       </div>
-      <button onClick={handleClaimWinnings}>Claim Winnings</button>
+      <button onClick={claimWinnings}>Claim Winnings</button>
       <style jsx>{`
         .poker-table {
           display: flex;
