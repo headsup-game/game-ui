@@ -1,37 +1,42 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from 'react';
-import web3, { connectMetaMask } from '../../utils/web3';
-import { getPlayerCardsFromContract, getCommunityCardsFromContract } from '../../utils/contract';
+import web3, { connectMetaMask, removeDisconnection } from '../../utils/web3';
+import { getPlayerCardsFromContract, getCommunityCardsFromContract, getWinnerFromContract, cardDTO } from '../../utils/contract';
 
 interface Card {
   rank: string;
   suit: string;
   image: string;
 }
-
 const rankMap: Record<string, string> = {
-    '0': '2',
-    '1': '3',
-    '2': '4',
-    '3': '5',
-    '4': '6',
-    '5': '7',
-    '6': '8',
-    '7': '9',
-    '8': '10',
-    '9': 'jack',
-    '10': 'queen',
-    '11': 'king',
-    '12': 'ace'
+  0: '2',
+  1: '3',
+  2: '4',
+  3: '5',
+  4: '6',
+  5: '7',
+  6: '8',
+  7: '9',
+  8: '10',
+  9: 'jack',
+  10: 'queen',
+  11: 'king',
+  12: 'ace'
 }
 
 const suitMap: Record<string, string> = {
-    '0': 'hearts',
-    '1': 'diamonds',
-    '2': 'clubs',
-    '3': 'Spades'
+  0: 'hearts',
+  1: 'diamonds',
+  2: 'clubs',
+  3: 'spades'
 }
+
+const mapCards = (card: cardDTO): Card => ({
+  rank: rankMap[card.rank],
+  suit: suitMap[card.suit],
+  image: `/images/${rankMap[card[0].toString()]}_of_${suitMap[card[1].toString()]}.png`
+});
 
 interface Participant {
   cards: Card[];
@@ -48,84 +53,83 @@ const PokerTable: React.FC = () => {
   const [winningParticipant, setWinningParticipant] = useState<number | null>(null);
   const [isMetaMaskConnected, setIsMetaMaskConnected] = useState<boolean>(false);
   const communityCardsRef = useRef(0);
-
-const handleMetaMaskConnect = async () => {
+  const handleMetaMaskConnect = async () => {
     const isConnected = await connectMetaMask();
     // const isConnected = false;
     setIsMetaMaskConnected(isConnected);
     if (isConnected) {
-        setGameState('start');
-        fetchParticipants(); // Call the fetchParticipants function when MetaMask is connected
+      setGameState('start');
+      await fetchParticipants(); // Call the fetchParticipants function when MetaMask is connected
     }
-};
+  };
+
+  const handleMetaMaskDisconnect = async () => {
+    setIsMetaMaskConnected(false);
+    removeDisconnection();
+  }
 
   useEffect(() => {
-      if (gameState === 'start') {
-        fetchParticipants();
-      } else if (gameState === 'showCommunity') {
-        communityCardsRef.current = 0;
-        showCommunityCards();
-      } else if (gameState === 'determineWinner') {
-        setTimeout(fetchWinner, 1000);
-      }
+    if (gameState === 'start') {
+      // fetchParticipants();
+    } else if (gameState === 'showCommunity') {
+      communityCardsRef.current = 0;
+      showCommunityCards();
+    } else if (gameState === 'determineWinner') {
+      setTimeout(fetchWinner, 1000);
+    }
   }, [gameState, isMetaMaskConnected]);
 
-const fetchParticipants = async () => {
+  const fetchParticipants = async () => {
     try {
-        let participantACards: Card[];
-        let participantBCards: Card[];
+      let participantACards: Card[];
+      let participantBCards: Card[];
 
-        // Use the appropriate implementation based on the environment
-        if (true) {
-            // Fetch cards from the smart contract
-            const playerCards = await getPlayerCardsFromContract(1);
-            // participantACards = await getPlayerCardsFromContract(0);
-            // participantBCards = await getPlayerCardsFromContract(1);
-        } else {
-            // Fetch cards from the local API
-            participantACards = [
-                { rank: 'Q', suit: 'hearts', image: '/images/queen_of_hearts.png' },
-                { rank: 'J', suit: 'hearts', image: '/images/jack_of_hearts.png' }
-            ]
-            participantBCards = [
-                { rank: 'A', suit: 'hearts', image: '/images/ace_of_hearts.png' },
-                { rank: 'K', suit: 'hearts', image: '/images/king_of_hearts.png' }
-            ];
-        }
+      // Use the appropriate implementation based on the environment
+      if (true) {
+        // Fetch cards from the smart contract
+        const playerCardsResponseFromContract = await getPlayerCardsFromContract(1);
+        participantACards = playerCardsResponseFromContract[0].map(mapCards);
+        participantBCards = playerCardsResponseFromContract[1].map(mapCards);
 
-        // setParticipants([
-        //     { cards: participantACards },
-        //     { cards: participantBCards },
-        // ]);
+        // participantACards = await getPlayerCardsFromContract(0);
+        // participantBCards = await getPlayerCardsFromContract(1);
+      } else {
+        // Fetch cards from the local API
+        participantACards = [
+          { rank: 'Q', suit: 'hearts', image: '/images/queen_of_hearts.png' },
+          { rank: 'J', suit: 'hearts', image: '/images/jack_of_hearts.png' }
+        ]
+        participantBCards = [
+          { rank: 'A', suit: 'hearts', image: '/images/ace_of_hearts.png' },
+          { rank: 'K', suit: 'hearts', image: '/images/king_of_hearts.png' }
+        ];
+      }
 
-        setGameState('deal');
-        setLogMessages(prev => [...prev, 'Participants cards dealt']);
+      setParticipants([
+        { cards: participantACards },
+        { cards: participantBCards },
+      ]);
+
+      setGameState('deal');
+      setLogMessages(prev => [...prev, 'Participants cards dealt']);
     } catch (error) {
-        console.error(error);
+      console.error(error);
     }
-};
+  };
 
-const getPlayerCardsFromAPI = async (participantId: number): Promise<Card[]> => {
+  const getPlayerCardsFromAPI = async (participantId: number): Promise<Card[]> => {
     return fetch('/api/participants')
-    .then(res => res.json()[participantId])
-};
+      .then(res => res.json()[participantId])
+  };
 
+  // TODO: If community cards for a round are not available, fetch them from the contract
+  // TODO: If the community cards for a round are already fetched, show them
+  // TODO: If the community cards for a round are already fetched, use them from memory and don't fetch them
+  // TODO: If the community cards are not dealt (identified by return value empty) show in the UI that the cards are not yet dealt
   const fetchCommunityCards = async () => {
-    let communityCards: Card[] = [];
     try {
-        // Use the appropriate implementation based on the environment
-        if (process.env.NODE_ENV === 'production') {            // Fetch cards from the smart contract
-            communityCards = await getCommunityCardsFromContract();
-        } else {
-            communityCards = [
-                { rank: '2', suit: 'clubs', image: '/images/2_of_clubs.png' },
-                { rank: '3', suit: 'clubs', image: '/images/3_of_clubs.png' },
-                { rank: '4', suit: 'clubs', image: '/images/4_of_clubs.png' },
-                { rank: '5', suit: 'clubs', image: '/images/5_of_clubs.png' },
-                { rank: '6', suit: 'clubs', image: '/images/6_of_clubs.png' }
-            ]
-        }
-      setCommunityCards(communityCards);
+      const communityCardsFromContract = await getCommunityCardsFromContract(1);
+      setCommunityCards(communityCardsFromContract.map(mapCards));
       setGameState('showCommunity');
       setLogMessages(prev => [...prev, 'Fetching community cards...']);
     } catch (error) {
@@ -133,8 +137,9 @@ const getPlayerCardsFromAPI = async (participantId: number): Promise<Card[]> => 
     }
   };
 
-  const fetchWinner = () => {
-    setWinningParticipant(Math.random() < 0.5 ? 0 : 1); // Mock winner logic
+  const fetchWinner = async () => {
+    const winner = await getWinnerFromContract(1);
+    setWinningParticipant(Number(winner));
     setGameState('end');
     setLogMessages(prev => [...prev, 'Winner determined']);
   };
@@ -144,10 +149,10 @@ const getPlayerCardsFromAPI = async (participantId: number): Promise<Card[]> => 
       if (communityCardsRef.current < communityCards.length) {
         setShownCommunityCards(prev => [
           ...prev,
-          communityCards[communityCardsRef.current-1]
+          communityCards[communityCardsRef.current - 1]
         ]);
         communityCardsRef.current += 1;
-        setTimeout(showNextCard, 1000);
+        setTimeout(showNextCard, 200);
       } else {
         setGameState('determineWinner');
       }
@@ -160,16 +165,15 @@ const getPlayerCardsFromAPI = async (participantId: number): Promise<Card[]> => 
     if (gameState === 'deal') {
       setTimeout(() => {
         fetchCommunityCards();
-      }, 5000);
+      }, 1000);
     }
   }, [gameState]);
 
   return (
     <div className="poker-table">
       <h1>Poker Table</h1>
-      {!isMetaMaskConnected && (
-        <button onClick={handleMetaMaskConnect}>Connect MetaMask</button>
-      )}
+      <button onClick={handleMetaMaskConnect}>Connect MetaMask</button>
+      <button onClick={handleMetaMaskDisconnect}>Disconnect MetaMask</button>
       {isMetaMaskConnected && (
         <div className="table">
           {participants.length >= 1 && (
