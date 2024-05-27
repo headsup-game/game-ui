@@ -1,8 +1,12 @@
 "use client";
+// TODO: Change the Meta description of the page to "Play Poker with your friends and win big!"
+// TODO: Use ethers.js
+// TODO: Wait for the transaction to be mined and if the trasnaction is successful, show a bet placed message in the UI
+// TODO: When the transaction is signed, show a message in the UI that the bet is being placed
 
 import React, { useState, useEffect, useRef } from 'react';
 import web3, { connectMetaMask, removeDisconnection } from '../../utils/web3';
-import { getPlayerCardsFromContract, getCommunityCardsFromContract, getWinnerFromContract, cardDTO, betOnPlayerAInContract, betOnPlayerBInContract, claimWinningsFromContract, getCurrentEpochFromContract, getMinEntryFromContract } from '../../utils/contract';
+import { getPlayerCardsFromContract, getCommunityCardsFromContract, getWinnerFromContract, cardDTO, betOnPlayerAInContract, betOnPlayerBInContract, claimWinningsFromContract, getCurrentEpochFromContract, getMinEntryFromContract, getGameInfoFromContract } from '../../utils/contract';
 import { Card, rankMap, suitMap } from './Card';
 
 const mapCards = (card: cardDTO): Card => ({
@@ -15,10 +19,10 @@ interface Participant {
   cards: Card[];
 }
 
-type GameState = 'start' | 'deal' | 'showCommunity' | 'determineWinner' | 'end';
+// type GameState = number; // 'start' | 'deal' | 'showCommunity' | 'determineWinner' | 'end';
 
 const PokerTable: React.FC = () => {
-  const [gameState, setGameState] = useState<GameState>('start');
+  const [gameState, setGameState] = useState<number>(0);
   const [participants, setParticipants] = useState<Participant[]>([]);
   const [communityCards, setCommunityCards] = useState<Card[]>([]);
   const [logMessages, setLogMessages] = useState<string[]>([]);
@@ -29,6 +33,8 @@ const PokerTable: React.FC = () => {
   const [currentEpoch, setCurrentEpoch] = useState<number>(0);
   const [minEntry, setMinEntry] = useState<number>(0);
   const [countdown, setCountdown] = useState<number>(30);
+  const [totalBetsA, setTotalBetsA] = useState<number>(0);
+  const [totalBetsB, setTotalBetsB] = useState<number>(0);
 
 
   const handleMetaMaskConnect = async () => {
@@ -36,7 +42,7 @@ const PokerTable: React.FC = () => {
     // const isConnected = false;
     setIsMetaMaskConnected(isConnected);
     if (isConnected) {
-      setGameState('start');
+      // setGameState('start');
       await fetchParticipantCards(); // Call the fetchParticipants function when MetaMask is connected
     }
     setCurrentEpoch(await getCurrentEpochFromContract());
@@ -48,22 +54,22 @@ const PokerTable: React.FC = () => {
     removeDisconnection();
   }
 
-  useEffect(() => {
-    const setCurrentEpochAsync = async () => {
-      setCurrentEpoch(await getCurrentEpochFromContract());
-    };
+  // useEffect(() => {
+  //   const setCurrentEpochAsync = async () => {
+  //     setCurrentEpoch(await getCurrentEpochFromContract());
+  //   };
 
-    setCurrentEpochAsync();
+  //   setCurrentEpochAsync();
 
-    if (gameState === 'start') {
-      // fetchParticipants();
-    } else if (gameState === 'showCommunity') {
-      communityCardsRef.current = 0;
-      showCommunityCards();
-    } else if (gameState === 'determineWinner') {
-      setTimeout(fetchWinner, 1000);
-    }
-  }, [gameState, isMetaMaskConnected]);
+  //   if (gameState === 'start') {
+  //     // fetchParticipants();
+  //   } else if (gameState === 'showCommunity') {
+  //     communityCardsRef.current = 0;
+  //     showCommunityCards();
+  //   } else if (gameState === 'determineWinner') {
+  //     setTimeout(fetchWinner, 1000);
+  //   }
+  // }, [gameState, isMetaMaskConnected]);
 
   const fetchParticipantCards = async () => {
     try {
@@ -96,7 +102,7 @@ const PokerTable: React.FC = () => {
     try {
       const communityCardsFromContract = await getCommunityCardsFromContract(1);
       setCommunityCards(communityCardsFromContract.map(mapCards));
-      setGameState('showCommunity');
+      // setGameState('showCommunity');
       setLogMessages(prev => [...prev, 'Fetching community cards...']);
     } catch (error) {
       console.error(error);
@@ -106,7 +112,7 @@ const PokerTable: React.FC = () => {
   const fetchWinner = async () => {
     const winner = await getWinnerFromContract(1);
     setWinningParticipant(Number(winner));
-    setGameState('end');
+    // setGameState('end');
     setLogMessages(prev => [...prev, 'Winner determined']);
   };
 
@@ -120,7 +126,7 @@ const PokerTable: React.FC = () => {
         communityCardsRef.current += 1;
         setTimeout(showNextCard, 200);
       } else {
-        setGameState('determineWinner');
+        // setGameState('determineWinner');
       }
       communityCardsRef.current = 0;
     };
@@ -130,12 +136,15 @@ const PokerTable: React.FC = () => {
 
   // TODO: Right now the community cards are being called for after a timeout. However, in production, the community cards will be called based on state change of the game.
   useEffect(() => {
-    if (gameState === 'deal') {
-      setTimeout(() => {
-        fetchCommunityCards();
-      }, 300);
-      // TODO: Show a countdown to the community cards in the UI.
-    }
+    setTimeout(() => {
+      fetchCommunityCards();
+    }, 300);
+    // if (gameState === 'deal') {
+    //   setTimeout(() => {
+    //     fetchCommunityCards();
+    //   }, 300);
+    //   // TODO: Show a countdown to the community cards in the UI.
+    // }
   }, [gameState]);
 
   const handleBetOnPlayerA = async () => {
@@ -168,22 +177,44 @@ const PokerTable: React.FC = () => {
   };
 
   useEffect(() => {
-    let countdownInterval: NodeJS.Timeout;
-    if (gameState === 'deal') {
-      setCountdown(30);
-      countdownInterval = setInterval(() => {
-        setCountdown(prev => {
-          if (prev === 1) {
-            clearInterval(countdownInterval);
-            fetchCommunityCards();
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
-    }
-    return () => clearInterval(countdownInterval);
-  }, [gameState]);
+    // Function to fetch game state from the contract
+    const fetchGameState = async () => {
+
+      try {
+        const gameInfoData = await getGameInfoFromContract();
+        setGameState(gameInfoData[0] || 0);
+        setCurrentEpoch(gameInfoData[1] || 0);
+        setTotalBetsA(gameInfoData[2] || 0);
+        setTotalBetsB(gameInfoData[3] || 0);
+      } catch (error) {
+        console.error('Error fetching game state:', error);
+      }
+    };
+
+    // Set up the interval to fetch game state every 500ms
+    const interval = setInterval(fetchGameState, 500);
+
+    // Cleanup function to clear the interval when the component unmounts
+    return () => clearInterval(interval);
+  }, []);
+
+  // useEffect(() => {
+  //   let countdownInterval: NodeJS.Timeout;
+  //   if (gameState === 'deal') {
+  //     setCountdown(30);
+  //     countdownInterval = setInterval(() => {
+  //       setCountdown(prev => {
+  //         if (prev === 1) {
+  //           clearInterval(countdownInterval);
+  //           fetchCommunityCards();
+  //           return 0;
+  //         }
+  //         return prev - 1;
+  //       });
+  //     }, 1000);
+  //   }
+  //   return () => clearInterval(countdownInterval);
+  // }, [gameState]);
 
   // DONE: Alongside some options like 0.001, 0.01, 0.1, 1, add a custom input field to allow the user to enter a custom amount
   // TODO: Interpret game state based on the following logic: if getPlayerCards response is [[],[]], the player cards are not dealt yet. If getCommunityCards response is [], the community cards are not dealt yet. If winner response is -1, the winner is not determined yet.

@@ -1,4 +1,5 @@
 import Web3 from 'web3';
+// TODO: Integrate some generic wallet library (wagmi.sh, rainbow, walletconnect, etc.)
 
 let web3: Web3 | undefined;
 
@@ -51,7 +52,6 @@ export const connectMetaMask = async () => {
         return false;
     }
 };
-// TODO: Integrate some generic wallet library.
 // TODO: Test logout and login functionality using Metamask
 
 export default web3;

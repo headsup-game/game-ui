@@ -131,6 +131,19 @@ export const getMinEntryFromContract = async () => {
         throw error;
     }
 };
+export const getGameInfoFromContract = async () => {
+    if (!contract) {
+        throw new Error("Contract not initialized");
+    }
+    const accounts = await web3.eth.getAccounts();
+    try {
+        const minEntry = await contract.methods.getGameInfo().call() as [number, number, number, number]; // state, epoch, totalBetsA, totalBetsB
+        return minEntry;
+    } catch (error) {
+        console.error('Error getting min entry:', error);
+        throw error;
+    }
+};
 
 // Call initializeContract to ensure contract is initialized
 initializeContract(web3 as Web3);
