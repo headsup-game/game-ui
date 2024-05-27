@@ -21,7 +21,6 @@ const PokerTable: React.FC = () => {
   const [gameState, setGameState] = useState<GameState>('start');
   const [participants, setParticipants] = useState<Participant[]>([]);
   const [communityCards, setCommunityCards] = useState<Card[]>([]);
-  const [shownCommunityCards, setShownCommunityCards] = useState<Card[]>([]);
   const [logMessages, setLogMessages] = useState<string[]>([]);
   const [winningParticipant, setWinningParticipant] = useState<number | null>(null);
   const [isMetaMaskConnected, setIsMetaMaskConnected] = useState<boolean>(false);
@@ -114,7 +113,7 @@ const PokerTable: React.FC = () => {
   const showCommunityCards = () => {
     const showNextCard = () => {
       if (communityCardsRef.current < communityCards.length) {
-        setShownCommunityCards(prev => [
+        setCommunityCards(prev => [
           ...prev,
           communityCards[communityCardsRef.current - 1]
         ]);
@@ -123,6 +122,7 @@ const PokerTable: React.FC = () => {
       } else {
         setGameState('determineWinner');
       }
+      communityCardsRef.current = 0;
     };
 
     showNextCard();
@@ -133,7 +133,7 @@ const PokerTable: React.FC = () => {
     if (gameState === 'deal') {
       setTimeout(() => {
         fetchCommunityCards();
-      }, 30000);
+      }, 300);
       // TODO: Show a countdown to the community cards in the UI.
     }
   }, [gameState]);
@@ -224,7 +224,7 @@ const PokerTable: React.FC = () => {
           <div className="community-cards">
             <h2>Community Cards</h2>
             <div className="cards">
-              {shownCommunityCards.map((card, index) => (
+              {communityCards.map((card, index) => (
                 card && <img key={index} src={card.image} alt={`${card.rank} of ${card.suit}`} />
               ))}
             </div>
