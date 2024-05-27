@@ -1,13 +1,7 @@
-import Web3 from 'web3';
+import { ethers } from 'ethers';
+import provider from './ethers';
 
-let web3: Web3 | undefined;
-let contract: any | undefined;
-
-declare global {
-    interface Window {
-        ethereum: any;
-    }
-}
+let contract: ethers.Contract | undefined;
 
 const contractAddress = '0x38bDa9F9bEF0C468f2E00E2B7892157fB6A249d5';
 
@@ -18,54 +12,52 @@ export interface cardDTO {
     1: number;
     suit: number;
     rank: number;
-  }
-
-if (typeof window !== 'undefined' && (window as any).ethereum !== 'undefined') {
-    web3 = new Web3((window as any).ethereum);
-} else {
-    const provider = new Web3.providers.HttpProvider(process.env.INFURIA_URL || 'https://sepolia.blast.io'); // Provide a default value for INFURIA_URL
-    web3 = new Web3(provider);
 }
 
-// Function to initialize the contract
-const initializeContract = async (web3: Web3) => {
-    contract = new web3.eth.Contract(contractABI, contractAddress);
-    return contract;
+const initializeContract = async () => {
+    if (!provider) throw new Error("Provider is not initialized");
+    contract = new ethers.Contract(contractAddress, contractABI, await provider.getSigner());
 };
 
 export const getPlayerCardsFromContract = async (round: number) => {
-    if (!contract) {
-        throw new Error("Contract not initialized");
+    try {
+        if (!contract) await initializeContract();
+        const cards = await contract?.getPlayerCards(round) as [cardDTO[], cardDTO[]];
+        return cards;
+    } catch (error) {
+        console.error('Error getting player cards from contract:', error);
+        throw error;
     }
-    const cards = await contract.methods.getPlayerCards(round).call() as [cardDTO[], cardDTO[]];
-    return cards;
 };
 
 export const getCommunityCardsFromContract = async (round: number) => {
-    if (!contract) {
-        throw new Error("Contract not initialized");
+    try {
+        if (!contract) await initializeContract();
+        const cards = await contract?.getCommunityCards(round) as cardDTO[];
+        return cards;
+    } catch (error) {
+        console.error('Error getting community cards from contract:', error);
+        throw error;
     }
-    const cards = await contract.methods.getCommunityCards(round).call() as cardDTO[];
-    return cards;
 };
 
 export const getWinnerFromContract = async (round: number) => {
-    if (!contract) {
-        throw new Error("Contract not initialized");
-    }
-    const winner = await contract.methods.winner(round).call() as number;
-    return winner;
-}
-export const betOnPlayerAInContract = async (amount: string, round: number) => {
-    if (!contract) {
-        throw new Error("Contract not initialized");
-    }
-    const accounts = await web3.eth.getAccounts();
     try {
-        await contract.methods.betOnPlayerA(round).send({
-            from: accounts[0],
-            value: web3.utils.toWei(amount, 'ether')
-        });
+        if (!contract) await initializeContract();
+        const winner = await contract?.winner(round) as number;
+        return winner;
+    } catch (error) {
+        console.error('Error getting winner from contract:', error);
+        throw error;
+    }
+};
+
+export const betOnPlayerAInContract = async (amount: string, round: number) => {
+    try {
+        if (!contract) await initializeContract();
+        const tx = await contract?.betOnPlayerA(round, { value: ethers.parseEther(amount) });
+        await tx.wait(); // Wait for the transaction to be mined
+        return tx;
     } catch (error) {
         console.error('Error betting on Player A:', error);
         throw error;
@@ -73,31 +65,23 @@ export const betOnPlayerAInContract = async (amount: string, round: number) => {
 };
 
 export const betOnPlayerBInContract = async (amount: string, round: number) => {
-    if (!contract) {
-        throw new Error("Contract not initialized");
-    }
-    const accounts = await web3.eth.getAccounts();
     try {
-        await contract.methods.betOnPlayerB(round).send({
-            from: accounts[0],
-            value: web3.utils.toWei(amount, 'ether')
-        });
+        if (!contract) await initializeContract();
+        const tx = await contract?.betOnPlayerB(round, { value: ethers.parseEther(amount) });
+        await tx.wait(); // Wait for the transaction to be mined
+        return tx;
     } catch (error) {
         console.error('Error betting on Player B:', error);
         throw error;
     }
 };
 
-
 export const claimWinningsFromContract = async (round: number) => {
-    if (!contract) {
-        throw new Error("Contract not initialized");
-    }
-    const accounts = await web3.eth.getAccounts();
     try {
-        await contract.methods.claim([round]).send({
-            from: accounts[0]
-        });
+        if (!contract) await initializeContract();
+        const tx = await contract?.claim([round]);
+        await tx.wait(); // Wait for the transaction to be mined
+        return tx;
     } catch (error) {
         console.error('Error claiming winnings:', error);
         throw error;
@@ -105,45 +89,39 @@ export const claimWinningsFromContract = async (round: number) => {
 };
 
 export const getCurrentEpochFromContract = async () => {
-    if (!contract) {
-        throw new Error("Contract not initialized");
-    }
-    const accounts = await web3.eth.getAccounts();
     try {
-        const currentEpoch = await contract.methods.currentEpoch().call() as number;
+        if (!contract) await initializeContract();
+        const currentEpoch = await contract?.currentEpoch() as number;
         return currentEpoch;
     } catch (error) {
-        console.error('Error getting current epoch:', error);
+        console.error('Error getting current epoch from contract:', error);
         throw error;
     }
 };
 
 export const getMinEntryFromContract = async () => {
-    if (!contract) {
-        throw new Error("Contract not initialized");
-    }
-    const accounts = await web3.eth.getAccounts();
     try {
-        const minEntry = await contract.methods.minEntry().call() as number;
+        if (!contract) await initializeContract();
+        const minEntry = await contract?.minEntry() as number;
         return minEntry;
     } catch (error) {
-        console.error('Error getting min entry:', error);
-        throw error;
-    }
-};
-export const getGameInfoFromContract = async () => {
-    if (!contract) {
-        throw new Error("Contract not initialized");
-    }
-    const accounts = await web3.eth.getAccounts();
-    try {
-        const minEntry = await contract.methods.getGameInfo().call() as [number, number, number, number]; // state, epoch, totalBetsA, totalBetsB
-        return minEntry;
-    } catch (error) {
-        console.error('Error getting min entry:', error);
+        console.error('Error getting minimum entry from contract:', error);
         throw error;
     }
 };
 
-// Call initializeContract to ensure contract is initialized
-initializeContract(web3 as Web3);
+export const getGameInfoFromContract = async () => {
+    try {
+        if (!contract) await initializeContract();
+        // TODO: Implement the getGameInfo function in the contract
+        // const gameInfo = await contract?.getGameInfo() as [number, number, number, number]; // gameState, currentRoundNumber, totalBetsOnPlayerA, totalBetsOnPlayerB.
+        const gameInfo = [0, 1, 1, 1];
+        return gameInfo;
+    } catch (error) {
+        console.error('Error getting game info from contract:', error);
+        throw error;
+    }
+};
+
+// Initialize the contract once during the module loading
+initializeContract();

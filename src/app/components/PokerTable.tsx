@@ -1,11 +1,11 @@
 "use client";
+// TODO: Use the appropriate network based on the environment
 // TODO: Change the Meta description of the page to "Play Poker with your friends and win big!"
-// TODO: Use ethers.js
 // TODO: Wait for the transaction to be mined and if the trasnaction is successful, show a bet placed message in the UI
 // TODO: When the transaction is signed, show a message in the UI that the bet is being placed
 
 import React, { useState, useEffect, useRef } from 'react';
-import web3, { connectMetaMask, removeDisconnection } from '../../utils/web3';
+import { connectMetaMask, removeDisconnection } from '../../utils/ethers';
 import { getPlayerCardsFromContract, getCommunityCardsFromContract, getWinnerFromContract, cardDTO, betOnPlayerAInContract, betOnPlayerBInContract, claimWinningsFromContract, getCurrentEpochFromContract, getMinEntryFromContract, getGameInfoFromContract } from '../../utils/contract';
 import { Card, rankMap, suitMap } from './Card';
 
@@ -19,8 +19,6 @@ interface Participant {
   cards: Card[];
 }
 
-// type GameState = number; // 'start' | 'deal' | 'showCommunity' | 'determineWinner' | 'end';
-
 const PokerTable: React.FC = () => {
   const [gameState, setGameState] = useState<number>(0);
   const [participants, setParticipants] = useState<Participant[]>([]);
@@ -30,23 +28,20 @@ const PokerTable: React.FC = () => {
   const [isMetaMaskConnected, setIsMetaMaskConnected] = useState<boolean>(false);
   const communityCardsRef = useRef(0);
   const [betAmount, setBetAmount] = useState<string>('0.001');
-  const [currentEpoch, setCurrentEpoch] = useState<number>(0);
+  const [currentEpoch, setCurrentEpoch] = useState<number>(1);
   const [minEntry, setMinEntry] = useState<number>(0);
   const [countdown, setCountdown] = useState<number>(30);
   const [totalBetsA, setTotalBetsA] = useState<number>(0);
   const [totalBetsB, setTotalBetsB] = useState<number>(0);
 
-
   const handleMetaMaskConnect = async () => {
     const isConnected = await connectMetaMask();
-    // const isConnected = false;
     setIsMetaMaskConnected(isConnected);
     if (isConnected) {
-      // setGameState('start');
-      await fetchParticipantCards(); // Call the fetchParticipants function when MetaMask is connected
+      await fetchParticipantCards();
+      setCurrentEpoch(await getCurrentEpochFromContract());
+      setMinEntry(await getMinEntryFromContract());
     }
-    setCurrentEpoch(await getCurrentEpochFromContract());
-    setMinEntry(await getMinEntryFromContract());
   };
 
   const handleMetaMaskDisconnect = async () => {
@@ -54,55 +49,32 @@ const PokerTable: React.FC = () => {
     removeDisconnection();
   }
 
-  // useEffect(() => {
-  //   const setCurrentEpochAsync = async () => {
-  //     setCurrentEpoch(await getCurrentEpochFromContract());
-  //   };
-
-  //   setCurrentEpochAsync();
-
-  //   if (gameState === 'start') {
-  //     // fetchParticipants();
-  //   } else if (gameState === 'showCommunity') {
-  //     communityCardsRef.current = 0;
-  //     showCommunityCards();
-  //   } else if (gameState === 'determineWinner') {
-  //     setTimeout(fetchWinner, 1000);
-  //   }
-  // }, [gameState, isMetaMaskConnected]);
-
   const fetchParticipantCards = async () => {
     try {
-      let participantACards: Card[];
-      let participantBCards: Card[];
-
-      //TODO: Use the appropriate network based on the environment
-      // Fetch cards from the smart contract
-      const playerCardsResponseFromContract = await getPlayerCardsFromContract(1);
-      participantACards = playerCardsResponseFromContract[0].map(mapCards);
-      participantBCards = playerCardsResponseFromContract[1].map(mapCards);
+      const playerCardsResponseFromContract = await getPlayerCardsFromContract(currentEpoch);
+      const participantACards = playerCardsResponseFromContract[0].map(mapCards);
+      const participantBCards = playerCardsResponseFromContract[1].map(mapCards);
 
       setParticipants([
         { cards: participantACards },
         { cards: participantBCards },
       ]);
 
-      setGameState('deal');
+      setGameState(1); // Assume 1 represents 'deal' state
       setLogMessages(prev => [...prev, 'Participants cards dealt']);
     } catch (error) {
       console.error(error);
     }
   };
-
   // TODO: If community cards for a round are not available, fetch them from the contract
   // TODO: If the community cards for a round are already fetched, show them
   // TODO: If the community cards for a round are already fetched, use them from memory and don't fetch them
   // TODO: If the community cards are not dealt (identified by return value empty) show in the UI that the cards are not yet dealt
+
   const fetchCommunityCards = async () => {
     try {
-      const communityCardsFromContract = await getCommunityCardsFromContract(1);
+      const communityCardsFromContract = await getCommunityCardsFromContract(currentEpoch);
       setCommunityCards(communityCardsFromContract.map(mapCards));
-      // setGameState('showCommunity');
       setLogMessages(prev => [...prev, 'Fetching community cards...']);
     } catch (error) {
       console.error(error);
@@ -110,10 +82,13 @@ const PokerTable: React.FC = () => {
   };
 
   const fetchWinner = async () => {
-    const winner = await getWinnerFromContract(1);
-    setWinningParticipant(Number(winner));
-    // setGameState('end');
-    setLogMessages(prev => [...prev, 'Winner determined']);
+    try {
+      const winner = await getWinnerFromContract(currentEpoch);
+      setWinningParticipant(Number(winner));
+      setLogMessages(prev => [...prev, 'Winner determined']);
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const showCommunityCards = () => {
@@ -126,15 +101,14 @@ const PokerTable: React.FC = () => {
         communityCardsRef.current += 1;
         setTimeout(showNextCard, 200);
       } else {
-        // setGameState('determineWinner');
+        setGameState(3); // Assume 3 represents 'determineWinner' state
       }
-      communityCardsRef.current = 0;
     };
 
     showNextCard();
   };
-
   // TODO: Right now the community cards are being called for after a timeout. However, in production, the community cards will be called based on state change of the game.
+
   useEffect(() => {
     setTimeout(() => {
       fetchCommunityCards();
@@ -149,30 +123,37 @@ const PokerTable: React.FC = () => {
 
   const handleBetOnPlayerA = async () => {
     try {
-      await betOnPlayerAInContract(betAmount, currentEpoch);
-      setLogMessages(prev => [...prev, 'Bet on Player A placed']);
+      const tx = await betOnPlayerAInContract(betAmount, currentEpoch);
+      setLogMessages(prev => [...prev, 'Bet on Player A placed, waiting for confirmation...']);
+      await tx.wait();
+      setLogMessages(prev => [...prev, 'Bet on Player A successfully placed']);
     } catch (error) {
       console.error('Error betting on Player A:', error);
+      setLogMessages(prev => [...prev, 'Error betting on Player A']);
     }
   };
 
   const handleBetOnPlayerB = async () => {
     try {
-      await betOnPlayerBInContract(betAmount, currentEpoch);
-      setLogMessages(prev => [...prev, 'Bet on Player B placed']);
+      const tx = await betOnPlayerBInContract(betAmount, currentEpoch);
+      setLogMessages(prev => [...prev, 'Bet on Player B placed, waiting for confirmation...']);
+      await tx.wait();
+      setLogMessages(prev => [...prev, 'Bet on Player B successfully placed']);
     } catch (error) {
       console.error('Error betting on Player B:', error);
+      setLogMessages(prev => [...prev, 'Error betting on Player B']);
     }
   };
 
   const claimWinnings = async () => {
     try {
-      if (currentEpoch !== null) {
-        await claimWinningsFromContract(currentEpoch);
-        setLogMessages(prev => [...prev, 'Winnings claimed']);
-      }
+      const tx = await claimWinningsFromContract(currentEpoch);
+      setLogMessages(prev => [...prev, 'Claiming winnings, waiting for confirmation...']);
+      await tx.wait();
+      setLogMessages(prev => [...prev, 'Winnings successfully claimed']);
     } catch (error) {
       console.error('Error claiming winnings:', error);
+      setLogMessages(prev => [...prev, 'Error claiming winnings']);
     }
   };
 
@@ -248,7 +229,6 @@ const PokerTable: React.FC = () => {
                 onChange={(e) => setBetAmount(e.target.value)}
                 placeholder="Enter custom amount"
               />
-
               <button onClick={handleBetOnPlayerA}>Bet on Player A</button>
             </div>
           )}
@@ -285,8 +265,7 @@ const PokerTable: React.FC = () => {
                 onChange={(e) => setBetAmount(e.target.value)}
                 placeholder="Enter custom amount"
               />
-
-              <button onClick={handleBetOnPlayerB} disabled={gameState !== 'start'}>Bet on Player B</button>
+              <button onClick={handleBetOnPlayerB} disabled={gameState !== 0}>Bet on Player B</button>
             </div>
           )}
         </div>
@@ -365,4 +344,5 @@ const PokerTable: React.FC = () => {
     </div>
   );
 };
+
 export default PokerTable;
