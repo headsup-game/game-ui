@@ -1,6 +1,12 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Inter, Gabarito } from "next/font/google";
 import "./globals.css";
+
+const gabarito = Gabarito({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-gabarito',
+})
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -16,7 +22,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={inter.className}>{children}</body>
+      <body  className={gabarito.variable}>{children}</body>
     </html>
   );
 }
