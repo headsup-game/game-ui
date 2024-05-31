@@ -1,13 +1,68 @@
 "use client";
 // TODO: Use the appropriate network based on the environment
-// TODO: Change the Meta description of the page to "Play Poker with your friends and win big!"
-// TODO: Wait for the transaction to be mined and if the trasnaction is successful, show a bet placed message in the UI
-// TODO: When the transaction is signed, show a message in the UI that the bet is being placed
+// DONE: Change the Meta description of the page to "Play Poker with your friends and win big!"
+// DONE: Wait for the transaction to be mined and if the trasnaction is successful, show a bet placed message in the UI
+// DONE: When the transaction is signed, show a message in the UI that the bet is being placed
 
 import React, { useState, useEffect, useRef } from 'react';
 import { connectMetaMask, removeDisconnection } from '../../utils/ethers';
 import { getPlayerCardsFromContract, getCommunityCardsFromContract, getWinnerFromContract, cardDTO, betOnPlayerAInContract, betOnPlayerBInContract, claimWinningsFromContract, getCurrentEpochFromContract, getMinEntryFromContract, getGameInfoFromContract } from '../../utils/contract';
 import { Card, rankMap, suitMap } from './Card';
+import '@rainbow-me/rainbowkit/styles.css';
+
+import {
+  getDefaultConfig,
+  RainbowKitProvider,
+  ConnectButton,
+  Chain
+} from '@rainbow-me/rainbowkit';
+import { WagmiProvider } from 'wagmi';
+import {
+  mainnet,
+  polygon,
+  optimism,
+  arbitrum,
+  base,
+} from 'wagmi/chains';
+import {
+  QueryClientProvider,
+  QueryClient,
+} from "@tanstack/react-query";
+
+const blast_sepolia = {
+  id: 168_587_773,
+  name: 'Blast Sepolia',
+  iconUrl: 'https://s2.coinmarketcap.com/static/img/coins/64x64/5805.png',
+  iconBackground: '#fff',
+  nativeCurrency: { name: 'Ethereum', symbol: 'ETH', decimals: 18 },
+  rpcUrls: {
+    default: { http: ['https://sepolia.blast.io'] },
+  },
+  blockExplorers: {
+    default: { name: 'BlastScan', url: 'https://sepolia.blastscan.io/' },
+  },
+  contracts: {
+    multicall3: {
+      address: '0xca11bde05977b3631167028862be2a173976ca11',
+      blockCreated: 11_907_934,
+    },
+    headsup: {
+      address: '0x38bDa9F9bEF0C468f2E00E2B7892157fB6A249d5',
+      blockCreated: 5_815_300,
+    }
+  },
+} as const satisfies Chain;
+
+
+const config = getDefaultConfig({
+  appName: 'My RainbowKit App',
+  projectId: 'YOUR_PROJECT_ID',
+  chains: [mainnet, polygon, optimism, arbitrum, base, blast_sepolia],
+  ssr: true, // If your dApp uses server side rendering (SSR)
+});
+
+
+const queryClient = new QueryClient();
 
 const mapCards = (card: cardDTO): Card => ({
   rank: rankMap[card.rank],
@@ -163,6 +218,7 @@ const PokerTable: React.FC = () => {
 
       try {
         const gameInfoData = await getGameInfoFromContract();
+        // await fetchParticipantCards();
         setGameState(gameInfoData[0] || 0);
         setCurrentEpoch(gameInfoData[1] || 0);
         setTotalBetsA(gameInfoData[2] || 0);
@@ -203,83 +259,87 @@ const PokerTable: React.FC = () => {
   // TODO: The user should be able to claim the winnings using a button in the UI. It will call the method claim in the contract.
 
   return (
-    <div className="poker-table">
-      <h1>Poker Table</h1>
-      <button onClick={handleMetaMaskConnect}>Connect MetaMask</button>
-      <button onClick={handleMetaMaskDisconnect}>Disconnect MetaMask</button>
-      {isMetaMaskConnected && (
-        <div className="table">
-          {participants.length >= 1 && (
-            <div className={`participant participant-left ${winningParticipant === 0 ? 'winner' : ''}`}>
-              <h2>Participant A</h2>
-              <div className="cards">
-                {participants[0].cards.map((card, i) => (
-                  card && <img key={i} src={card.image} alt={`${card.rank} of ${card.suit}`} />
-                ))}
+    <WagmiProvider config={config}>
+      <QueryClientProvider client={queryClient}>
+        <RainbowKitProvider>
+          <div className="poker-table">
+            <h1>Poker Table</h1>
+            <ConnectButton chainStatus="name" showBalance={false} />
+            <button onClick={handleMetaMaskConnect}>Start Game</button>
+            <button onClick={handleMetaMaskDisconnect}>Disconnect MetaMask</button>
+            {isMetaMaskConnected && (
+              <div className="table">
+                {participants.length >= 1 && (
+                  <div className={`participant participant-left ${winningParticipant === 0 ? 'winner' : ''}`}>
+                    <h2>Participant A</h2>
+                    <div className="cards">
+                      {participants[0].cards.map((card, i) => (
+                        card && <img key={i} src={card.image} alt={`${card.rank} of ${card.suit}`} />
+                      ))}
+                    </div>
+                    <select value={betAmount} onChange={(e) => setBetAmount(e.target.value)}>
+                      <option value="0.001">0.001 ETH</option>
+                      <option value="0.01">0.01 ETH</option>
+                      <option value="0.1">0.1 ETH</option>
+                      <option value="1">1 ETH</option>
+                    </select>
+                    <input
+                      type="text"
+                      value={betAmount}
+                      onChange={(e) => setBetAmount(e.target.value)}
+                      placeholder="Enter custom amount"
+                    />
+                    <button onClick={handleBetOnPlayerA}>Bet on Player A</button>
+                  </div>
+                )}
+                <div className="community-cards">
+                  <h2>Community Cards</h2>
+                  <div className="cards">
+                    {communityCards.map((card, index) => (
+                      card && <img key={index} src={card.image} alt={`${card.rank} of ${card.suit}`} />
+                    ))}
+                  </div>
+                </div>
+                {countdown > 0 && (
+                  <div className="countdown">
+                    Community cards will be revealed in: {countdown} seconds
+                  </div>
+                )}
+                {participants.length >= 2 && (
+                  <div className={`participant participant-right ${winningParticipant === 1 ? 'winner' : ''}`}>
+                    <h2>Participant B</h2>
+                    <div className="cards">
+                      {participants[1].cards.map((card, i) => (
+                        card && <img key={i} src={card.image} alt={`${card.rank} of ${card.suit}`} />
+                      ))}
+                    </div>
+                    <select value={betAmount} onChange={(e) => setBetAmount(e.target.value)}>
+                      <option value="0.001">0.001 ETH</option>
+                      <option value="0.01">0.01 ETH</option>
+                      <option value="0.1">0.1 ETH</option>
+                      <option value="1">1 ETH</option>
+                    </select>
+                    <input
+                      type="text"
+                      value={betAmount}
+                      onChange={(e) => setBetAmount(e.target.value)}
+                      placeholder="Enter custom amount"
+                    />
+                    <button onClick={handleBetOnPlayerB} disabled={gameState !== 0}>Bet on Player B</button>
+                  </div>
+                )}
               </div>
-              <select value={betAmount} onChange={(e) => setBetAmount(e.target.value)}>
-                <option value="0.001">0.001 ETH</option>
-                <option value="0.01">0.01 ETH</option>
-                <option value="0.1">0.1 ETH</option>
-                <option value="1">1 ETH</option>
-              </select>
-              <input
-                type="text"
-                value={betAmount}
-                onChange={(e) => setBetAmount(e.target.value)}
-                placeholder="Enter custom amount"
-              />
-              <button onClick={handleBetOnPlayerA}>Bet on Player A</button>
+            )}
+            <div className="betting-controls">
+              <h2>Place Your Bet</h2>
             </div>
-          )}
-          <div className="community-cards">
-            <h2>Community Cards</h2>
-            <div className="cards">
-              {communityCards.map((card, index) => (
-                card && <img key={index} src={card.image} alt={`${card.rank} of ${card.suit}`} />
+            <div className="log-messages">
+              {logMessages.map((msg, index) => (
+                <div key={index}>{msg}</div>
               ))}
             </div>
-          </div>
-          {countdown > 0 && (
-            <div className="countdown">
-              Community cards will be revealed in: {countdown} seconds
-            </div>
-          )}
-          {participants.length >= 2 && (
-            <div className={`participant participant-right ${winningParticipant === 1 ? 'winner' : ''}`}>
-              <h2>Participant B</h2>
-              <div className="cards">
-                {participants[1].cards.map((card, i) => (
-                  card && <img key={i} src={card.image} alt={`${card.rank} of ${card.suit}`} />
-                ))}
-              </div>
-              <select value={betAmount} onChange={(e) => setBetAmount(e.target.value)}>
-                <option value="0.001">0.001 ETH</option>
-                <option value="0.01">0.01 ETH</option>
-                <option value="0.1">0.1 ETH</option>
-                <option value="1">1 ETH</option>
-              </select>
-              <input
-                type="text"
-                value={betAmount}
-                onChange={(e) => setBetAmount(e.target.value)}
-                placeholder="Enter custom amount"
-              />
-              <button onClick={handleBetOnPlayerB} disabled={gameState !== 0}>Bet on Player B</button>
-            </div>
-          )}
-        </div>
-      )}
-      <div className="betting-controls">
-        <h2>Place Your Bet</h2>
-      </div>
-      <div className="log-messages">
-        {logMessages.map((msg, index) => (
-          <div key={index}>{msg}</div>
-        ))}
-      </div>
-      <button onClick={claimWinnings}>Claim Winnings</button>
-      <style jsx>{`
+            <button onClick={claimWinnings}>Claim Winnings</button>
+            <style jsx>{`
         .poker-table {
           display: flex;
           flex-direction: column;
@@ -341,7 +401,10 @@ const PokerTable: React.FC = () => {
           margin-top: 10px;
         }
       `}</style>
-    </div>
+          </div>
+        </RainbowKitProvider>
+      </QueryClientProvider>
+    </WagmiProvider>
   );
 };
 
