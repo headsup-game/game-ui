@@ -62,6 +62,7 @@ const PokerTable: React.FC = () => {
       await startGame();
     }
   };
+
   const handleDisconnect = () => {
     disconnect();
   };
@@ -191,7 +192,7 @@ const PokerTable: React.FC = () => {
     <div className="poker-table">
       <h1>Poker Table</h1>
       <ConnectButton chainStatus="name" showBalance={false} />
-      {!isConnected && <button onClick={handleConnect}>Connect Wallet</button>}
+      <button onClick={handleConnect}>Connect Wallet</button>
       {isConnected && <button onClick={handleDisconnect}>Disconnect Wallet</button>}
       {isConnected && (
         <div className="table">
