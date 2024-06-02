@@ -5,11 +5,15 @@
 // DONE: When the transaction is signed, show a message in the UI that the bet is being placed
 
 import React, { useState, useEffect, useRef } from 'react';
-import { useAccount, useConnect, useDisconnect } from 'wagmi';
+import { ConnectorEventMap, useAccount, useConnect, useDisconnect } from 'wagmi';
 import { getPlayerCardsFromContract, getCommunityCardsFromContract, getWinnerFromContract, cardDTO, betOnPlayerAInContract, betOnPlayerBInContract, claimWinningsFromContract, getCurrentEpochFromContract, getMinEntryFromContract, getGameInfoFromContract } from '../../utils/contract';
 import { Card, rankMap, suitMap } from './Card';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { publicClient } from 'utils/client';
+import { StorageItemMap } from '@wagmi/core';
+import { Emitter, ExactPartial, Omit } from '@wagmi/core/internal';
+import { Chain, Client, AddEthereumChainParameter, ProviderConnectInfo, ProviderMessage } from 'viem';
+import dynamic from 'next/dynamic';
 
 const mapCards = (card: cardDTO): Card => ({
   rank: rankMap[card.rank],
@@ -48,7 +52,12 @@ const PokerTable: React.FC = () => {
 
   const handleConnect = async () => {
     if (!isConnected) {
-      await connect();
+      connect({
+        chainId: 1,
+        connector: function (config: { chains: readonly [Chain, ...Chain[]]; emitter: Emitter<ConnectorEventMap>; storage?: { key: string; getItem: <key extends keyof StorageItemMap, value extends StorageItemMap[key], defaultValue extends value | null | undefined>(key: key, defaultValue?: defaultValue | undefined) => (defaultValue extends null ? value | null : value) | Promise<defaultValue extends null ? value | null : value>; setItem: <key extends keyof StorageItemMap, value extends StorageItemMap[key] | null>(key: key, value: value) => void | Promise<void>; removeItem: (key: keyof StorageItemMap) => void | Promise<void>; } | null | undefined; }): { readonly icon?: string | undefined; readonly id: string; readonly name: string; readonly supportsSimulation?: boolean | undefined; readonly type: string; setup?: (() => Promise<void>) | undefined; connect: (parameters?: { chainId?: number | undefined; isReconnecting?: boolean | undefined; } | undefined) => Promise<{ accounts: readonly `0x${string}`[]; chainId: number; }>; disconnect: () => Promise<void>; getAccounts: () => Promise<readonly `0x${string}`[]>; getChainId: () => Promise<number>; getProvider: (parameters?: { chainId?: number | undefined; } | undefined) => Promise<unknown>; getClient?: ((parameters?: { chainId?: number | undefined; } | undefined) => Promise<Client>) | undefined; isAuthorized: () => Promise<boolean>; switchChain?: ((parameters: { addEthereumChainParameter?: ExactPartial<Omit<AddEthereumChainParameter, 'chainId'>> | undefined; chainId: number; }) => Promise<Chain>) | undefined; onAccountsChanged: (accounts: string[]) => void; onChainChanged: (chainId: string) => void; onConnect?: ((connectInfo: ProviderConnectInfo) => void) | undefined; onDisconnect: (error?: Error | undefined) => void; onMessage?: ((message: ProviderMessage) => void) | undefined; } {
+          throw new Error('Function not implemented.');
+        }
+      }); // Provide necessary arguments to connect
     } else {
       await startGame();
     }
@@ -319,4 +328,4 @@ const PokerTable: React.FC = () => {
   );
 };
 
-export default PokerTable;
+export default dynamic(() => Promise.resolve(PokerTable), { ssr: false });
