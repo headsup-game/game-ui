@@ -3,8 +3,9 @@ import '@rainbow-me/rainbowkit/styles.css';
 import {
     getDefaultConfig,
     RainbowKitProvider,
+    Chain
 } from '@rainbow-me/rainbowkit';
-import { WagmiProvider } from 'wagmi';
+import { WagmiConfig } from 'wagmi';
 import {
     mainnet,
     polygon,
@@ -12,39 +13,34 @@ import {
     arbitrum,
     base,
 } from 'wagmi/chains';
-import { mainnet, polygon, optimism, arbitrum } from 'wagmi/chains';
-import { publicProvider } from 'wagmi/providers/public';
-import { jsonRpcProvider } from 'wagmi/providers/jsonRpc';
 
-const { chains, provider } = configureChains(
-    [mainnet, polygon, optimism, arbitrum],
-    [
-        jsonRpcProvider({
-            rpc: (chain) => {
-                if (chain.id === mainnet.id) return { http: 'https://mainnet.infura.io/v3/YOUR_INFURA_PROJECT_ID' };
-                if (chain.id === polygon.id) return { http: 'https://polygon-rpc.com/' };
-                return { http: 'https://rpc.ankr.com/eth' }; // Fallback RPC
-            },
-        }),
-        publicProvider()
-    ]
-);
+const blast_sepolia = {
+    id: 168_587_773,
+    name: 'Blast Sepolia',
+    iconUrl: 'https://s2.coinmarketcap.com/static/img/coins/64x64/5805.png',
+    iconBackground: '#fff',
+    nativeCurrency: { name: 'Ethereum', symbol: 'ETH', decimals: 18 },
+    rpcUrls: {
+        default: { http: ['https://sepolia.blast.io'] },
+    },
+    blockExplorers: {
+        default: { name: 'BlastScan', url: 'https://sepolia.blastscan.io/' },
+    },
+    contracts: {
+        multicall3: {
+            address: '0xca11bde05977b3631167028862be2a173976ca11',
+            blockCreated: 11_907_934,
+        },
+        headsup: {
+            address: '0x38bDa9F9bEF0C468f2E00E2B7892157fB6A249d5',
+            blockCreated: 5_815_300,
+        }
+    },
+} as const satisfies Chain;
 
-const { connectors } = getDefaultWallets({
-    appName: 'Your App Name',
-    chains
+export const config = getDefaultConfig({
+    appName: 'My RainbowKit App',
+    projectId: 'YOUR_PROJECT_ID',
+    chains: [mainnet, polygon, optimism, arbitrum, base, blast_sepolia],
+    ssr: true,
 });
-
-const wagmiClient = createClient({
-    autoConnect: true,
-    connectors,
-    provider
-});
-
-export const RainbowKitSetup: React.FC = ({ children }) => (
-    <WagmiConfig client={wagmiClient}>
-        <RainbowKitProvider chains={chains}>
-            {children}
-        </RainbowKitProvider>
-    </WagmiConfig>
-);
