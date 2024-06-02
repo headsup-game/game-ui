@@ -1,18 +1,11 @@
 "use client";
-// TODO: Use the appropriate network based on the environment
-// DONE: Change the Meta description of the page to "Play Poker with your friends and win big!"
-// DONE: Wait for the transaction to be mined and if the transaction is successful, show a bet placed message in the UI
-// DONE: When the transaction is signed, show a message in the UI that the bet is being placed
 
-import React, { useState, useEffect, useRef } from 'react';
-import { ConnectorEventMap, useAccount, useConnect, useDisconnect } from 'wagmi';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { useAccount, useConnect, useDisconnect } from 'wagmi';
 import { getPlayerCardsFromContract, getCommunityCardsFromContract, getWinnerFromContract, cardDTO, betOnPlayerAInContract, betOnPlayerBInContract, claimWinningsFromContract, getCurrentEpochFromContract, getMinEntryFromContract, getGameInfoFromContract } from '../../utils/contract';
 import { Card, rankMap, suitMap } from './Card';
-import { ConnectButton } from '@rainbow-me/rainbowkit';
+import { ConnectButton, useConnectModal } from '@rainbow-me/rainbowkit';
 import { publicClient } from 'utils/client';
-import { StorageItemMap } from '@wagmi/core';
-import { Emitter, ExactPartial, Omit } from '@wagmi/core/internal';
-import { Chain, Client, AddEthereumChainParameter, ProviderConnectInfo, ProviderMessage } from 'viem';
 import dynamic from 'next/dynamic';
 
 const mapCards = (card: cardDTO): Card => ({
@@ -41,27 +34,26 @@ const PokerTable: React.FC = () => {
   const { isConnected } = useAccount();
   const { connect } = useConnect();
   const { disconnect } = useDisconnect();
+  const { openConnectModal } = useConnectModal();
+  const [gameStarted, setGameStarted] = useState<boolean>(false);
 
   const startGame = async () => {
-    if (isConnected) {
+    if (openConnectModal && !isConnected) {
+      openConnectModal();
+      setGameStarted(true);
+    } else if (isConnected) {
       await fetchParticipantCards();
       setCurrentEpoch(Number(await getCurrentEpochFromContract()));
       setMinEntry(Number(await getMinEntryFromContract()));
+      fetchCommunityCards();  // Fetch community cards only after the game has started
     }
   };
 
-  const handleConnect = async () => {
-    if (!isConnected) {
-      connect({
-        chainId: 1,
-        connector: function (config: { chains: readonly [Chain, ...Chain[]]; emitter: Emitter<ConnectorEventMap>; storage?: { key: string; getItem: <key extends keyof StorageItemMap, value extends StorageItemMap[key], defaultValue extends value | null | undefined>(key: key, defaultValue?: defaultValue | undefined) => (defaultValue extends null ? value | null : value) | Promise<defaultValue extends null ? value | null : value>; setItem: <key extends keyof StorageItemMap, value extends StorageItemMap[key] | null>(key: key, value: value) => void | Promise<void>; removeItem: (key: keyof StorageItemMap) => void | Promise<void>; } | null | undefined; }): { readonly icon?: string | undefined; readonly id: string; readonly name: string; readonly supportsSimulation?: boolean | undefined; readonly type: string; setup?: (() => Promise<void>) | undefined; connect: (parameters?: { chainId?: number | undefined; isReconnecting?: boolean | undefined; } | undefined) => Promise<{ accounts: readonly `0x${string}`[]; chainId: number; }>; disconnect: () => Promise<void>; getAccounts: () => Promise<readonly `0x${string}`[]>; getChainId: () => Promise<number>; getProvider: (parameters?: { chainId?: number | undefined; } | undefined) => Promise<unknown>; getClient?: ((parameters?: { chainId?: number | undefined; } | undefined) => Promise<Client>) | undefined; isAuthorized: () => Promise<boolean>; switchChain?: ((parameters: { addEthereumChainParameter?: ExactPartial<Omit<AddEthereumChainParameter, 'chainId'>> | undefined; chainId: number; }) => Promise<Chain>) | undefined; onAccountsChanged: (accounts: string[]) => void; onChainChanged: (chainId: string) => void; onConnect?: ((connectInfo: ProviderConnectInfo) => void) | undefined; onDisconnect: (error?: Error | undefined) => void; onMessage?: ((message: ProviderMessage) => void) | undefined; } {
-          throw new Error('Function not implemented.');
-        }
-      }); // Provide necessary arguments to connect
-    } else {
-      await startGame();
+  useEffect(() => {
+    if (isConnected && gameStarted) {
+      startGame();
     }
-  };
+  }, [isConnected, gameStarted]);
 
   const handleDisconnect = () => {
     disconnect();
@@ -78,7 +70,6 @@ const PokerTable: React.FC = () => {
         { cards: participantBCards },
       ]);
 
-      setGameState(1); // Assume 1 represents 'deal' state
       setLogMessages(prev => [...prev, 'Participants cards dealt']);
     } catch (error) {
       console.error(error);
@@ -121,12 +112,6 @@ const PokerTable: React.FC = () => {
 
     showNextCard();
   };
-
-  useEffect(() => {
-    setTimeout(() => {
-      fetchCommunityCards();
-    }, 300);
-  }, [gameState]);
 
   const handleBetOnPlayerA = async () => {
     try {
@@ -192,7 +177,7 @@ const PokerTable: React.FC = () => {
     <div className="poker-table">
       <h1>Poker Table</h1>
       <ConnectButton chainStatus="name" showBalance={false} />
-      <button onClick={handleConnect}>Connect Wallet</button>
+      <button onClick={startGame}>Start Game</button>
       {isConnected && <button onClick={handleDisconnect}>Disconnect Wallet</button>}
       {isConnected && (
         <div className="table">
@@ -219,17 +204,14 @@ const PokerTable: React.FC = () => {
               <button onClick={handleBetOnPlayerA}>Bet on Player A</button>
             </div>
           )}
-          <div className="community-cards">
-            <h2>Community Cards</h2>
-            <div className="cards">
-              {communityCards.map((card, index) => (
-                card && <img key={index} src={card.image} alt={`${card.rank} of ${card.suit}`} />
-              ))}
-            </div>
-          </div>
-          {countdown > 0 && (
-            <div className="countdown">
-              Community cards will be revealed in: {countdown} seconds
+          {communityCards.length > 0 && (
+            <div className="community-cards">
+              <h2>Community Cards</h2>
+              <div className="cards">
+                {communityCards.map((card, index) => (
+                  card && <img key={index} src={card.image} alt={`${card.rank} of ${card.suit}`} />
+                ))}
+              </div>
             </div>
           )}
           {participants.length >= 2 && (
