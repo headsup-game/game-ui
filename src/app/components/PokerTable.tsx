@@ -62,6 +62,9 @@ const PokerTable: React.FC = () => {
       await startGame();
     }
   };
+  const handleDisconnect = () => {
+    disconnect();
+  };
 
   const fetchParticipantCards = async () => {
     try {
@@ -188,8 +191,8 @@ const PokerTable: React.FC = () => {
     <div className="poker-table">
       <h1>Poker Table</h1>
       <ConnectButton chainStatus="name" showBalance={false} />
-      <button onClick={handleConnect}>Start Game</button>
-      <button onClick={disconnect}>Disconnect</button>
+      {!isConnected && <button onClick={handleConnect}>Connect Wallet</button>}
+      {isConnected && <button onClick={handleDisconnect}>Disconnect Wallet</button>}
       {isConnected && (
         <div className="table">
           {participants.length >= 1 && (
