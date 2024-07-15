@@ -13,6 +13,17 @@ export interface cardDTO {
   rank: number;
 }
 
+export interface gameStateDTO {
+  gameState: number;
+  currentRoundNumber: number;
+  totalBetsOnPlayerA: number;
+  totalBetsOnPlayerB: number;
+  communityCards: readonly cardDTO[];
+  currentRoundBetStartTimestamp: bigint;
+  currentRoundBetEndTimestamp: bigint;
+  nextGameStartTimestamp?: bigint;
+}
+
 export const getPlayerCardsFromContract = async (round) => {
   try {
     const data = await publicClient.readContract({
@@ -59,33 +70,33 @@ export const getWinnerFromContract = async (round) => {
 };
 
 export const betOnPlayerAInContract = async (amount: string, round: bigint) => {
-    try {
-      const account = await getAccount();
-      if (!walletClient) {
-        throw new Error('Wallet client not initialized');
-      }
-      const { request } = await publicClient.simulateContract({
-        address: contractAddress,
-        abi: contractABI,
-        functionName: 'betOnPlayerA',
-        args: [round],
-        value: parseEther(amount),
-        account,
-      });
-      const hash = await walletClient.writeContract(request);
-      return hash;
-    } catch (error) {
-      console.error('Error betting on Player A:', error);
-      throw error;
+  try {
+    const account = await getAccount();
+    if (!walletClient) {
+      throw new Error('Wallet client not initialized');
     }
-  };
+    const { request } = await publicClient.simulateContract({
+      address: contractAddress,
+      abi: contractABI,
+      functionName: 'betOnPlayerA',
+      args: [round],
+      value: parseEther(amount),
+      account,
+    });
+    const hash = await walletClient.writeContract(request);
+    return hash;
+  } catch (error) {
+    console.error('Error betting on Player A:', error);
+    throw error;
+  }
+};
 
 export const betOnPlayerBInContract = async (amount: string, round: bigint) => {
   try {
     const address = await getAccount();
     if (!address) {
-        throw new Error('Account is undefined');
-      }
+      throw new Error('Account is undefined');
+    }
     const { request } = await publicClient.simulateContract({
       address: contractAddress,
       abi: contractABI,
@@ -147,17 +158,26 @@ export const getMinEntryFromContract = async () => {
   }
 };
 
-export const getGameInfoFromContract = async () => {
-    return [0, 1, 1, 1];
-//   try {
-//     const data = await publicClient.readContract({
-//       address: contractAddress,
-//       abi: contractABI,
-//       functionName: 'getGameInfo'
-//     });
-//     return data as [bigint, bigint, bigint, bigint]; // gameState, currentRoundNumber, totalBetsOnPlayerA, totalBetsOnPlayerB
-//   } catch (error) {
-//     console.error('Error getting game info from contract:', error);
-//     throw error;
-//   }
+export const getGameInfoFromContract = async (): Promise<gameStateDTO> => {
+  return {
+    gameState: 0,
+    currentRoundNumber: 1,
+    totalBetsOnPlayerA: 1,
+    totalBetsOnPlayerB: 1,
+    communityCards: [],
+    currentRoundBetStartTimestamp: BigInt(1721049934),
+    currentRoundBetEndTimestamp: BigInt(1721049934),
+    nextGameStartTimestamp: BigInt(1721049934),
+  };
+  //   try {
+  //     const data = await publicClient.readContract({
+  //       address: contractAddress,
+  //       abi: contractABI,
+  //       functionName: 'getGameInfo'
+  //     });
+  //     return data as gameStateDTO;
+  //   } catch (error) {
+  //     console.error('Error getting game info from contract:', error);
+  //     throw error;
+  //   }
 };
