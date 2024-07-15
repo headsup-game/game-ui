@@ -51,10 +51,10 @@ const PokerTable: React.FC = () => {
   };
 
   useEffect(() => {
-    if (isConnected && gameStarted) {
+    if (isConnected) {
       startGame();
     }
-  }, [isConnected, gameStarted]);
+  }, [isConnected]);
 
   const handleDisconnect = () => {
     disconnect();
@@ -228,7 +228,7 @@ const PokerTable: React.FC = () => {
                 onChange={(e) => setBetAmount(e.target.value)}
                 placeholder="Enter custom amount"
               />
-              <button onClick={handleBetOnPlayerA}>Bet on Player A</button>
+              <button onClick={handleBetOnPlayerA} disabled={gameState !== 0 || Number(betEndCountdown) <= 0}>Bet on Player A</button>
             </div>
           )}
           {communityCards.length > 0 && (
@@ -272,7 +272,7 @@ const PokerTable: React.FC = () => {
                 onChange={(e) => setBetAmount(e.target.value)}
                 placeholder="Enter custom amount"
               />
-              <button onClick={handleBetOnPlayerB} disabled={gameState !== 0}>Bet on Player B</button>
+              <button onClick={handleBetOnPlayerB} disabled={gameState !== 0 || Number(betEndCountdown) <= 0}>Bet on Player B</button>
             </div>
           )}
         </div>
