@@ -19,7 +19,6 @@ export interface gameStateDTO {
   totalBetsOnPlayerA: number;
   totalBetsOnPlayerB: number;
   communityCards: readonly cardDTO[];
-  currentRoundBetStartTimestamp: bigint;
   currentRoundBetEndTimestamp: bigint;
   nextGameStartTimestamp?: bigint;
 }
@@ -165,7 +164,6 @@ export const getGameInfoFromContract = async (): Promise<gameStateDTO> => {
     totalBetsOnPlayerA: 1,
     totalBetsOnPlayerB: 1,
     communityCards: [],
-    currentRoundBetStartTimestamp: BigInt(1721049934),
     currentRoundBetEndTimestamp: BigInt(1721049934),
     nextGameStartTimestamp: BigInt(1721049934),
   };
