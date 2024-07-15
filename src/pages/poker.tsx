@@ -1,7 +1,23 @@
+// poker.tsx
 "use client";
 
-import PokerTable from '../app/components/PokerTable';
+import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
+const PokerTable = dynamic(() => import('../app/components/PokerTable'), { ssr: false });
+import { WagmiProvider } from "wagmi";
+import { RainbowKitProvider } from "@rainbow-me/rainbowkit";
+import { config } from "app/components/RainbowKit";
+import dynamic from "next/dynamic";
+
+const queryClient = new QueryClient();
 
 export default function PokerPage() {
-  return <PokerTable />;
+  return (
+    <WagmiProvider config={config}>
+      <QueryClientProvider client={queryClient}>
+        <RainbowKitProvider>
+          <PokerTable />
+        </RainbowKitProvider>
+      </QueryClientProvider>
+    </WagmiProvider>
+  )
 }
