@@ -1,7 +1,7 @@
 "use client";
 
-import PokerTable from './components/PokerTable';
-import LandingPageComponent from './components/LandingPage';
+import PokerTable from './../components/PokerTable';
+import LandingPageComponent from './../components/LandingPage';
 import { useRouter } from 'next/router'
 import '@rainbow-me/rainbowkit/styles.css';
 
