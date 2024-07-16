@@ -200,19 +200,19 @@ const PokerTable: React.FC = () => {
   }, [currentRoundBetEndTimestamp]);
 
   return (
-    <div className="poker-table">
+    <div className="flex flex-col items-center mt-12">
       <h1>Poker Table</h1>
       <ConnectButton chainStatus="name" showBalance={false} />
-      <button onClick={startGame}>Start Game</button>
-      {isConnected && <button onClick={handleDisconnect}>Disconnect Wallet</button>}
+      <button onClick={startGame} title="Start Game" className="mt-4 px-4 py-2 bg-blue-500 text-white rounded">Start Game</button>
+      {isConnected && <button onClick={handleDisconnect} className="mt-4 px-4 py-2 bg-red-500 text-white rounded">Disconnect Wallet</button>}
       {isConnected && (
-        <div className="table">
+        <div className="flex justify-between items-center w-4/5 bg-green-500 p-6 rounded-lg relative mt-6">
           {participants.length >= 1 && (
-            <div className={`participant participant-left ${winningParticipant === 0 ? 'winner' : ''}`}>
+            <div className={`flex flex-col items-center ${winningParticipant === 0 ? 'border-4 border-yellow-500' : ''}`}>
               <h2>Participant A</h2>
-              <div className="cards">
+              <div className="flex justify-center mt-2">
                 {participants[0].cards.map((card, i) => (
-                  card && <img key={i} src={card.image} alt={`${card.rank} of ${card.suit}`} />
+                  card && <img key={i} src={card.image} alt={`${card.rank} of ${card.suit}`} className="m-2 w-24 transition-transform transform hover:scale-110" />
                 ))}
               </div>
               <h3>Total Bets: {totalBetsA}</h3>
@@ -227,16 +227,17 @@ const PokerTable: React.FC = () => {
                 value={betAmount}
                 onChange={(e) => setBetAmount(e.target.value)}
                 placeholder="Enter custom amount"
+                className="mt-2 px-2 py-1 rounded border"
               />
-              <button onClick={handleBetOnPlayerA} disabled={gameState !== 0 || Number(betEndCountdown) <= 0}>Bet on Player A</button>
+              <button onClick={handleBetOnPlayerA} className="mt-2 px-4 py-2 bg-blue-500 text-white rounded" disabled={gameState !== 0 || Number(betEndCountdown) <= 0}>Bet on Player A</button>
             </div>
           )}
           {communityCards.length > 0 && (
-            <div className="community-cards">
+            <div className="text-center">
               <h2>Community Cards</h2>
-              <div className="cards">
+              <div className="flex justify-center mt-2">
                 {communityCards.map((card, index) => (
-                  card && <img key={index} src={card.image} alt={`${card.rank} of ${card.suit}`} />
+                  card && <img key={index} src={card.image} alt={`${card.rank} of ${card.suit}`} className="m-2 w-24 transition-transform transform hover:scale-110" />
                 ))}
               </div>
               {currentRoundBetEndTimestamp && (
@@ -252,15 +253,15 @@ const PokerTable: React.FC = () => {
             </div>
           )}
           {participants.length >= 2 && (
-            <div className={`participant participant-right ${winningParticipant === 1 ? 'winner' : ''}`}>
+            <div className={`flex flex-col items-center ${winningParticipant === 1 ? 'border-4 border-yellow-500' : ''}`}>
               <h2>Participant B</h2>
-              <div className="cards">
+              <div className="flex justify-center mt-2">
                 {participants[1].cards.map((card, i) => (
-                  card && <img key={i} src={card.image} alt={`${card.rank} of ${card.suit}`} />
+                  card && <img key={i} src={card.image} alt={`${card.rank} of ${card.suit}`} className="m-2 w-24 transition-transform transform hover:scale-110" />
                 ))}
               </div>
               <h3>Total Bets: {totalBetsB}</h3>
-              <select value={betAmount} onChange={(e) => setBetAmount(e.target.value)}>
+              <select value={betAmount} onChange={(e) => setBetAmount(e.target.value)} className="mt-2 px-2 py-1 rounded border">
                 <option value="0.001">0.001 ETH</option>
                 <option value="0.01">0.01 ETH</option>
                 <option value="0.1">0.1 ETH</option>
@@ -271,85 +272,23 @@ const PokerTable: React.FC = () => {
                 value={betAmount}
                 onChange={(e) => setBetAmount(e.target.value)}
                 placeholder="Enter custom amount"
+                className="mt-2 px-2 py-1 rounded border"
               />
-              <button onClick={handleBetOnPlayerB} disabled={gameState !== 0 || Number(betEndCountdown) <= 0}>Bet on Player B</button>
+              <button onClick={handleBetOnPlayerB} className="mt-2 px-4 py-2 bg-blue-500 text-white rounded" disabled={gameState !== 0 || Number(betEndCountdown) <= 0}>Bet on Player B</button>
             </div>
           )}
         </div>
       )}
-
-      <div className="betting-controls">
+      <div className="mt-4">
         <h2>Place Your Bet</h2>
       </div>
-      <div className="log-messages">
+      <div className="mt-4 bg-gray-300 p-4 rounded w-4/5">
         {logMessages.map((msg, index) => (
           <div key={index}>{msg}</div>
         ))}
       </div>
 
-      <button onClick={claimWinnings}>Claim Winnings</button>
-      <style jsx>{`
-        .poker-table {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          margin-top: 50px;
-        }
-        .table {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          width: 80%;
-          background-color: green;
-          padding: 20px;
-          border-radius: 10px;
-          position: relative;
-        }
-        .participant {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-        }
-        .participant-left {
-          align-self: flex-start;
-        }
-        .participant-right {
-          align-self: flex-end;
-        }
-        .cards {
-          display: flex;
-          justify-content: center;
-        }
-        .cards img {
-          margin: 5px;
-          width: 100px; /* Set desired width */
-          height: auto; /* Maintain aspect ratio */
-          transition: transform 0.5s;
-        }
-        .participant.winner .cards img {
-          transform: scale(1.1);
-          border: 2px solid gold;
-        }
-        .community-cards {
-          text-align: center;
-        }
-        .log-messages {
-          margin-top: 20px;
-          background-color: lightgrey;
-          padding: 10px;
-          border-radius: 5px;
-          width: 80%;
-        }
-        .betting-controls {
-          margin-top: 20px;
-        }
-        button {
-          padding: 10px 20px;
-          font-size: 16px;
-          cursor: pointer;
-          margin-top: 10px;
-        }
-      `}</style>
+      <button onClick={claimWinnings} className="mt-4 px-4 py-2 bg-green-500 text-white rounded">Claim Winnings</button>
     </div>
   );
 };
