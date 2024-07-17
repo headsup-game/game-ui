@@ -1,7 +1,6 @@
 import { createPublicClient, createWalletClient, http, parseAbiItem, parseEther } from 'viem';
 import { mainnet } from 'wagmi/chains';
 import { getWalletClient } from '@wagmi/core';
-import { config } from '../components/RainbowKit';
 import { useWalletClient } from 'wagmi';
 import { getAccount, publicClient, walletClient } from './client';
 import { contractABI } from './abi';
