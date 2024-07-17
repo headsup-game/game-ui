@@ -1,24 +1,19 @@
 import { createPublicClient, createWalletClient, http, parseAbiItem, parseEther } from 'viem';
 import { mainnet } from 'wagmi/chains';
 import { getWalletClient } from '@wagmi/core';
-import { config } from 'app/components/RainbowKit';
 import { useWalletClient } from 'wagmi';
 import { getAccount, publicClient, walletClient } from './client';
 import { contractABI } from './abi';
+import {CardDto} from '../interfaces/cardDto';
 
 const contractAddress = '0x38bDa9F9bEF0C468f2E00E2B7892157fB6A249d5';
-
-export interface cardDTO {
-  suit: number;
-  rank: number;
-}
 
 export interface gameStateDTO {
   gameState: number;
   currentRoundNumber: number;
   totalBetsOnPlayerA: number;
   totalBetsOnPlayerB: number;
-  communityCards: readonly cardDTO[];
+  communityCards: readonly CardDto[];
   currentRoundBetEndTimestamp: bigint;
   nextGameStartTimestamp?: bigint;
 }
@@ -31,7 +26,7 @@ export const getPlayerCardsFromContract = async (round) => {
       functionName: 'getPlayerCards',
       args: [round],
     });
-    return data as readonly [readonly cardDTO[], readonly cardDTO[]];
+    return data as readonly [readonly CardDto[], readonly CardDto[]];
   } catch (error) {
     console.error('Error getting player cards from contract:', error);
     throw error;
@@ -46,7 +41,7 @@ export const getCommunityCardsFromContract = async (round: bigint) => {
       functionName: 'getCommunityCards',
       args: [round],
     });
-    return data as readonly cardDTO[];
+    return data as readonly CardDto[];
   } catch (error) {
     console.error('Error getting community cards from contract:', error);
     throw error;

@@ -4,7 +4,6 @@
  * Documentation: https://v0.dev/docs#integrating-generated-code-into-your-nextjs-app
  */
 import Link from "next/link"
-import { useRouter } from 'next/router';
 
 export default function LandingPageComponent() {
   return (
