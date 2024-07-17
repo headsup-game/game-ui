@@ -2,16 +2,18 @@
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useAccount, useDisconnect } from 'wagmi';
-import { getPlayerCardsFromContract, getCommunityCardsFromContract, getWinnerFromContract, cardDTO, betOnPlayerAInContract, betOnPlayerBInContract, claimWinningsFromContract, getCurrentEpochFromContract, getMinEntryFromContract, getGameInfoFromContract } from '../../utils/contract';
-import { Card, rankMap, suitMap } from './Card';
+import { getPlayerCardsFromContract, getCommunityCardsFromContract, getWinnerFromContract, betOnPlayerAInContract, betOnPlayerBInContract, claimWinningsFromContract, getCurrentEpochFromContract, getMinEntryFromContract, getGameInfoFromContract } from '../utils/contract';
+import { Card, Rank, Suit } from '../interfaces/card';
+import { CardDto } from '../interfaces/cardDto';
 import { ConnectButton, useConnectModal } from '@rainbow-me/rainbowkit';
 import { publicClient } from 'utils/client';
 import dynamic from 'next/dynamic';
+import { getEnumName } from 'utils/enumHelper';
 
-const mapCards = (card: cardDTO): Card => ({
-  rank: rankMap[card.rank],
-  suit: suitMap[card.suit],
-  image: `/images/${rankMap[card.rank.toString()]}_of_${suitMap[card.suit.toString()]}.png`
+const mapCards = (card: CardDto): Card => ({
+  rank: card.rank,
+  suit: card.suit,
+  image: `/images/${getEnumName(Rank, card.rank)?.toLowerCase()}_of_${getEnumName(Suit, card.suit)?.toLowerCase()}.png`
 });
 
 interface Participant {
