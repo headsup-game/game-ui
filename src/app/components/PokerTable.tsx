@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { useAccount, useConnect, useDisconnect } from 'wagmi';
+import { useAccount, useDisconnect } from 'wagmi';
 import { getPlayerCardsFromContract, getCommunityCardsFromContract, getWinnerFromContract, cardDTO, betOnPlayerAInContract, betOnPlayerBInContract, claimWinningsFromContract, getCurrentEpochFromContract, getMinEntryFromContract, getGameInfoFromContract } from '../../utils/contract';
 import { Card, rankMap, suitMap } from './Card';
 import { ConnectButton, useConnectModal } from '@rainbow-me/rainbowkit';
@@ -19,6 +19,7 @@ interface Participant {
 }
 
 const PokerTable: React.FC = () => {
+  // TODO: Initial pot amount that should also come from the contract
   const [gameState, setGameState] = useState<number>(0);
   const [participants, setParticipants] = useState<Participant[]>([]);
   const [communityCards, setCommunityCards] = useState<Card[]>([]);
@@ -28,14 +29,14 @@ const PokerTable: React.FC = () => {
   const [betAmount, setBetAmount] = useState<string>('0.001');
   const [currentEpoch, setCurrentEpoch] = useState<number>(1);
   const [minEntry, setMinEntry] = useState<number>(0);
-  const [countdown, setCountdown] = useState<number>(30);
   const [totalBetsA, setTotalBetsA] = useState<number>(0);
   const [totalBetsB, setTotalBetsB] = useState<number>(0);
   const { isConnected } = useAccount();
-  const { connect } = useConnect();
   const { disconnect } = useDisconnect();
   const { openConnectModal } = useConnectModal();
   const [gameStarted, setGameStarted] = useState<boolean>(false);
+  const [currentRoundBetEndTimestamp, setCurrentRoundBetEndTimestamp] = useState<bigint | null>(null); // This comes fron the contract, and is used to display a countdown timer to the user when the betting for this round ends
+  const [betEndCountdown, setBetEndCountdown] = useState<string>(''); // This is the formatted countdown string that is displayed to the user
 
   const startGame = async () => {
     if (openConnectModal && !isConnected) {
@@ -50,10 +51,10 @@ const PokerTable: React.FC = () => {
   };
 
   useEffect(() => {
-    if (isConnected && gameStarted) {
+    if (isConnected) {
       startGame();
     }
-  }, [isConnected, gameStarted]);
+  }, [isConnected]);
 
   const handleDisconnect = () => {
     disconnect();
@@ -159,10 +160,12 @@ const PokerTable: React.FC = () => {
     const fetchGameState = async () => {
       try {
         const gameInfoData = await getGameInfoFromContract();
-        setGameState(gameInfoData[0] || 0);
-        setCurrentEpoch(gameInfoData[1] || 0);
-        setTotalBetsA(gameInfoData[2] || 0);
-        setTotalBetsB(gameInfoData[3] || 0);
+        setGameState(gameInfoData['gameState'] || 0);
+        setCurrentEpoch(gameInfoData['currentRoundNumber'] || 0);
+        setTotalBetsA(gameInfoData['totalBetsOnPlayerA'] || 0);
+        setTotalBetsB(gameInfoData['totalBetsOnPlayerB'] || 0);
+        setCurrentRoundBetEndTimestamp(gameInfoData['currentRoundBetEndTimestamp'] || BigInt(0));
+        // TODO: Use these timestamps to show a countdown timer for betting start/end
       } catch (error) {
         console.error('Error fetching game state:', error);
       }
@@ -172,6 +175,29 @@ const PokerTable: React.FC = () => {
 
     return () => clearInterval(interval);
   }, []);
+
+  const calculateTimeRemaining = (timestamp: bigint): string => {
+    const currentTime = Math.floor(Date.now() / 1000);
+    const remainingTime = Number(timestamp) - currentTime;
+    const formattedTime = new Date(remainingTime * 1000).toISOString().substr(14, 5);
+    return `${formattedTime}`;
+  };
+
+  useEffect(() => {
+    const updateCountdowns = () => {
+      // Assuming calculateTimeRemaining returns a string like "05:00" for 5 minutes
+      if (currentRoundBetEndTimestamp) {
+        const endCountdown = calculateTimeRemaining(currentRoundBetEndTimestamp);
+        setBetEndCountdown(endCountdown);
+      }
+    };
+
+    // Update countdowns every second
+    const countdownInterval = setInterval(updateCountdowns, 1000);
+
+    // Cleanup interval on component unmount
+    return () => clearInterval(countdownInterval);
+  }, [currentRoundBetEndTimestamp]);
 
   return (
     <div className="poker-table">
@@ -189,6 +215,7 @@ const PokerTable: React.FC = () => {
                   card && <img key={i} src={card.image} alt={`${card.rank} of ${card.suit}`} />
                 ))}
               </div>
+              <h3>Total Bets: {totalBetsA}</h3>
               <select value={betAmount} onChange={(e) => setBetAmount(e.target.value)}>
                 <option value="0.001">0.001 ETH</option>
                 <option value="0.01">0.01 ETH</option>
@@ -201,7 +228,7 @@ const PokerTable: React.FC = () => {
                 onChange={(e) => setBetAmount(e.target.value)}
                 placeholder="Enter custom amount"
               />
-              <button onClick={handleBetOnPlayerA}>Bet on Player A</button>
+              <button onClick={handleBetOnPlayerA} disabled={gameState !== 0 || Number(betEndCountdown) <= 0}>Bet on Player A</button>
             </div>
           )}
           {communityCards.length > 0 && (
@@ -212,6 +239,16 @@ const PokerTable: React.FC = () => {
                   card && <img key={index} src={card.image} alt={`${card.rank} of ${card.suit}`} />
                 ))}
               </div>
+              {currentRoundBetEndTimestamp && (
+                <div className="betting-controls">
+                  {currentRoundBetEndTimestamp > BigInt(0) && (
+                    <div>
+                      Current round Betting ends in: {betEndCountdown}
+                    </div>
+                  )}
+                </div>
+              )}
+
             </div>
           )}
           {participants.length >= 2 && (
@@ -222,6 +259,7 @@ const PokerTable: React.FC = () => {
                   card && <img key={i} src={card.image} alt={`${card.rank} of ${card.suit}`} />
                 ))}
               </div>
+              <h3>Total Bets: {totalBetsB}</h3>
               <select value={betAmount} onChange={(e) => setBetAmount(e.target.value)}>
                 <option value="0.001">0.001 ETH</option>
                 <option value="0.01">0.01 ETH</option>
@@ -234,11 +272,12 @@ const PokerTable: React.FC = () => {
                 onChange={(e) => setBetAmount(e.target.value)}
                 placeholder="Enter custom amount"
               />
-              <button onClick={handleBetOnPlayerB} disabled={gameState !== 0}>Bet on Player B</button>
+              <button onClick={handleBetOnPlayerB} disabled={gameState !== 0 || Number(betEndCountdown) <= 0}>Bet on Player B</button>
             </div>
           )}
         </div>
       )}
+
       <div className="betting-controls">
         <h2>Place Your Bet</h2>
       </div>
@@ -247,6 +286,7 @@ const PokerTable: React.FC = () => {
           <div key={index}>{msg}</div>
         ))}
       </div>
+
       <button onClick={claimWinnings}>Claim Winnings</button>
       <style jsx>{`
         .poker-table {
