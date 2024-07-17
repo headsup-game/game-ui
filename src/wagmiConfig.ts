@@ -8,7 +8,7 @@ import {
 } from 'wagmi/chains';
 
 const blast_sepolia = {
-  id: 43_114,
+  id: 168_587_773,
   name: 'Blast Sepolia',
   iconUrl: 'https://s2.coinmarketcap.com/static/img/coins/64x64/5805.png',
   iconBackground: '#fff',
