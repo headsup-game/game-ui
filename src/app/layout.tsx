@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Inter, Gabarito } from "next/font/google";
 import "./globals.css";
+import '@rainbow-me/rainbowkit/styles.css';
+import { Providers } from "./providers";
 
 const gabarito = Gabarito({
   subsets: ['latin'],
@@ -22,7 +24,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={gabarito.variable}>{children}</body>
+      <body className={gabarito.variable}>
+        <Providers>
+          {children}
+        </Providers>
+      </body>
     </html>
   );
 }
