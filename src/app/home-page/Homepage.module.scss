@@ -9,4 +9,103 @@
       no-repeat;
   background-position: center;
   background-size: cover;
+  padding-bottom: 80px;
+}
+
+.BannerContainer {
+  border-radius: var(--spacing-6, 24px);
+  margin-top: 50px;
+  padding: 44px 64px 110px;
+  color: #fff;
+  background: linear-gradient(90deg, rgba(72, 22, 160, 0) 27.52%, #4a17a1 100%),
+    url("/images/assets/banner-bg.png") #4a17a1 -410.589px 0px / 157.62% 100% no-repeat;
+  background-position: right;
+  background-size: contain;
+  margin-bottom: 32px !important;
+}
+
+.TasksCompleted {
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 120%; /* 16.8px */
+}
+
+.Heading {
+  font-family: "Monument Extended";
+  font-size: 48px;
+  font-weight: 800;
+  line-height: 120%; /* 57.6px */
+  margin-top: 8px;
+}
+
+.SubHeading {
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 120%; /* 19.2px */
+}
+
+.BannerCTA {
+  display: inline-flex;
+  padding: var(--spacing-2, 8px) var(--spacing-3, 12px);
+  justify-content: center;
+  align-items: center;
+  gap: var(--spacing-1, 4px);
+  border-radius: var(--radius-md, 8px);
+  border: 1px solid #fff;
+  background-color: transparent;
+  color: #fff;
+  margin-top: 18px;
+  &:hover,
+  &:focus {
+    background-color: #fff;
+    color: #4816a0 !important;
+    border-color: #fff !important;
+  }
+}
+
+// Explore Games
+
+.ExploreGamesHeading {
+  color: #fff;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 120%; /* 19.2px */
+  margin-bottom: 30px;
+}
+
+.GamesCard {
+  aspect-ratio: 1 / 1;
+  border-radius: 32.125px;
+  background: #34304c;
+  padding: 24px;
+  cursor: pointer;
+}
+
+.RealmOfAcesCard {
+  background: linear-gradient(180deg, rgba(72, 22, 160, 0) 20.43%, #4917a0 100%),
+    url("/images/assets/realm-of-aces-card.png") #4917a0 0px -91.793px / 100% 153.368%
+      no-repeat;
+  background-position: center center;
+  background-size: contain;
+}
+
+.GameTitle {
+  color: #fff;
+  font-family: "Monument Extended";
+  font-size: 32px;
+  font-weight: 800;
+  line-height: 120%; /* 38.4px */
+}
+
+.SubHeading {
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 120%; /* 28.8px */
+}
+
+.ComingSoonText {
+  color: rgba(255, 255, 255, 0.2);
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 120%; /* 28.8px */
 }

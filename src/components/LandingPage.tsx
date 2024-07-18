@@ -3,6 +3,7 @@
  * @see https://v0.dev/t/pnBeg0AfFLq
  * Documentation: https://v0.dev/docs#integrating-generated-code-into-your-nextjs-app
  */
+import Image from "next/image";
 import Link from "next/link"
 
 export default function LandingPageComponent() {
@@ -46,7 +47,7 @@ export default function LandingPageComponent() {
                   </Link>
                 </div>
               </div>
-              <img
+              <Image
                 alt="Poker Web3 Game"
                 className="mx-auto aspect-video overflow-hidden rounded-xl object-cover sm:w-full lg:order-last lg:aspect-square"
                 height="550"
