@@ -5,18 +5,8 @@ import { useWalletClient } from 'wagmi';
 import { getAccount, publicClient, walletClient } from './client';
 import { contractABI } from './abi';
 import {CardDto} from '../interfaces/cardDto';
-
+import { GameStateDto } from 'interfaces/gameStateDto';
 const contractAddress = '0x38bDa9F9bEF0C468f2E00E2B7892157fB6A249d5';
-
-export interface gameStateDTO {
-  gameState: number;
-  currentRoundNumber: number;
-  totalBetsOnPlayerA: number;
-  totalBetsOnPlayerB: number;
-  communityCards: readonly CardDto[];
-  currentRoundBetEndTimestamp: bigint;
-  nextGameStartTimestamp?: bigint;
-}
 
 export const getPlayerCardsFromContract = async (round) => {
   try {
@@ -152,12 +142,17 @@ export const getMinEntryFromContract = async () => {
   }
 };
 
-export const getGameInfoFromContract = async (): Promise<gameStateDTO> => {
+export const getGameInfoFromContract = async (): Promise<GameStateDto> => {
   return {
     gameState: 0,
     currentRoundNumber: 1,
-    totalBetsOnPlayerA: 1,
-    totalBetsOnPlayerB: 1,
+    totalNumberOfBetsOnPlayerA: 1,
+    totalBetAmountOnPlayerA: 1,
+    totalNumberOfBetsOnPlayerB: 1,
+    totalBetAmountOnPlayerB: 1,
+    minimumAllowedBetAmount: .001,
+    playerACards: [],
+    playerBCards: [],
     communityCards: [],
     currentRoundBetEndTimestamp: BigInt(1721049934),
     nextGameStartTimestamp: BigInt(1721049934),
