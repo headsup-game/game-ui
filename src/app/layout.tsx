@@ -1,12 +1,18 @@
 import type { Metadata } from "next";
-import { Inter, Gabarito } from "next/font/google";
+import { Inter, Gabarito, Kode_Mono } from "next/font/google";
 import "./globals.css";
 
 const gabarito = Gabarito({
-  subsets: ['latin'],
-  display: 'swap',
-  variable: '--font-gabarito',
-})
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-gabarito",
+});
+
+const KodeMono = Kode_Mono({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-kode-mono",
+});
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -22,7 +28,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={gabarito.variable}>{children}</body>
+      <body className={KodeMono.variable}>{children}</body>
     </html>
   );
 }
