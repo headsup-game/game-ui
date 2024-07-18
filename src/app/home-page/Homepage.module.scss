@@ -1,0 +1,12 @@
+.Home {
+  min-height: 100vh;
+  background: linear-gradient(
+      0deg,
+      rgba(20, 17, 39, 0.92) 0%,
+      rgba(20, 17, 39, 0.92) 100%
+    ),
+    url("/images/assets/home-bg.png") lightgray 0px -10.944px / 101.546% 110.272%
+      no-repeat;
+  background-position: center;
+  background-size: cover;
+}

@@ -1,0 +1,76 @@
+export const ANT_CUSTOM_THEME = {
+  token: {
+    size: 14,
+    borderRadius: 6,
+    wireframe: false,
+    colorPrimary: "#e44a32",
+    colorSuccess: "#008060",
+    colorError: "#cd432d",
+    colorInfo: "#008060",
+    colorTextBase: "#000000",
+    colorBorder: "#b0b0b0",
+    controlHeight: 40,
+    fontWeightStrong: 700,
+    fontSizeHeading1: 94,
+    fontSizeHeading2: 58,
+    fontSizeHeading3: 46,
+    fontSizeHeading4: 34,
+    fontSizeHeading5: 24,
+    fontSizeLG: 20,
+    fontSizeSM: 16,
+    fontSizeXL: 24,
+    lineHeight: 1.17,
+    fontFamily: "'Kode Mono', monospace",
+  },
+  components: {
+    Checkbox: {
+      colorPrimary: "#008060",
+      colorPrimaryBgHover: "#008060",
+      colorPrimaryHover: "#008060",
+      colorPrimaryTextHover: "#008060",
+    },
+    Switch: {
+      colorPrimary: "#000000",
+      colorPrimaryBgHover: "#000000",
+      colorPrimaryHover: "#000000",
+      colorPrimaryTextHover: "#000000",
+    },
+    Select: {
+      colorPrimary: "#b0b0b0",
+      colorPrimaryHover: "#212121",
+    },
+    Radio: {
+      colorPrimary: "#008060",
+      colorPrimaryActive: "#000000",
+      colorPrimaryBgHover: "#008060",
+      colorPrimaryHover: "#008060",
+      colorPrimaryTextHover: "#008060",
+    },
+    RadioButton: {
+      colorPrimary: "#008060",
+      colorPrimaryBgHover: "#008060",
+      colorPrimaryHover: "#008060",
+      colorPrimaryTextHover: "#008060",
+    },
+    InputNumber: {
+      colorPrimary: "#b0b0b0",
+      colorPrimaryHover: "#212121",
+      colorPrimaryActive: "#212121",
+      colorPrimaryTextHover: "#212121",
+      colorPrimaryBgHover: "#212121",
+    },
+    Button: {
+      colorPrimary: "#141414",
+      colorPrimaryHover: "#212121",
+    },
+    Spin: {
+      colorPrimary: "#2e2c2c",
+    },
+    Modal: {
+      colorBgMask: "rgba(0, 0, 0, 0.15)",
+    },
+    Pagination: {
+      colorPrimary: "#000",
+    },
+  },
+};
