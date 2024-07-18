@@ -243,7 +243,7 @@ const PokerTable: React.FC = () => {
                 ))}
               </div>
               {currentRoundBetEndTimestamp && (
-                <div className="betting-controls">
+                <div className="mt-20">
                   {currentRoundBetEndTimestamp > BigInt(0) && (
                     <div>
                       Current round Betting ends in: {betEndCountdown}
