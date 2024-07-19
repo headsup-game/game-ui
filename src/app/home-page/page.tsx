@@ -1,6 +1,15 @@
 "use client";
 
-import { Button, Col, Flex, Layout, Row, Typography } from "antd";
+import {
+  Button,
+  Col,
+  Collapse,
+  CollapseProps,
+  Flex,
+  Layout,
+  Row,
+  Typography,
+} from "antd";
 import Navigation from "app/home-page/Navigation/Navigation";
 import React from "react";
 import styles from "./Homepage.module.scss";
@@ -8,9 +17,32 @@ import Container from "app/components/Container/Container";
 import { IoMdLock } from "react-icons/io";
 import { motion } from "framer-motion";
 
-const { Paragraph } = Typography;
+const { Paragraph, Title } = Typography;
 
 const HomePage = () => {
+  const text = `lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum`;
+  const items: CollapseProps["items"] = [
+    {
+      key: "1",
+      label: "Where can I watch?",
+      children: <p>{text}</p>,
+    },
+    {
+      key: "2",
+      label: "Where can I watch?",
+      children: <p>{text}</p>,
+    },
+    {
+      key: "3",
+      label: "Where can I watch?",
+      children: <p>{text}</p>,
+    },
+    {
+      key: "4",
+      label: "What is the game?",
+      children: <p>{text}</p>,
+    },
+  ];
   return (
     <Layout className={styles.Home}>
       <Navigation />
@@ -33,17 +65,17 @@ const HomePage = () => {
 
         {/* Explore Games */}
         <Container>
-          <h2 className={styles.ExploreGamesHeading}>Explore Games</h2>
+          <Title level={2} className={styles.ExploreGamesHeading}>
+            Explore Games
+          </Title>
           <Row align={"middle"} gutter={48}>
             <Col span={8}>
               <motion.div
                 initial={{ opacity: 1, scale: 1 }}
                 whileHover={{ scale: 1.05 }}
                 transition={{
-                  type: "spring",
-                  stiffness: 400,
-                  damping: 10,
-                  duration: 0.5,
+                  type: "tween",
+                  duration: 0.3,
                 }}
               >
                 <Flex
@@ -61,10 +93,8 @@ const HomePage = () => {
                 initial={{ opacity: 1, scale: 1 }}
                 whileHover={{ scale: 1.05 }}
                 transition={{
-                  type: "spring",
-                  stiffness: 400,
-                  damping: 10,
-                  duration: 0.5,
+                  type: "tween",
+                  duration: 0.3,
                 }}
               >
                 <Flex vertical className={styles.GamesCard} justify="center">
@@ -80,10 +110,8 @@ const HomePage = () => {
                 initial={{ opacity: 1, scale: 1 }}
                 whileHover={{ scale: 1.05 }}
                 transition={{
-                  type: "spring",
-                  stiffness: 400,
-                  damping: 10,
-                  duration: 0.5,
+                  type: "tween",
+                  duration: 0.3,
                 }}
               >
                 <Flex vertical className={styles.GamesCard} justify="center">
@@ -95,6 +123,21 @@ const HomePage = () => {
               </motion.div>
             </Col>
           </Row>
+        </Container>
+
+        {/* FAQ */}
+        <Container className={styles.FAQContainer}>
+          <Title level={2} className={styles.FAQHeading}>
+            FAQ
+          </Title>
+          <Collapse
+            className={styles.FAQCollapse}
+            defaultActiveKey={["1"]}
+            ghost
+            items={items}
+            accordion
+            expandIconPosition="right"
+          />
         </Container>
       </Container>
     </Layout>
