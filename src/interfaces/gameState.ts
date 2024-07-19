@@ -19,25 +19,31 @@ export type GameState = {
   communityCards: Card[]
   winningParticipant: Participant | null
   minimumAllowedBetAmount: number
-  currentRoundEndDateTime: Date
-  nextRoundStartDateTime?: Date
+  currentRoundEndTimeStamp: number
+  nextRoundStartTimeStamp?: number
 }
 
-export function getGameStateFromGameStateDto(gameStateDto: GameStateDto): GameState{
-  let participantA : Participant = {
+export function getGameStateFromGameStateDto(gameStateDto: GameStateDto): GameState | null {
+  if (gameStateDto == null) {
+    return null;
+  }
+
+  let participantA: Participant = {
+    id: 0,
     cards: gameStateDto.playerACards?.map(cardDto => getCardFromCardDto(cardDto)),
     totalNumberOfBets: gameStateDto.totalNumberOfBetsOnPlayerA,
     totalBetAmounts: gameStateDto.totalNumberOfBetsOnPlayerA,
   }
 
-  let participantB : Participant = {
+  let participantB: Participant = {
+    id: 1,
     cards: gameStateDto.playerBCards?.map(cardDto => getCardFromCardDto(cardDto)),
     totalNumberOfBets: gameStateDto.totalNumberOfBetsOnPlayerB,
     totalBetAmounts: gameStateDto.totalNumberOfBetsOnPlayerB,
   }
 
   let state: RoundState = gameStateDto.gameState as RoundState
-  let communityCards : Card[] = gameStateDto.communityCards?.map(cardDto => getCardFromCardDto(cardDto))
+  let communityCards: Card[] = gameStateDto.communityCards?.map(cardDto => getCardFromCardDto(cardDto))
 
   return {
     state: state,
@@ -46,7 +52,7 @@ export function getGameStateFromGameStateDto(gameStateDto: GameStateDto): GameSt
     communityCards: communityCards,
     winningParticipant: null,
     minimumAllowedBetAmount: gameStateDto.minimumAllowedBetAmount,
-    currentRoundEndDateTime: new Date(Number(gameStateDto.currentRoundBetEndTimestamp)),
-    nextRoundStartDateTime: gameStateDto.nextGameStartTimestamp ? new Date(Number(gameStateDto.nextGameStartTimestamp)) : undefined
+    currentRoundEndTimeStamp: Number(gameStateDto.currentRoundBetEndTimestamp),
+    nextRoundStartTimeStamp: gameStateDto?.nextGameStartTimestamp ? Number(gameStateDto.nextGameStartTimestamp) : undefined
   }
 }
