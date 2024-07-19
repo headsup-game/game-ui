@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
 import { Inter, Gabarito, Kode_Mono } from "next/font/google";
 import "./globals.css";
+import Container from "app/components/Container/Container";
+import { Layout } from "antd";
+import styles from "./home-page/Homepage.module.scss";
+import Navigation from "app/home-page/Navigation/Navigation";
 
 const gabarito = Gabarito({
   subsets: ["latin"],
@@ -28,7 +32,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={KodeMono.variable}>{children}</body>
+      <body className={`${KodeMono.variable} ${styles.Home}`}>
+        {/* <Navigation /> */}
+        <Container type="fluid">{children}</Container>
+      </body>
     </html>
   );
 }
