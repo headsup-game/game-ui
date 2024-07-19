@@ -3,6 +3,8 @@ import { Inter, Gabarito, Kode_Mono } from "next/font/google";
 import "./globals.css";
 import '@rainbow-me/rainbowkit/styles.css';
 import { Providers } from "./providers";
+import Container from "app/components/Container/Container";
+import styles from "./home-page/Homepage.module.scss";
 
 const gabarito = Gabarito({
   subsets: ["latin"],
@@ -30,9 +32,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={KodeMono.variable}>
+      <body className={`${KodeMono.variable} ${styles.Home}`}>
         <Providers>
-          {children}
+          <Container type="fluid">{children}</Container>
         </Providers>
       </body>
     </html>

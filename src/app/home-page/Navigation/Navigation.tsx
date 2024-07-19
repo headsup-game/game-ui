@@ -1,17 +1,16 @@
-"use client";
-
-import { Flex, Layout, Menu, MenuProps, Image } from "antd";
+import { Layout, Menu, MenuProps, Image } from "antd";
 import React from "react";
 import styles from "./Navigation.module.scss";
-import Container from "app/components/Container/Container";
+import Link from "next/link";
 
-const { Header, Footer, Sider, Content } = Layout;
+const { Header } = Layout;
 
 const Navigation = () => {
   const items1: MenuProps["items"] = [
     {
       key: "1",
-      label: "Home",
+      // label: <Link href="/home-page">Home</Link>,
+      label: "home",
       className: styles.NavItem,
     },
     {
