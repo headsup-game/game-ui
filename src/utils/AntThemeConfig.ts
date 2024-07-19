@@ -1,5 +1,8 @@
+import { theme } from "antd";
+
 export const ANT_CUSTOM_THEME = {
   token: {
+    theme: "dark",
     size: 14,
     borderRadius: 6,
     wireframe: false,
@@ -21,56 +24,5 @@ export const ANT_CUSTOM_THEME = {
     fontSizeXL: 24,
     lineHeight: 1.17,
     fontFamily: "'Kode Mono', monospace",
-  },
-  components: {
-    Checkbox: {
-      colorPrimary: "#008060",
-      colorPrimaryBgHover: "#008060",
-      colorPrimaryHover: "#008060",
-      colorPrimaryTextHover: "#008060",
-    },
-    Switch: {
-      colorPrimary: "#000000",
-      colorPrimaryBgHover: "#000000",
-      colorPrimaryHover: "#000000",
-      colorPrimaryTextHover: "#000000",
-    },
-    Select: {
-      colorPrimary: "#b0b0b0",
-      colorPrimaryHover: "#212121",
-    },
-    Radio: {
-      colorPrimary: "#008060",
-      colorPrimaryActive: "#000000",
-      colorPrimaryBgHover: "#008060",
-      colorPrimaryHover: "#008060",
-      colorPrimaryTextHover: "#008060",
-    },
-    RadioButton: {
-      colorPrimary: "#008060",
-      colorPrimaryBgHover: "#008060",
-      colorPrimaryHover: "#008060",
-      colorPrimaryTextHover: "#008060",
-    },
-    InputNumber: {
-      colorPrimary: "#b0b0b0",
-      colorPrimaryHover: "#212121",
-      colorPrimaryActive: "#212121",
-      colorPrimaryTextHover: "#212121",
-      colorPrimaryBgHover: "#212121",
-    },
-    Button: {
-      colorPrimary: "#141414",
-      colorPrimaryHover: "#212121",
-    },
-    Spin: {
-      colorPrimary: "#2e2c2c",
-    },
-    Modal: {
-      colorBgMask: "rgba(0, 0, 0, 0.15)",
-    },
-    Pagination: {
-      colorPrimary: "#000",
-    },
   },
 };

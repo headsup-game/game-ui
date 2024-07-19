@@ -45,7 +45,7 @@ const HomePage = () => {
   ];
   return (
     <Layout className={styles.Home}>
-      <Navigation />
+      {/* <Navigation /> */}
       <Container type="fluid">
         {/* Banner */}
         <Container>

@@ -1,0 +1,47 @@
+.GameContainer {
+  border-radius: var(--spacing-6, 24px);
+  background: #060215;
+  margin: 80px 0;
+  padding: 34px;
+}
+
+.GameActionsContainer {
+  border-radius: var(--spacing-6, 24px);
+  background: #141127;
+  padding: 16px;
+}
+
+.GameCard {
+  border-radius: var(--spacing-4, 16px);
+  background: #4816a0;
+  width: 100%;
+  height: 170px;
+  object-fit: cover;
+  object-position: top center;
+}
+
+.GameCardHeading {
+  position: absolute;
+  text-align: center;
+  bottom: 20px;
+  left: 11%;
+  right: 11%;
+  color: #fff;
+  font-family: "Monument Extended";
+  font-size: 32px;
+  font-weight: 800;
+  line-height: 120%; /* 38.4px */
+}
+
+.BetForm {
+  margin: 20px 0;
+  color: #fff;
+}
+
+.BetFormItem {
+  :global {
+    .ant-form-item-label * {
+      color: #fff !important;
+    }
+  }
+}

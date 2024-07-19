@@ -1,3 +1,5 @@
+"use client";
+
 import { Layout, Menu, MenuProps, Image } from "antd";
 import React from "react";
 import styles from "./Navigation.module.scss";
@@ -9,13 +11,12 @@ const Navigation = () => {
   const items1: MenuProps["items"] = [
     {
       key: "1",
-      // label: <Link href="/home-page">Home</Link>,
-      label: "home",
+      label: <Link href="/home-page">Home</Link>,
       className: styles.NavItem,
     },
     {
       key: "2",
-      label: "Games",
+      label: <Link href="/game">Games</Link>,
       className: styles.NavItem,
     },
     {
