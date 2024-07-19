@@ -9,6 +9,7 @@
       no-repeat;
   background-position: center;
   background-size: cover;
+  background-attachment: fixed;
   padding-bottom: 80px;
 }
 
@@ -66,7 +67,7 @@
 // Explore Games
 
 .ExploreGamesHeading {
-  color: #fff;
+  color: #fff !important;
   font-size: 16px;
   font-weight: 700;
   line-height: 120%; /* 19.2px */
@@ -108,4 +109,59 @@
   font-size: 24px;
   font-weight: 400;
   line-height: 120%; /* 28.8px */
+}
+
+// FAQ
+
+.FAQContainer {
+  margin-top: 60px !important;
+  border-radius: var(--spacing-6, 24px);
+  border: 1px solid #312a5e;
+  background: #141127;
+  padding: 54px 63px 70px 64px;
+}
+
+.FAQHeading {
+  color: #fff !important;
+  font-family: "Monument Extended";
+  font-size: 48px;
+  font-weight: 800;
+  line-height: 120%; /* 57.6px */
+}
+
+.FAQCollapse {
+  color: #fff !important;
+  margin-top: 40px;
+  :global {
+    .ant-collapse-header-text {
+      color: #fff;
+      font-size: 18px;
+      font-weight: 700;
+      line-height: 120%; /* 21.6px */
+    }
+    .ant-collapse-arrow {
+      & svg {
+        fill: #6f1df4;
+        font-size: 16px;
+        stroke-width: 2px;
+      }
+    }
+    .ant-collapse-content-box {
+      color: #fff;
+    }
+    .ant-collapse-item {
+      padding: 18px var(--spacing-6, 24px);
+      border-radius: 8px;
+      border: 1px solid #312a5e !important;
+      margin-bottom: 14px;
+    }
+    .ant-collapse-header {
+      width: 100%;
+    }
+    .ant-collapse-content-box {
+      font-size: 18px;
+      font-weight: 400;
+      line-height: 140%; /* 25.2px */
+    }
+  }
 }
