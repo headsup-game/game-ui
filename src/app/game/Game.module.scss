@@ -1,7 +1,7 @@
 .GameContainer {
   border-radius: var(--spacing-6, 24px);
   background: #060215;
-  margin: 80px 0;
+  margin: 80px 0 54px;
   padding: 34px;
 }
 
@@ -165,4 +165,14 @@
   font-weight: 400;
   line-height: 24px; /* 171.429% */
   margin-bottom: 24px;
+}
+
+.RecentBetsTitle {
+  color: #fff !important;
+  font-family: "Kode Mono";
+  font-size: 32px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: normal;
+  margin-bottom: 24px !important;
 }

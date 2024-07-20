@@ -3,6 +3,7 @@ import styles from "./Game.module.scss";
 import { Button, Col, Flex, Form, Row } from "antd";
 import Image from "next/image";
 import BetForm from "app/game/BetForm";
+import RecentBets from "app/game/RecentBets";
 
 const Game = () => {
   return (
@@ -33,6 +34,9 @@ const Game = () => {
           </Flex>
         </Col>
       </Row>
+
+      {/* Recent Bets */}
+      <RecentBets />
     </Container>
   );
 };
