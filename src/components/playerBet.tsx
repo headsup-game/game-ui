@@ -12,7 +12,7 @@ type PlayerBetProps = {
 }
 
 export const PlayerBet: React.FC<PlayerBetProps> = ({ roundNumber, playerId, playerName, cards, totalBetAmounts, onBetStateChange }) => {
-  const [betAmount, setBetAmount] = useState<number>(0);
+  const [betAmount, setBetAmount] = useState<number>(0.01);
 
   const handleBetState = useCallback((state: string) => {
     onBetStateChange(state);
