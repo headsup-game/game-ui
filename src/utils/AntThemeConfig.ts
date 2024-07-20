@@ -1,17 +1,18 @@
-import { theme } from "antd";
+import { ThemeConfig } from "antd";
 
-export const ANT_CUSTOM_THEME = {
+export const ANT_CUSTOM_THEME: ThemeConfig = {
+  cssVar: true,
   token: {
-    theme: "dark",
     size: 14,
     borderRadius: 6,
     wireframe: false,
-    colorPrimary: "#e44a32",
+    colorPrimary: "#7047EB",
     colorSuccess: "#008060",
     colorError: "#cd432d",
     colorInfo: "#008060",
     colorTextBase: "#000000",
     colorBorder: "#b0b0b0",
+    colorPrimaryHover: "#7047EB",
     controlHeight: 40,
     fontWeightStrong: 700,
     fontSizeHeading1: 94,
@@ -24,5 +25,13 @@ export const ANT_CUSTOM_THEME = {
     fontSizeXL: 24,
     lineHeight: 1.17,
     fontFamily: "'Kode Mono', monospace",
+  },
+  components: {
+    Button: {
+      colorBorder: "rgba(255, 255, 255, 0.20)",
+    },
+    Input: {
+      colorBorder: "rgba(255, 255, 255, 0.20)",
+    },
   },
 };

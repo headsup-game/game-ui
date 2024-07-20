@@ -4,18 +4,21 @@ import { Button, Col, Flex, Form, InputNumber, Radio, Row } from "antd";
 import styles from "./Game.module.scss";
 import { FaEthereum } from "react-icons/fa";
 import { useState } from "react";
+import { CurrencyFormatter } from "utils/formatters";
 
 const BetForm = () => {
   const [BetForm] = Form.useForm();
   const [requestInProgress, setRequestInProgress] = useState(false);
+  const [betAmountFiat, setBetAmountFiat] = useState(0);
+  const [rounds, setRounds] = useState(1);
 
   const submitBet = (values) => {
     setRequestInProgress(true);
-    const { amount, side, rounds } = values;
+    const { side, amount } = values;
     const postObj = {
-      amount,
+      amount: amount,
       side,
-      rounds,
+      rounds: rounds,
     };
     setTimeout(() => {
       setRequestInProgress(false);
@@ -29,10 +32,14 @@ const BetForm = () => {
       layout="vertical"
       className={styles.BetForm}
       onFinish={submitBet}
+      requiredMark={false}
+      colon
       initialValues={{
-        amount: 0,
+        amount: betAmountFiat || 0,
+        rounds: rounds || 1,
       }}
     >
+      {/* Side */}
       <Form.Item
         name="side"
         label="Pick A Side"
@@ -59,11 +66,11 @@ const BetForm = () => {
           </Radio.Button>
         </Radio.Group>
       </Form.Item>
+
+      {/* Current balance */}
       <Flex
-        style={{
-          cursor: "pointer",
-        }}
-        onClick={() => BetForm.setFieldValue("amount", 0.003)}
+        className={styles.BetFormBalance}
+        onClick={() => setBetAmountFiat(0.003)}
       >
         Current Balance: 0.003 ETH
       </Flex>
@@ -73,17 +80,47 @@ const BetForm = () => {
         label="Enter Bet Amount in ETH"
         name="amount"
         className={styles.BetFormItem}
+        style={{
+          marginBottom: 0,
+        }}
       >
         <InputNumber
           min={0}
           step={0.001}
           precision={3}
-          prefix={<FaEthereum />}
+          prefix={<FaEthereum color="#fff" />}
           style={{
             width: "100%",
           }}
+          onChange={(val) => setBetAmountFiat(Number(val))}
         />
       </Form.Item>
+
+      {/* Bet Amount */}
+      <Flex
+        align="center"
+        justify="space-between"
+        style={{
+          marginTop: 8,
+          marginBottom: 24,
+        }}
+      >
+        {CurrencyFormatter(betAmountFiat * 3500, 2, "USD")}
+        <Flex align="center" gap={6}>
+          {[0.01, 0.05, 0.1].map((item) => (
+            <Button
+              key={item}
+              className={styles.BetFormButton}
+              onClick={() => {
+                BetForm.setFieldsValue({ amount: Number(item) });
+                setBetAmountFiat(item);
+              }}
+            >
+              {item}
+            </Button>
+          ))}
+        </Flex>
+      </Flex>
 
       {/* Play for rounds */}
       <Form.Item
@@ -91,21 +128,34 @@ const BetForm = () => {
         name="rounds"
         className={styles.BetFormItem}
       >
-        <Radio.Group>
-          <Radio.Button value={1}>1</Radio.Button>
-          <Radio.Button value={2}>2</Radio.Button>
-          <Radio.Button value={5}>5</Radio.Button>
-          <Radio.Button value={10}>10</Radio.Button>
-          <Radio.Button value={20}>20</Radio.Button>
-        </Radio.Group>
+        <Flex align="center" gap={6}>
+          {[1, 2, 5, 10, 15]?.map((item) => (
+            <Button
+              key={item}
+              className={`${styles.BetFormButton} ${
+                item === rounds && styles.BetFormButtonActive
+              }`}
+              onClick={() => setRounds(item)}
+            >
+              {item}
+            </Button>
+          ))}
+        </Flex>
       </Form.Item>
-      <Row>
-        <Col span={16}>TOTAL AMOUNT: 0.03 ETH</Col>
-        <Col span={8}>
+      <Row gutter={12}>
+        <Col span={13} className={styles.BetFormTotal}>
+          TOTAL AMOUNT:{" "}
+          {BetForm?.getFieldValue("amount") > 0
+            ? BetForm?.getFieldValue("amount") * rounds
+            : 0}
+          ETH
+        </Col>
+        <Col span={11}>
           <Button
             type="primary"
             htmlType="submit"
-            className={styles.BetFormButton}
+            block
+            className={styles.BetFormCTA}
             loading={requestInProgress}
             disabled={requestInProgress}
           >
