@@ -8,7 +8,7 @@ import Link from "next/link";
 const { Header } = Layout;
 
 const Navigation = () => {
-  const items1: MenuProps["items"] = [
+  const NavItems: MenuProps["items"] = [
     {
       key: "1",
       label: <Link href="/home-page">Home</Link>,
@@ -46,8 +46,8 @@ const Navigation = () => {
       <Menu
         theme="dark"
         mode="horizontal"
-        defaultSelectedKeys={["2"]}
-        items={items1}
+        defaultSelectedKeys={["1"]}
+        items={NavItems}
         style={{ flex: 1, minWidth: 0 }}
         className={styles.Menu}
       />

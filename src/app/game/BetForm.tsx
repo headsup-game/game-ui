@@ -44,9 +44,19 @@ const BetForm = () => {
           },
         ]}
       >
-        <Radio.Group>
-          <Radio.Button value={"red"}>Red</Radio.Button>
-          <Radio.Button value={"blue"}>Blue</Radio.Button>
+        <Radio.Group className={styles.BetFormRadio}>
+          <Radio.Button
+            value={"red"}
+            style={{ background: "red", borderColor: "red" }}
+          >
+            Red
+          </Radio.Button>
+          <Radio.Button
+            value={"blue"}
+            style={{ background: "blue", borderColor: "blue" }}
+          >
+            Blue
+          </Radio.Button>
         </Radio.Group>
       </Form.Item>
       <Flex
