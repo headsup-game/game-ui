@@ -176,3 +176,34 @@
   line-height: normal;
   margin-bottom: 24px !important;
 }
+
+.GameTimer {
+  height: 84px;
+  width: 84px;
+  border-radius: 50%;
+  color: #fff;
+  border: 2.316px solid #fff;
+  font-family: "Digital Numbers";
+  font-size: 41.256px;
+  font-weight: var(--radius-3xl, 400);
+  line-height: 55.008px; /* 133.333% */
+}
+
+.FlopCardsContainer {
+  display: flex;
+  align-items: center;
+  margin-top: 60px;
+  gap: 16px;
+  :global {
+    .ant-col {
+      width: calc(100% / 5 - 16px) !important;
+    }
+  }
+}
+
+.FlopCard {
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+  border-radius: 8px;
+}

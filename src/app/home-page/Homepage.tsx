@@ -16,6 +16,7 @@ import styles from "./Homepage.module.scss";
 import Container from "app/components/Container/Container";
 import { IoMdLock } from "react-icons/io";
 import { motion } from "framer-motion";
+import Link from "next/link";
 
 const { Paragraph, Title } = Typography;
 
@@ -78,14 +79,16 @@ const HomePage = () => {
                   duration: 0.3,
                 }}
               >
-                <Flex
-                  vertical
-                  className={`${styles.GamesCard} ${styles.RealmOfAcesCard}`}
-                  justify="flex-end"
-                >
-                  <Flex className={styles.GameTitle}>Realm of Aces</Flex>
-                  <Flex className={styles.SubHeading}>Heads Up Poker</Flex>
-                </Flex>
+                <Link href="/game">
+                  <Flex
+                    vertical
+                    className={`${styles.GamesCard} ${styles.RealmOfAcesCard}`}
+                    justify="flex-end"
+                  >
+                    <Flex className={styles.GameTitle}>Realm of Aces</Flex>
+                    <Flex className={styles.SubHeading}>Heads Up Poker</Flex>
+                  </Flex>
+                </Link>
               </motion.div>
             </Col>
             <Col span={8}>
