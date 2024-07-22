@@ -1,0 +1,22 @@
+query SampleQuery($dragonId: ID!) {
+  company {
+    ceo
+  }
+  roadster {
+    apoapsis_au
+  }
+  capsulesUpcoming {
+    dragon {
+      active
+      crew_capacity
+    }
+  }
+  dragons {
+    id
+  }
+  dragon(id: $dragonId) {
+    id
+    active
+    crew_capacity
+  }
+}
