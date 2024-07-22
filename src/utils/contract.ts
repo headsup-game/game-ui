@@ -1,5 +1,5 @@
-import { GameStateDto } from 'interfaces/gameStateDto';
-import { Rank, Suit } from 'interfaces/card';
+import { GameStateDto } from '../interfaces/gameStateDto';
+import { Rank, Suit } from '../interfaces/card';
 
 export const getGameInfoFromContract = async (): Promise<GameStateDto> => {
   return {
@@ -20,9 +20,9 @@ export const getGameInfoFromContract = async (): Promise<GameStateDto> => {
     ],
     communityCards: [
       { suit: Suit.Hearts, rank: Rank.Ace },
-      { suit: Suit.Clubs, rank: Rank.Two }, 
-      { suit: Suit.Diamonds, rank: Rank.Three }, 
-      { suit: Suit.Spades, rank: Rank.Four }, 
+      { suit: Suit.Clubs, rank: Rank.Two },
+      { suit: Suit.Diamonds, rank: Rank.Three },
+      { suit: Suit.Spades, rank: Rank.Four },
       { suit: Suit.Hearts, rank: Rank.Five }
     ],
     currentRoundBetEndTimestamp: BigInt(1721049934),
