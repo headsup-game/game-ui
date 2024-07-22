@@ -1,12 +1,14 @@
 import Container from "app/components/Container/Container";
 import styles from "./Game.module.scss";
-import { Col, Flex, Row } from "antd";
+import { Col, Divider, Flex, Row } from "antd";
 import Image from "next/image";
 import BetForm from "app/game/BetForm";
 import RecentBets from "app/game/RecentBets";
 import dynamic from "next/dynamic";
 import FlipCard from "@components/FlipCard";
 import FlopCards from "app/game/FlopCards";
+import { useState } from "react";
+import GameCards from "app/game/GameCards";
 
 const GameTimer = dynamic(() => import("app/game/GameTimer"), { ssr: false });
 
@@ -16,7 +18,7 @@ const Game = () => {
 
   return (
     <Container>
-      <Row className={styles.GameContainer}>
+      <Row className={styles.GameContainer} gutter={20}>
         {/* Game Timer */}
         <Col span={3}>
           <Flex vertical gap={14} align="center">
@@ -29,6 +31,9 @@ const Game = () => {
         <Col span={15}>
           {/* Flop Cards */}
           <FlopCards />
+
+          {/* Game Cards */}
+          <GameCards />
         </Col>
 
         {/* Game Controls/Actions */}

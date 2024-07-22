@@ -5,7 +5,7 @@ import FlipCard from "@components/FlipCard";
 
 const FlopCards = () => {
   return (
-    <Row className={styles.FlopCardsContainer}>
+    <Row className={styles.FlopCardsContainer} align={"middle"}>
       <Col>
         <Flex>
           <Image
@@ -41,7 +41,7 @@ const FlopCards = () => {
       </Col>
       <Col>
         <FlipCard
-          width={`100%`}
+          width={"100%"}
           frontContent={
             <Image
               src="/images/ace_of_diamonds.png"
@@ -64,13 +64,14 @@ const FlopCards = () => {
       </Col>
       <Col>
         <FlipCard
-          width={`100%`}
+          width={"100%"}
           frontContent={
             <Image
               src="/images/seven_of_hearts.png"
               alt="two_of_clubs"
               width={200}
               height={170}
+              className={styles.FlopCard}
             />
           }
           backContent={

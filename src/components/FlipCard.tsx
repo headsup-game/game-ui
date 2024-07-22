@@ -11,8 +11,8 @@ interface FlipCardProps {
 }
 
 const FlipCard: React.FC<FlipCardProps> = ({
-  width = 130,
-  height = 200,
+  width = 108,
+  height = 158,
   frontContent,
   backContent,
 }) => {
@@ -77,10 +77,11 @@ const FlipCard: React.FC<FlipCardProps> = ({
       onClick={handleClick}
       transition={spring}
       style={{
-        perspective: "1200px",
+        perspective: "400px",
         transformStyle: "preserve-3d",
         width: width,
-        height: height,
+        display: "flex",
+        aspectRatio: "63/88",
       }}
     >
       <motion.div
@@ -98,7 +99,7 @@ const FlipCard: React.FC<FlipCardProps> = ({
       >
         <div
           style={{
-            perspective: "1200px",
+            perspective: "400px",
             transformStyle: "preserve-3d",
             width: "100%",
             height: "100%",
@@ -113,6 +114,7 @@ const FlipCard: React.FC<FlipCardProps> = ({
               zIndex: isFlipped ? 0 : 1,
               backfaceVisibility: "hidden",
               position: "absolute",
+              aspectRatio: "63/88",
             }}
           >
             {frontContent}
@@ -127,6 +129,7 @@ const FlipCard: React.FC<FlipCardProps> = ({
               zIndex: isFlipped ? 1 : 0,
               backfaceVisibility: "hidden",
               position: "absolute",
+              aspectRatio: "63/88",
             }}
           >
             {backContent}
