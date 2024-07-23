@@ -13,7 +13,7 @@ import { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/
  * Therefore it is highly recommended to use the babel or swc plugin for production.
  */
 const documents = {
-    "\n    query SampleQuery($dragonId: ID!) {\n      company {\n        ceo\n      }\n      \n      roadster {\n        apoapsis_au\n      }\n      capsulesUpcoming {\n        dragon {\n          active\n          crew_capacity\n        }\n      }\n      dragons {\n        id\n      }\n      dragon(id: $dragonId) {\n        id\n        active\n        crew_capacity\n      }\n    }\n  ": types.SampleQueryDocument,
+    "\n    query GetOrders {\n      states {\n        protocolFeePercent\n      }\n      orders(first: 5) {\n        id\n        yieldEarned\n        orderId\n        creator {\n          id\n        }\n        recipient\n      }\n    }\n  ": types.GetOrdersDocument,
 };
 
 /**
@@ -33,7 +33,7 @@ export function graphql(source: string): unknown;
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function graphql(source: "\n    query SampleQuery($dragonId: ID!) {\n      company {\n        ceo\n      }\n      \n      roadster {\n        apoapsis_au\n      }\n      capsulesUpcoming {\n        dragon {\n          active\n          crew_capacity\n        }\n      }\n      dragons {\n        id\n      }\n      dragon(id: $dragonId) {\n        id\n        active\n        crew_capacity\n      }\n    }\n  "): (typeof documents)["\n    query SampleQuery($dragonId: ID!) {\n      company {\n        ceo\n      }\n      \n      roadster {\n        apoapsis_au\n      }\n      capsulesUpcoming {\n        dragon {\n          active\n          crew_capacity\n        }\n      }\n      dragons {\n        id\n      }\n      dragon(id: $dragonId) {\n        id\n        active\n        crew_capacity\n      }\n    }\n  "];
+export function graphql(source: "\n    query GetOrders {\n      states {\n        protocolFeePercent\n      }\n      orders(first: 5) {\n        id\n        yieldEarned\n        orderId\n        creator {\n          id\n        }\n        recipient\n      }\n    }\n  "): (typeof documents)["\n    query GetOrders {\n      states {\n        protocolFeePercent\n      }\n      orders(first: 5) {\n        id\n        yieldEarned\n        orderId\n        creator {\n          id\n        }\n        recipient\n      }\n    }\n  "];
 
 export function graphql(source: string) {
   return (documents as any)[source] ?? {};

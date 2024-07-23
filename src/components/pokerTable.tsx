@@ -11,6 +11,11 @@ import { PlayerBet } from './playerBet';
 import { CommunityCards } from './communityCards';
 import { ClaimWinnings } from './claimWinnings';
 import { Timer } from './timer';
+import {
+  useQuery,
+} from '@tanstack/react-query'
+import { graphql } from '../gql/src';
+import { client } from '../graphql/client';
 
 const PokerTable: React.FC = () => {
   const [gameState, setGameState] = useState<GameState | null>(null);
@@ -21,6 +26,36 @@ const PokerTable: React.FC = () => {
   const handleDisconnect = () => {
     disconnect();
   };
+
+  const Subgraphs = graphql(`
+    query GetOrders {
+      states {
+        protocolFeePercent
+      }
+      orders(first: 5) {
+        id
+        yieldEarned
+        orderId
+        creator {
+          id
+        }
+        recipient
+      }
+    }
+  `);
+
+
+
+  const { data, isFetching } = useQuery({
+    queryKey: ['repoData'],
+    queryFn: async ()=>
+      client.request(
+          Subgraphs,
+          {
+
+          }
+      )
+  })
 
   useEffect(() => {
     const fetchGameState = async () => {
@@ -62,7 +97,14 @@ const PokerTable: React.FC = () => {
         ))}
       </div>
       {gameState && <ClaimWinnings roundNumber={gameState.roundNumber} onClaimWinningsStateChange={handleLogs} />}
+      <div>{isFetching ? 'Updating...' : ''}</div>
+      {data && data.orders.map((order: any) => (
+        <div key={order.id}>
+          <h1>{order.id}</h1>
+        </div>
+      ))}
     </div>
+
   );
 };
 
