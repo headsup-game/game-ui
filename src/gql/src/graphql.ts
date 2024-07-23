@@ -14,1319 +14,1105 @@ export type Scalars = {
   Boolean: { input: boolean; output: boolean; }
   Int: { input: number; output: number; }
   Float: { input: number; output: number; }
-  Date: { input: any; output: any; }
-  ObjectID: { input: any; output: any; }
-  timestamptz: { input: any; output: any; }
-  uuid: { input: any; output: any; }
+  BigDecimal: { input: any; output: any; }
+  BigInt: { input: any; output: any; }
+  Bytes: { input: any; output: any; }
+  /**
+   * 8 bytes signed integer
+   *
+   */
+  Int8: { input: any; output: any; }
+  /**
+   * A string representation of microseconds UNIX timestamp (16 digits)
+   *
+   */
+  Timestamp: { input: any; output: any; }
 };
 
-export type Address = {
-  __typename?: 'Address';
-  address?: Maybe<Scalars['String']['output']>;
-  city?: Maybe<Scalars['String']['output']>;
-  state?: Maybe<Scalars['String']['output']>;
+export enum Aggregation_Interval {
+  Day = 'day',
+  Hour = 'hour'
+}
+
+export type BlockChangedFilter = {
+  number_gte: Scalars['Int']['input'];
 };
 
-export type Capsule = {
-  __typename?: 'Capsule';
-  dragon?: Maybe<Dragon>;
-  id?: Maybe<Scalars['ID']['output']>;
-  landings?: Maybe<Scalars['Int']['output']>;
-  missions?: Maybe<Array<Maybe<CapsuleMission>>>;
-  original_launch?: Maybe<Scalars['Date']['output']>;
-  reuse_count?: Maybe<Scalars['Int']['output']>;
-  status?: Maybe<Scalars['String']['output']>;
-  type?: Maybe<Scalars['String']['output']>;
+export type Block_Height = {
+  hash?: InputMaybe<Scalars['Bytes']['input']>;
+  number?: InputMaybe<Scalars['Int']['input']>;
+  number_gte?: InputMaybe<Scalars['Int']['input']>;
 };
 
-export type CapsuleMission = {
-  __typename?: 'CapsuleMission';
-  flight?: Maybe<Scalars['Int']['output']>;
-  name?: Maybe<Scalars['String']['output']>;
+export type Executor = {
+  __typename?: 'Executor';
+  address: Scalars['Bytes']['output'];
+  filledOrders?: Maybe<Array<Order>>;
+  id: Scalars['ID']['output'];
 };
 
-export type CapsulesFind = {
+
+export type ExecutorFilledOrdersArgs = {
+  first?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<Order_OrderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  skip?: InputMaybe<Scalars['Int']['input']>;
+  where?: InputMaybe<Order_Filter>;
+};
+
+export type Executor_Filter = {
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<BlockChangedFilter>;
+  address?: InputMaybe<Scalars['Bytes']['input']>;
+  address_contains?: InputMaybe<Scalars['Bytes']['input']>;
+  address_gt?: InputMaybe<Scalars['Bytes']['input']>;
+  address_gte?: InputMaybe<Scalars['Bytes']['input']>;
+  address_in?: InputMaybe<Array<Scalars['Bytes']['input']>>;
+  address_lt?: InputMaybe<Scalars['Bytes']['input']>;
+  address_lte?: InputMaybe<Scalars['Bytes']['input']>;
+  address_not?: InputMaybe<Scalars['Bytes']['input']>;
+  address_not_contains?: InputMaybe<Scalars['Bytes']['input']>;
+  address_not_in?: InputMaybe<Array<Scalars['Bytes']['input']>>;
+  and?: InputMaybe<Array<InputMaybe<Executor_Filter>>>;
+  filledOrders_?: InputMaybe<Order_Filter>;
   id?: InputMaybe<Scalars['ID']['input']>;
-  landings?: InputMaybe<Scalars['Int']['input']>;
-  mission?: InputMaybe<Scalars['String']['input']>;
-  original_launch?: InputMaybe<Scalars['Date']['input']>;
-  reuse_count?: InputMaybe<Scalars['Int']['input']>;
-  status?: InputMaybe<Scalars['String']['input']>;
-  type?: InputMaybe<Scalars['String']['input']>;
+  id_gt?: InputMaybe<Scalars['ID']['input']>;
+  id_gte?: InputMaybe<Scalars['ID']['input']>;
+  id_in?: InputMaybe<Array<Scalars['ID']['input']>>;
+  id_lt?: InputMaybe<Scalars['ID']['input']>;
+  id_lte?: InputMaybe<Scalars['ID']['input']>;
+  id_not?: InputMaybe<Scalars['ID']['input']>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']['input']>>;
+  or?: InputMaybe<Array<InputMaybe<Executor_Filter>>>;
 };
 
-export type Core = {
-  __typename?: 'Core';
-  asds_attempts?: Maybe<Scalars['Int']['output']>;
-  asds_landings?: Maybe<Scalars['Int']['output']>;
-  block?: Maybe<Scalars['Int']['output']>;
-  id?: Maybe<Scalars['ID']['output']>;
-  missions?: Maybe<Array<Maybe<CapsuleMission>>>;
-  original_launch?: Maybe<Scalars['Date']['output']>;
-  reuse_count?: Maybe<Scalars['Int']['output']>;
-  rtls_attempts?: Maybe<Scalars['Int']['output']>;
-  rtls_landings?: Maybe<Scalars['Int']['output']>;
-  status?: Maybe<Scalars['String']['output']>;
-  water_landing?: Maybe<Scalars['Boolean']['output']>;
-};
+export enum Executor_OrderBy {
+  Address = 'address',
+  FilledOrders = 'filledOrders',
+  Id = 'id'
+}
 
-export type CoreMission = {
-  __typename?: 'CoreMission';
-  flight?: Maybe<Scalars['Int']['output']>;
+export type Handler = {
+  __typename?: 'Handler';
+  address: Scalars['Bytes']['output'];
+  id: Scalars['ID']['output'];
   name?: Maybe<Scalars['String']['output']>;
+  state: State;
 };
 
-export type CoresFind = {
-  asds_attempts?: InputMaybe<Scalars['Int']['input']>;
-  asds_landings?: InputMaybe<Scalars['Int']['input']>;
-  block?: InputMaybe<Scalars['Int']['input']>;
-  id?: InputMaybe<Scalars['String']['input']>;
-  missions?: InputMaybe<Scalars['String']['input']>;
-  original_launch?: InputMaybe<Scalars['Date']['input']>;
-  reuse_count?: InputMaybe<Scalars['Int']['input']>;
-  rtls_attempts?: InputMaybe<Scalars['Int']['input']>;
-  rtls_landings?: InputMaybe<Scalars['Int']['input']>;
-  status?: InputMaybe<Scalars['String']['input']>;
-  water_landing?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-export type Distance = {
-  __typename?: 'Distance';
-  feet?: Maybe<Scalars['Float']['output']>;
-  meters?: Maybe<Scalars['Float']['output']>;
-};
-
-export type Dragon = {
-  __typename?: 'Dragon';
-  active?: Maybe<Scalars['Boolean']['output']>;
-  crew_capacity?: Maybe<Scalars['Int']['output']>;
-  description?: Maybe<Scalars['String']['output']>;
-  diameter?: Maybe<Distance>;
-  dry_mass_kg?: Maybe<Scalars['Int']['output']>;
-  dry_mass_lb?: Maybe<Scalars['Int']['output']>;
-  first_flight?: Maybe<Scalars['String']['output']>;
-  heat_shield?: Maybe<DragonHeatShield>;
-  height_w_trunk?: Maybe<Distance>;
-  id?: Maybe<Scalars['ID']['output']>;
-  launch_payload_mass?: Maybe<Mass>;
-  launch_payload_vol?: Maybe<Volume>;
-  name?: Maybe<Scalars['String']['output']>;
-  orbit_duration_yr?: Maybe<Scalars['Int']['output']>;
-  pressurized_capsule?: Maybe<DragonPressurizedCapsule>;
-  return_payload_mass?: Maybe<Mass>;
-  return_payload_vol?: Maybe<Volume>;
-  sidewall_angle_deg?: Maybe<Scalars['Float']['output']>;
-  thrusters?: Maybe<Array<Maybe<DragonThrust>>>;
-  trunk?: Maybe<DragonTrunk>;
-  type?: Maybe<Scalars['String']['output']>;
-  wikipedia?: Maybe<Scalars['String']['output']>;
-};
-
-export type DragonHeatShield = {
-  __typename?: 'DragonHeatShield';
-  dev_partner?: Maybe<Scalars['String']['output']>;
-  material?: Maybe<Scalars['String']['output']>;
-  size_meters?: Maybe<Scalars['Float']['output']>;
-  temp_degrees?: Maybe<Scalars['Int']['output']>;
-};
-
-export type DragonPressurizedCapsule = {
-  __typename?: 'DragonPressurizedCapsule';
-  payload_volume?: Maybe<Volume>;
-};
-
-export type DragonThrust = {
-  __typename?: 'DragonThrust';
-  amount?: Maybe<Scalars['Int']['output']>;
-  fuel_1?: Maybe<Scalars['String']['output']>;
-  fuel_2?: Maybe<Scalars['String']['output']>;
-  pods?: Maybe<Scalars['Int']['output']>;
-  thrust?: Maybe<Force>;
-  type?: Maybe<Scalars['String']['output']>;
-};
-
-export type DragonTrunk = {
-  __typename?: 'DragonTrunk';
-  cargo?: Maybe<DragonTrunkCargo>;
-  trunk_volume?: Maybe<Volume>;
-};
-
-export type DragonTrunkCargo = {
-  __typename?: 'DragonTrunkCargo';
-  solar_array?: Maybe<Scalars['Int']['output']>;
-  unpressurized_cargo?: Maybe<Scalars['Boolean']['output']>;
-};
-
-export type Force = {
-  __typename?: 'Force';
-  kN?: Maybe<Scalars['Float']['output']>;
-  lbf?: Maybe<Scalars['Float']['output']>;
-};
-
-export type HistoriesResult = {
-  __typename?: 'HistoriesResult';
-  data?: Maybe<Array<Maybe<History>>>;
-  result?: Maybe<Result>;
-};
-
-export type History = {
-  __typename?: 'History';
-  details?: Maybe<Scalars['String']['output']>;
-  event_date_unix?: Maybe<Scalars['Date']['output']>;
-  event_date_utc?: Maybe<Scalars['Date']['output']>;
-  flight?: Maybe<Launch>;
-  id?: Maybe<Scalars['ID']['output']>;
-  links?: Maybe<Link>;
-  title?: Maybe<Scalars['String']['output']>;
-};
-
-export type HistoryFind = {
-  end?: InputMaybe<Scalars['Date']['input']>;
-  flight_number?: InputMaybe<Scalars['Int']['input']>;
+export type Handler_Filter = {
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<BlockChangedFilter>;
+  address?: InputMaybe<Scalars['Bytes']['input']>;
+  address_contains?: InputMaybe<Scalars['Bytes']['input']>;
+  address_gt?: InputMaybe<Scalars['Bytes']['input']>;
+  address_gte?: InputMaybe<Scalars['Bytes']['input']>;
+  address_in?: InputMaybe<Array<Scalars['Bytes']['input']>>;
+  address_lt?: InputMaybe<Scalars['Bytes']['input']>;
+  address_lte?: InputMaybe<Scalars['Bytes']['input']>;
+  address_not?: InputMaybe<Scalars['Bytes']['input']>;
+  address_not_contains?: InputMaybe<Scalars['Bytes']['input']>;
+  address_not_in?: InputMaybe<Array<Scalars['Bytes']['input']>>;
+  and?: InputMaybe<Array<InputMaybe<Handler_Filter>>>;
   id?: InputMaybe<Scalars['ID']['input']>;
-  start?: InputMaybe<Scalars['Date']['input']>;
-};
-
-export type Info = {
-  __typename?: 'Info';
-  ceo?: Maybe<Scalars['String']['output']>;
-  coo?: Maybe<Scalars['String']['output']>;
-  cto?: Maybe<Scalars['String']['output']>;
-  cto_propulsion?: Maybe<Scalars['String']['output']>;
-  employees?: Maybe<Scalars['Int']['output']>;
-  founded?: Maybe<Scalars['Int']['output']>;
-  founder?: Maybe<Scalars['String']['output']>;
-  headquarters?: Maybe<Address>;
-  launch_sites?: Maybe<Scalars['Int']['output']>;
-  links?: Maybe<InfoLinks>;
-  name?: Maybe<Scalars['String']['output']>;
-  summary?: Maybe<Scalars['String']['output']>;
-  test_sites?: Maybe<Scalars['Int']['output']>;
-  valuation?: Maybe<Scalars['Float']['output']>;
-  vehicles?: Maybe<Scalars['Int']['output']>;
-};
-
-export type InfoLinks = {
-  __typename?: 'InfoLinks';
-  elon_twitter?: Maybe<Scalars['String']['output']>;
-  flickr?: Maybe<Scalars['String']['output']>;
-  twitter?: Maybe<Scalars['String']['output']>;
-  website?: Maybe<Scalars['String']['output']>;
-};
-
-export type Landpad = {
-  __typename?: 'Landpad';
-  attempted_landings?: Maybe<Scalars['String']['output']>;
-  details?: Maybe<Scalars['String']['output']>;
-  full_name?: Maybe<Scalars['String']['output']>;
-  id?: Maybe<Scalars['ID']['output']>;
-  landing_type?: Maybe<Scalars['String']['output']>;
-  location?: Maybe<Location>;
-  status?: Maybe<Scalars['String']['output']>;
-  successful_landings?: Maybe<Scalars['String']['output']>;
-  wikipedia?: Maybe<Scalars['String']['output']>;
-};
-
-export type Launch = {
-  __typename?: 'Launch';
-  details?: Maybe<Scalars['String']['output']>;
-  id?: Maybe<Scalars['ID']['output']>;
-  is_tentative?: Maybe<Scalars['Boolean']['output']>;
-  launch_date_local?: Maybe<Scalars['Date']['output']>;
-  launch_date_unix?: Maybe<Scalars['Date']['output']>;
-  launch_date_utc?: Maybe<Scalars['Date']['output']>;
-  launch_site?: Maybe<LaunchSite>;
-  launch_success?: Maybe<Scalars['Boolean']['output']>;
-  launch_year?: Maybe<Scalars['String']['output']>;
-  links?: Maybe<LaunchLinks>;
-  mission_id?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
-  mission_name?: Maybe<Scalars['String']['output']>;
-  rocket?: Maybe<LaunchRocket>;
-  ships?: Maybe<Array<Maybe<Ship>>>;
-  static_fire_date_unix?: Maybe<Scalars['Date']['output']>;
-  static_fire_date_utc?: Maybe<Scalars['Date']['output']>;
-  telemetry?: Maybe<LaunchTelemetry>;
-  tentative_max_precision?: Maybe<Scalars['String']['output']>;
-  upcoming?: Maybe<Scalars['Boolean']['output']>;
-};
-
-export type LaunchFind = {
-  apoapsis_km?: InputMaybe<Scalars['Float']['input']>;
-  block?: InputMaybe<Scalars['Int']['input']>;
-  cap_serial?: InputMaybe<Scalars['String']['input']>;
-  capsule_reuse?: InputMaybe<Scalars['String']['input']>;
-  core_flight?: InputMaybe<Scalars['Int']['input']>;
-  core_reuse?: InputMaybe<Scalars['String']['input']>;
-  core_serial?: InputMaybe<Scalars['String']['input']>;
-  customer?: InputMaybe<Scalars['String']['input']>;
-  eccentricity?: InputMaybe<Scalars['Float']['input']>;
-  end?: InputMaybe<Scalars['Date']['input']>;
-  epoch?: InputMaybe<Scalars['Date']['input']>;
-  fairings_recovered?: InputMaybe<Scalars['String']['input']>;
-  fairings_recovery_attempt?: InputMaybe<Scalars['String']['input']>;
-  fairings_reuse?: InputMaybe<Scalars['String']['input']>;
-  fairings_reused?: InputMaybe<Scalars['String']['input']>;
-  fairings_ship?: InputMaybe<Scalars['String']['input']>;
-  gridfins?: InputMaybe<Scalars['String']['input']>;
-  id?: InputMaybe<Scalars['ID']['input']>;
-  inclination_deg?: InputMaybe<Scalars['Float']['input']>;
-  land_success?: InputMaybe<Scalars['String']['input']>;
-  landing_intent?: InputMaybe<Scalars['String']['input']>;
-  landing_type?: InputMaybe<Scalars['String']['input']>;
-  landing_vehicle?: InputMaybe<Scalars['String']['input']>;
-  launch_date_local?: InputMaybe<Scalars['Date']['input']>;
-  launch_date_utc?: InputMaybe<Scalars['Date']['input']>;
-  launch_success?: InputMaybe<Scalars['String']['input']>;
-  launch_year?: InputMaybe<Scalars['String']['input']>;
-  legs?: InputMaybe<Scalars['String']['input']>;
-  lifespan_years?: InputMaybe<Scalars['Float']['input']>;
-  longitude?: InputMaybe<Scalars['Float']['input']>;
-  manufacturer?: InputMaybe<Scalars['String']['input']>;
-  mean_motion?: InputMaybe<Scalars['Float']['input']>;
-  mission_id?: InputMaybe<Scalars['String']['input']>;
-  mission_name?: InputMaybe<Scalars['String']['input']>;
-  nationality?: InputMaybe<Scalars['String']['input']>;
-  norad_id?: InputMaybe<Scalars['Int']['input']>;
-  orbit?: InputMaybe<Scalars['String']['input']>;
-  payload_id?: InputMaybe<Scalars['String']['input']>;
-  payload_type?: InputMaybe<Scalars['String']['input']>;
-  periapsis_km?: InputMaybe<Scalars['Float']['input']>;
-  period_min?: InputMaybe<Scalars['Float']['input']>;
-  raan?: InputMaybe<Scalars['Float']['input']>;
-  reference_system?: InputMaybe<Scalars['String']['input']>;
-  regime?: InputMaybe<Scalars['String']['input']>;
-  reused?: InputMaybe<Scalars['String']['input']>;
-  rocket_id?: InputMaybe<Scalars['String']['input']>;
-  rocket_name?: InputMaybe<Scalars['String']['input']>;
-  rocket_type?: InputMaybe<Scalars['String']['input']>;
-  second_stage_block?: InputMaybe<Scalars['String']['input']>;
-  semi_major_axis_km?: InputMaybe<Scalars['Float']['input']>;
-  ship?: InputMaybe<Scalars['String']['input']>;
-  side_core1_reuse?: InputMaybe<Scalars['String']['input']>;
-  side_core2_reuse?: InputMaybe<Scalars['String']['input']>;
-  site_id?: InputMaybe<Scalars['String']['input']>;
-  site_name?: InputMaybe<Scalars['String']['input']>;
-  site_name_long?: InputMaybe<Scalars['String']['input']>;
-  start?: InputMaybe<Scalars['Date']['input']>;
-  tbd?: InputMaybe<Scalars['String']['input']>;
-  tentative?: InputMaybe<Scalars['String']['input']>;
-  tentative_max_precision?: InputMaybe<Scalars['String']['input']>;
-};
-
-export type LaunchLinks = {
-  __typename?: 'LaunchLinks';
-  article_link?: Maybe<Scalars['String']['output']>;
-  flickr_images?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
-  mission_patch?: Maybe<Scalars['String']['output']>;
-  mission_patch_small?: Maybe<Scalars['String']['output']>;
-  presskit?: Maybe<Scalars['String']['output']>;
-  reddit_campaign?: Maybe<Scalars['String']['output']>;
-  reddit_launch?: Maybe<Scalars['String']['output']>;
-  reddit_media?: Maybe<Scalars['String']['output']>;
-  reddit_recovery?: Maybe<Scalars['String']['output']>;
-  video_link?: Maybe<Scalars['String']['output']>;
-  wikipedia?: Maybe<Scalars['String']['output']>;
-};
-
-export type LaunchRocket = {
-  __typename?: 'LaunchRocket';
-  fairings?: Maybe<LaunchRocketFairings>;
-  first_stage?: Maybe<LaunchRocketFirstStage>;
-  rocket?: Maybe<Rocket>;
-  rocket_name?: Maybe<Scalars['String']['output']>;
-  rocket_type?: Maybe<Scalars['String']['output']>;
-  second_stage?: Maybe<LaunchRocketSecondStage>;
-};
-
-export type LaunchRocketFairings = {
-  __typename?: 'LaunchRocketFairings';
-  recovered?: Maybe<Scalars['Boolean']['output']>;
-  recovery_attempt?: Maybe<Scalars['Boolean']['output']>;
-  reused?: Maybe<Scalars['Boolean']['output']>;
-  ship?: Maybe<Scalars['String']['output']>;
-};
-
-export type LaunchRocketFirstStage = {
-  __typename?: 'LaunchRocketFirstStage';
-  cores?: Maybe<Array<Maybe<LaunchRocketFirstStageCore>>>;
-};
-
-export type LaunchRocketFirstStageCore = {
-  __typename?: 'LaunchRocketFirstStageCore';
-  block?: Maybe<Scalars['Int']['output']>;
-  core?: Maybe<Core>;
-  flight?: Maybe<Scalars['Int']['output']>;
-  gridfins?: Maybe<Scalars['Boolean']['output']>;
-  land_success?: Maybe<Scalars['Boolean']['output']>;
-  landing_intent?: Maybe<Scalars['Boolean']['output']>;
-  landing_type?: Maybe<Scalars['String']['output']>;
-  landing_vehicle?: Maybe<Scalars['String']['output']>;
-  legs?: Maybe<Scalars['Boolean']['output']>;
-  reused?: Maybe<Scalars['Boolean']['output']>;
-};
-
-export type LaunchRocketSecondStage = {
-  __typename?: 'LaunchRocketSecondStage';
-  block?: Maybe<Scalars['Int']['output']>;
-  payloads?: Maybe<Array<Maybe<Payload>>>;
-};
-
-export type LaunchSite = {
-  __typename?: 'LaunchSite';
-  site_id?: Maybe<Scalars['String']['output']>;
-  site_name?: Maybe<Scalars['String']['output']>;
-  site_name_long?: Maybe<Scalars['String']['output']>;
-};
-
-export type LaunchTelemetry = {
-  __typename?: 'LaunchTelemetry';
-  flight_club?: Maybe<Scalars['String']['output']>;
-};
-
-export type LaunchesPastResult = {
-  __typename?: 'LaunchesPastResult';
-  data?: Maybe<Array<Maybe<Launch>>>;
-  result?: Maybe<Result>;
-};
-
-export type Launchpad = {
-  __typename?: 'Launchpad';
-  attempted_launches?: Maybe<Scalars['Int']['output']>;
-  details?: Maybe<Scalars['String']['output']>;
-  id?: Maybe<Scalars['ID']['output']>;
-  location?: Maybe<Location>;
-  name?: Maybe<Scalars['String']['output']>;
-  status?: Maybe<Scalars['String']['output']>;
-  successful_launches?: Maybe<Scalars['Int']['output']>;
-  vehicles_launched?: Maybe<Array<Maybe<Rocket>>>;
-  wikipedia?: Maybe<Scalars['String']['output']>;
-};
-
-export type Link = {
-  __typename?: 'Link';
-  article?: Maybe<Scalars['String']['output']>;
-  reddit?: Maybe<Scalars['String']['output']>;
-  wikipedia?: Maybe<Scalars['String']['output']>;
-};
-
-export type Location = {
-  __typename?: 'Location';
-  latitude?: Maybe<Scalars['Float']['output']>;
-  longitude?: Maybe<Scalars['Float']['output']>;
-  name?: Maybe<Scalars['String']['output']>;
-  region?: Maybe<Scalars['String']['output']>;
-};
-
-export type Mass = {
-  __typename?: 'Mass';
-  kg?: Maybe<Scalars['Int']['output']>;
-  lb?: Maybe<Scalars['Int']['output']>;
-};
-
-export type Mission = {
-  __typename?: 'Mission';
-  description?: Maybe<Scalars['String']['output']>;
-  id?: Maybe<Scalars['ID']['output']>;
-  manufacturers?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
-  name?: Maybe<Scalars['String']['output']>;
-  payloads?: Maybe<Array<Maybe<Payload>>>;
-  twitter?: Maybe<Scalars['String']['output']>;
-  website?: Maybe<Scalars['String']['output']>;
-  wikipedia?: Maybe<Scalars['String']['output']>;
-};
-
-export type MissionResult = {
-  __typename?: 'MissionResult';
-  data?: Maybe<Array<Maybe<Mission>>>;
-  result?: Maybe<Result>;
-};
-
-export type MissionsFind = {
-  id?: InputMaybe<Scalars['ID']['input']>;
-  manufacturer?: InputMaybe<Scalars['String']['input']>;
+  id_gt?: InputMaybe<Scalars['ID']['input']>;
+  id_gte?: InputMaybe<Scalars['ID']['input']>;
+  id_in?: InputMaybe<Array<Scalars['ID']['input']>>;
+  id_lt?: InputMaybe<Scalars['ID']['input']>;
+  id_lte?: InputMaybe<Scalars['ID']['input']>;
+  id_not?: InputMaybe<Scalars['ID']['input']>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']['input']>>;
   name?: InputMaybe<Scalars['String']['input']>;
-  payload_id?: InputMaybe<Scalars['String']['input']>;
+  name_contains?: InputMaybe<Scalars['String']['input']>;
+  name_contains_nocase?: InputMaybe<Scalars['String']['input']>;
+  name_ends_with?: InputMaybe<Scalars['String']['input']>;
+  name_ends_with_nocase?: InputMaybe<Scalars['String']['input']>;
+  name_gt?: InputMaybe<Scalars['String']['input']>;
+  name_gte?: InputMaybe<Scalars['String']['input']>;
+  name_in?: InputMaybe<Array<Scalars['String']['input']>>;
+  name_lt?: InputMaybe<Scalars['String']['input']>;
+  name_lte?: InputMaybe<Scalars['String']['input']>;
+  name_not?: InputMaybe<Scalars['String']['input']>;
+  name_not_contains?: InputMaybe<Scalars['String']['input']>;
+  name_not_contains_nocase?: InputMaybe<Scalars['String']['input']>;
+  name_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  name_not_ends_with_nocase?: InputMaybe<Scalars['String']['input']>;
+  name_not_in?: InputMaybe<Array<Scalars['String']['input']>>;
+  name_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  name_not_starts_with_nocase?: InputMaybe<Scalars['String']['input']>;
+  name_starts_with?: InputMaybe<Scalars['String']['input']>;
+  name_starts_with_nocase?: InputMaybe<Scalars['String']['input']>;
+  or?: InputMaybe<Array<InputMaybe<Handler_Filter>>>;
+  state?: InputMaybe<Scalars['String']['input']>;
+  state_?: InputMaybe<State_Filter>;
+  state_contains?: InputMaybe<Scalars['String']['input']>;
+  state_contains_nocase?: InputMaybe<Scalars['String']['input']>;
+  state_ends_with?: InputMaybe<Scalars['String']['input']>;
+  state_ends_with_nocase?: InputMaybe<Scalars['String']['input']>;
+  state_gt?: InputMaybe<Scalars['String']['input']>;
+  state_gte?: InputMaybe<Scalars['String']['input']>;
+  state_in?: InputMaybe<Array<Scalars['String']['input']>>;
+  state_lt?: InputMaybe<Scalars['String']['input']>;
+  state_lte?: InputMaybe<Scalars['String']['input']>;
+  state_not?: InputMaybe<Scalars['String']['input']>;
+  state_not_contains?: InputMaybe<Scalars['String']['input']>;
+  state_not_contains_nocase?: InputMaybe<Scalars['String']['input']>;
+  state_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  state_not_ends_with_nocase?: InputMaybe<Scalars['String']['input']>;
+  state_not_in?: InputMaybe<Array<Scalars['String']['input']>>;
+  state_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  state_not_starts_with_nocase?: InputMaybe<Scalars['String']['input']>;
+  state_starts_with?: InputMaybe<Scalars['String']['input']>;
+  state_starts_with_nocase?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type Mutation = {
-  __typename?: 'Mutation';
-  /** delete data from the table: "users" */
-  delete_users?: Maybe<Users_Mutation_Response>;
-  /** insert data into the table: "users" */
-  insert_users?: Maybe<Users_Mutation_Response>;
-  /** update data of the table: "users" */
-  update_users?: Maybe<Users_Mutation_Response>;
+export enum Handler_OrderBy {
+  Address = 'address',
+  Id = 'id',
+  Name = 'name',
+  State = 'state',
+  StateCancellationFeePercent = 'state__cancellationFeePercent',
+  StateId = 'state__id',
+  StateLastRebalanceTime = 'state__lastRebalanceTime',
+  StateProtocolFeePercent = 'state__protocolFeePercent'
+}
+
+export type Order = {
+  __typename?: 'Order';
+  cancelledTxHash?: Maybe<Scalars['Bytes']['output']>;
+  createdAtBlock: Scalars['BigInt']['output'];
+  createdTxHash?: Maybe<Scalars['Bytes']['output']>;
+  creator: User;
+  executedAtBlock?: Maybe<Scalars['BigInt']['output']>;
+  executedTxHash?: Maybe<Scalars['Bytes']['output']>;
+  executionFee: Scalars['BigInt']['output'];
+  executor?: Maybe<Executor>;
+  id: Scalars['ID']['output'];
+  inputAfterFee?: Maybe<Scalars['BigDecimal']['output']>;
+  inputAmount: Scalars['BigInt']['output'];
+  inputToken: Scalars['Bytes']['output'];
+  limitPrice?: Maybe<Scalars['BigDecimal']['output']>;
+  minReturnAmount: Scalars['BigInt']['output'];
+  orderEncodedData: Scalars['Bytes']['output'];
+  orderId: Scalars['Bytes']['output'];
+  outputToken: Scalars['Bytes']['output'];
+  recipient: Scalars['Bytes']['output'];
+  returnAmount?: Maybe<Scalars['BigInt']['output']>;
+  shares: Scalars['BigInt']['output'];
+  status: Status;
+  stoplossAmount: Scalars['BigInt']['output'];
+  stoplossPrice?: Maybe<Scalars['BigDecimal']['output']>;
+  timestamp: Scalars['BigInt']['output'];
+  updatedAt?: Maybe<Scalars['BigInt']['output']>;
+  yieldEarned?: Maybe<Scalars['BigInt']['output']>;
 };
 
+/** Defines the order direction, either ascending or descending */
+export enum OrderDirection {
+  Asc = 'asc',
+  Desc = 'desc'
+}
 
-export type MutationDelete_UsersArgs = {
-  where: Users_Bool_Exp;
+export type Order_Filter = {
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<Order_Filter>>>;
+  cancelledTxHash?: InputMaybe<Scalars['Bytes']['input']>;
+  cancelledTxHash_contains?: InputMaybe<Scalars['Bytes']['input']>;
+  cancelledTxHash_gt?: InputMaybe<Scalars['Bytes']['input']>;
+  cancelledTxHash_gte?: InputMaybe<Scalars['Bytes']['input']>;
+  cancelledTxHash_in?: InputMaybe<Array<Scalars['Bytes']['input']>>;
+  cancelledTxHash_lt?: InputMaybe<Scalars['Bytes']['input']>;
+  cancelledTxHash_lte?: InputMaybe<Scalars['Bytes']['input']>;
+  cancelledTxHash_not?: InputMaybe<Scalars['Bytes']['input']>;
+  cancelledTxHash_not_contains?: InputMaybe<Scalars['Bytes']['input']>;
+  cancelledTxHash_not_in?: InputMaybe<Array<Scalars['Bytes']['input']>>;
+  createdAtBlock?: InputMaybe<Scalars['BigInt']['input']>;
+  createdAtBlock_gt?: InputMaybe<Scalars['BigInt']['input']>;
+  createdAtBlock_gte?: InputMaybe<Scalars['BigInt']['input']>;
+  createdAtBlock_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
+  createdAtBlock_lt?: InputMaybe<Scalars['BigInt']['input']>;
+  createdAtBlock_lte?: InputMaybe<Scalars['BigInt']['input']>;
+  createdAtBlock_not?: InputMaybe<Scalars['BigInt']['input']>;
+  createdAtBlock_not_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
+  createdTxHash?: InputMaybe<Scalars['Bytes']['input']>;
+  createdTxHash_contains?: InputMaybe<Scalars['Bytes']['input']>;
+  createdTxHash_gt?: InputMaybe<Scalars['Bytes']['input']>;
+  createdTxHash_gte?: InputMaybe<Scalars['Bytes']['input']>;
+  createdTxHash_in?: InputMaybe<Array<Scalars['Bytes']['input']>>;
+  createdTxHash_lt?: InputMaybe<Scalars['Bytes']['input']>;
+  createdTxHash_lte?: InputMaybe<Scalars['Bytes']['input']>;
+  createdTxHash_not?: InputMaybe<Scalars['Bytes']['input']>;
+  createdTxHash_not_contains?: InputMaybe<Scalars['Bytes']['input']>;
+  createdTxHash_not_in?: InputMaybe<Array<Scalars['Bytes']['input']>>;
+  creator?: InputMaybe<Scalars['String']['input']>;
+  creator_?: InputMaybe<User_Filter>;
+  creator_contains?: InputMaybe<Scalars['String']['input']>;
+  creator_contains_nocase?: InputMaybe<Scalars['String']['input']>;
+  creator_ends_with?: InputMaybe<Scalars['String']['input']>;
+  creator_ends_with_nocase?: InputMaybe<Scalars['String']['input']>;
+  creator_gt?: InputMaybe<Scalars['String']['input']>;
+  creator_gte?: InputMaybe<Scalars['String']['input']>;
+  creator_in?: InputMaybe<Array<Scalars['String']['input']>>;
+  creator_lt?: InputMaybe<Scalars['String']['input']>;
+  creator_lte?: InputMaybe<Scalars['String']['input']>;
+  creator_not?: InputMaybe<Scalars['String']['input']>;
+  creator_not_contains?: InputMaybe<Scalars['String']['input']>;
+  creator_not_contains_nocase?: InputMaybe<Scalars['String']['input']>;
+  creator_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  creator_not_ends_with_nocase?: InputMaybe<Scalars['String']['input']>;
+  creator_not_in?: InputMaybe<Array<Scalars['String']['input']>>;
+  creator_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  creator_not_starts_with_nocase?: InputMaybe<Scalars['String']['input']>;
+  creator_starts_with?: InputMaybe<Scalars['String']['input']>;
+  creator_starts_with_nocase?: InputMaybe<Scalars['String']['input']>;
+  executedAtBlock?: InputMaybe<Scalars['BigInt']['input']>;
+  executedAtBlock_gt?: InputMaybe<Scalars['BigInt']['input']>;
+  executedAtBlock_gte?: InputMaybe<Scalars['BigInt']['input']>;
+  executedAtBlock_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
+  executedAtBlock_lt?: InputMaybe<Scalars['BigInt']['input']>;
+  executedAtBlock_lte?: InputMaybe<Scalars['BigInt']['input']>;
+  executedAtBlock_not?: InputMaybe<Scalars['BigInt']['input']>;
+  executedAtBlock_not_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
+  executedTxHash?: InputMaybe<Scalars['Bytes']['input']>;
+  executedTxHash_contains?: InputMaybe<Scalars['Bytes']['input']>;
+  executedTxHash_gt?: InputMaybe<Scalars['Bytes']['input']>;
+  executedTxHash_gte?: InputMaybe<Scalars['Bytes']['input']>;
+  executedTxHash_in?: InputMaybe<Array<Scalars['Bytes']['input']>>;
+  executedTxHash_lt?: InputMaybe<Scalars['Bytes']['input']>;
+  executedTxHash_lte?: InputMaybe<Scalars['Bytes']['input']>;
+  executedTxHash_not?: InputMaybe<Scalars['Bytes']['input']>;
+  executedTxHash_not_contains?: InputMaybe<Scalars['Bytes']['input']>;
+  executedTxHash_not_in?: InputMaybe<Array<Scalars['Bytes']['input']>>;
+  executionFee?: InputMaybe<Scalars['BigInt']['input']>;
+  executionFee_gt?: InputMaybe<Scalars['BigInt']['input']>;
+  executionFee_gte?: InputMaybe<Scalars['BigInt']['input']>;
+  executionFee_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
+  executionFee_lt?: InputMaybe<Scalars['BigInt']['input']>;
+  executionFee_lte?: InputMaybe<Scalars['BigInt']['input']>;
+  executionFee_not?: InputMaybe<Scalars['BigInt']['input']>;
+  executionFee_not_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
+  executor?: InputMaybe<Scalars['String']['input']>;
+  executor_?: InputMaybe<Executor_Filter>;
+  executor_contains?: InputMaybe<Scalars['String']['input']>;
+  executor_contains_nocase?: InputMaybe<Scalars['String']['input']>;
+  executor_ends_with?: InputMaybe<Scalars['String']['input']>;
+  executor_ends_with_nocase?: InputMaybe<Scalars['String']['input']>;
+  executor_gt?: InputMaybe<Scalars['String']['input']>;
+  executor_gte?: InputMaybe<Scalars['String']['input']>;
+  executor_in?: InputMaybe<Array<Scalars['String']['input']>>;
+  executor_lt?: InputMaybe<Scalars['String']['input']>;
+  executor_lte?: InputMaybe<Scalars['String']['input']>;
+  executor_not?: InputMaybe<Scalars['String']['input']>;
+  executor_not_contains?: InputMaybe<Scalars['String']['input']>;
+  executor_not_contains_nocase?: InputMaybe<Scalars['String']['input']>;
+  executor_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+  executor_not_ends_with_nocase?: InputMaybe<Scalars['String']['input']>;
+  executor_not_in?: InputMaybe<Array<Scalars['String']['input']>>;
+  executor_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+  executor_not_starts_with_nocase?: InputMaybe<Scalars['String']['input']>;
+  executor_starts_with?: InputMaybe<Scalars['String']['input']>;
+  executor_starts_with_nocase?: InputMaybe<Scalars['String']['input']>;
+  id?: InputMaybe<Scalars['ID']['input']>;
+  id_gt?: InputMaybe<Scalars['ID']['input']>;
+  id_gte?: InputMaybe<Scalars['ID']['input']>;
+  id_in?: InputMaybe<Array<Scalars['ID']['input']>>;
+  id_lt?: InputMaybe<Scalars['ID']['input']>;
+  id_lte?: InputMaybe<Scalars['ID']['input']>;
+  id_not?: InputMaybe<Scalars['ID']['input']>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']['input']>>;
+  inputAfterFee?: InputMaybe<Scalars['BigDecimal']['input']>;
+  inputAfterFee_gt?: InputMaybe<Scalars['BigDecimal']['input']>;
+  inputAfterFee_gte?: InputMaybe<Scalars['BigDecimal']['input']>;
+  inputAfterFee_in?: InputMaybe<Array<Scalars['BigDecimal']['input']>>;
+  inputAfterFee_lt?: InputMaybe<Scalars['BigDecimal']['input']>;
+  inputAfterFee_lte?: InputMaybe<Scalars['BigDecimal']['input']>;
+  inputAfterFee_not?: InputMaybe<Scalars['BigDecimal']['input']>;
+  inputAfterFee_not_in?: InputMaybe<Array<Scalars['BigDecimal']['input']>>;
+  inputAmount?: InputMaybe<Scalars['BigInt']['input']>;
+  inputAmount_gt?: InputMaybe<Scalars['BigInt']['input']>;
+  inputAmount_gte?: InputMaybe<Scalars['BigInt']['input']>;
+  inputAmount_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
+  inputAmount_lt?: InputMaybe<Scalars['BigInt']['input']>;
+  inputAmount_lte?: InputMaybe<Scalars['BigInt']['input']>;
+  inputAmount_not?: InputMaybe<Scalars['BigInt']['input']>;
+  inputAmount_not_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
+  inputToken?: InputMaybe<Scalars['Bytes']['input']>;
+  inputToken_contains?: InputMaybe<Scalars['Bytes']['input']>;
+  inputToken_gt?: InputMaybe<Scalars['Bytes']['input']>;
+  inputToken_gte?: InputMaybe<Scalars['Bytes']['input']>;
+  inputToken_in?: InputMaybe<Array<Scalars['Bytes']['input']>>;
+  inputToken_lt?: InputMaybe<Scalars['Bytes']['input']>;
+  inputToken_lte?: InputMaybe<Scalars['Bytes']['input']>;
+  inputToken_not?: InputMaybe<Scalars['Bytes']['input']>;
+  inputToken_not_contains?: InputMaybe<Scalars['Bytes']['input']>;
+  inputToken_not_in?: InputMaybe<Array<Scalars['Bytes']['input']>>;
+  limitPrice?: InputMaybe<Scalars['BigDecimal']['input']>;
+  limitPrice_gt?: InputMaybe<Scalars['BigDecimal']['input']>;
+  limitPrice_gte?: InputMaybe<Scalars['BigDecimal']['input']>;
+  limitPrice_in?: InputMaybe<Array<Scalars['BigDecimal']['input']>>;
+  limitPrice_lt?: InputMaybe<Scalars['BigDecimal']['input']>;
+  limitPrice_lte?: InputMaybe<Scalars['BigDecimal']['input']>;
+  limitPrice_not?: InputMaybe<Scalars['BigDecimal']['input']>;
+  limitPrice_not_in?: InputMaybe<Array<Scalars['BigDecimal']['input']>>;
+  minReturnAmount?: InputMaybe<Scalars['BigInt']['input']>;
+  minReturnAmount_gt?: InputMaybe<Scalars['BigInt']['input']>;
+  minReturnAmount_gte?: InputMaybe<Scalars['BigInt']['input']>;
+  minReturnAmount_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
+  minReturnAmount_lt?: InputMaybe<Scalars['BigInt']['input']>;
+  minReturnAmount_lte?: InputMaybe<Scalars['BigInt']['input']>;
+  minReturnAmount_not?: InputMaybe<Scalars['BigInt']['input']>;
+  minReturnAmount_not_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
+  or?: InputMaybe<Array<InputMaybe<Order_Filter>>>;
+  orderEncodedData?: InputMaybe<Scalars['Bytes']['input']>;
+  orderEncodedData_contains?: InputMaybe<Scalars['Bytes']['input']>;
+  orderEncodedData_gt?: InputMaybe<Scalars['Bytes']['input']>;
+  orderEncodedData_gte?: InputMaybe<Scalars['Bytes']['input']>;
+  orderEncodedData_in?: InputMaybe<Array<Scalars['Bytes']['input']>>;
+  orderEncodedData_lt?: InputMaybe<Scalars['Bytes']['input']>;
+  orderEncodedData_lte?: InputMaybe<Scalars['Bytes']['input']>;
+  orderEncodedData_not?: InputMaybe<Scalars['Bytes']['input']>;
+  orderEncodedData_not_contains?: InputMaybe<Scalars['Bytes']['input']>;
+  orderEncodedData_not_in?: InputMaybe<Array<Scalars['Bytes']['input']>>;
+  orderId?: InputMaybe<Scalars['Bytes']['input']>;
+  orderId_contains?: InputMaybe<Scalars['Bytes']['input']>;
+  orderId_gt?: InputMaybe<Scalars['Bytes']['input']>;
+  orderId_gte?: InputMaybe<Scalars['Bytes']['input']>;
+  orderId_in?: InputMaybe<Array<Scalars['Bytes']['input']>>;
+  orderId_lt?: InputMaybe<Scalars['Bytes']['input']>;
+  orderId_lte?: InputMaybe<Scalars['Bytes']['input']>;
+  orderId_not?: InputMaybe<Scalars['Bytes']['input']>;
+  orderId_not_contains?: InputMaybe<Scalars['Bytes']['input']>;
+  orderId_not_in?: InputMaybe<Array<Scalars['Bytes']['input']>>;
+  outputToken?: InputMaybe<Scalars['Bytes']['input']>;
+  outputToken_contains?: InputMaybe<Scalars['Bytes']['input']>;
+  outputToken_gt?: InputMaybe<Scalars['Bytes']['input']>;
+  outputToken_gte?: InputMaybe<Scalars['Bytes']['input']>;
+  outputToken_in?: InputMaybe<Array<Scalars['Bytes']['input']>>;
+  outputToken_lt?: InputMaybe<Scalars['Bytes']['input']>;
+  outputToken_lte?: InputMaybe<Scalars['Bytes']['input']>;
+  outputToken_not?: InputMaybe<Scalars['Bytes']['input']>;
+  outputToken_not_contains?: InputMaybe<Scalars['Bytes']['input']>;
+  outputToken_not_in?: InputMaybe<Array<Scalars['Bytes']['input']>>;
+  recipient?: InputMaybe<Scalars['Bytes']['input']>;
+  recipient_contains?: InputMaybe<Scalars['Bytes']['input']>;
+  recipient_gt?: InputMaybe<Scalars['Bytes']['input']>;
+  recipient_gte?: InputMaybe<Scalars['Bytes']['input']>;
+  recipient_in?: InputMaybe<Array<Scalars['Bytes']['input']>>;
+  recipient_lt?: InputMaybe<Scalars['Bytes']['input']>;
+  recipient_lte?: InputMaybe<Scalars['Bytes']['input']>;
+  recipient_not?: InputMaybe<Scalars['Bytes']['input']>;
+  recipient_not_contains?: InputMaybe<Scalars['Bytes']['input']>;
+  recipient_not_in?: InputMaybe<Array<Scalars['Bytes']['input']>>;
+  returnAmount?: InputMaybe<Scalars['BigInt']['input']>;
+  returnAmount_gt?: InputMaybe<Scalars['BigInt']['input']>;
+  returnAmount_gte?: InputMaybe<Scalars['BigInt']['input']>;
+  returnAmount_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
+  returnAmount_lt?: InputMaybe<Scalars['BigInt']['input']>;
+  returnAmount_lte?: InputMaybe<Scalars['BigInt']['input']>;
+  returnAmount_not?: InputMaybe<Scalars['BigInt']['input']>;
+  returnAmount_not_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
+  shares?: InputMaybe<Scalars['BigInt']['input']>;
+  shares_gt?: InputMaybe<Scalars['BigInt']['input']>;
+  shares_gte?: InputMaybe<Scalars['BigInt']['input']>;
+  shares_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
+  shares_lt?: InputMaybe<Scalars['BigInt']['input']>;
+  shares_lte?: InputMaybe<Scalars['BigInt']['input']>;
+  shares_not?: InputMaybe<Scalars['BigInt']['input']>;
+  shares_not_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
+  status?: InputMaybe<Status>;
+  status_in?: InputMaybe<Array<Status>>;
+  status_not?: InputMaybe<Status>;
+  status_not_in?: InputMaybe<Array<Status>>;
+  stoplossAmount?: InputMaybe<Scalars['BigInt']['input']>;
+  stoplossAmount_gt?: InputMaybe<Scalars['BigInt']['input']>;
+  stoplossAmount_gte?: InputMaybe<Scalars['BigInt']['input']>;
+  stoplossAmount_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
+  stoplossAmount_lt?: InputMaybe<Scalars['BigInt']['input']>;
+  stoplossAmount_lte?: InputMaybe<Scalars['BigInt']['input']>;
+  stoplossAmount_not?: InputMaybe<Scalars['BigInt']['input']>;
+  stoplossAmount_not_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
+  stoplossPrice?: InputMaybe<Scalars['BigDecimal']['input']>;
+  stoplossPrice_gt?: InputMaybe<Scalars['BigDecimal']['input']>;
+  stoplossPrice_gte?: InputMaybe<Scalars['BigDecimal']['input']>;
+  stoplossPrice_in?: InputMaybe<Array<Scalars['BigDecimal']['input']>>;
+  stoplossPrice_lt?: InputMaybe<Scalars['BigDecimal']['input']>;
+  stoplossPrice_lte?: InputMaybe<Scalars['BigDecimal']['input']>;
+  stoplossPrice_not?: InputMaybe<Scalars['BigDecimal']['input']>;
+  stoplossPrice_not_in?: InputMaybe<Array<Scalars['BigDecimal']['input']>>;
+  timestamp?: InputMaybe<Scalars['BigInt']['input']>;
+  timestamp_gt?: InputMaybe<Scalars['BigInt']['input']>;
+  timestamp_gte?: InputMaybe<Scalars['BigInt']['input']>;
+  timestamp_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
+  timestamp_lt?: InputMaybe<Scalars['BigInt']['input']>;
+  timestamp_lte?: InputMaybe<Scalars['BigInt']['input']>;
+  timestamp_not?: InputMaybe<Scalars['BigInt']['input']>;
+  timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
+  updatedAt?: InputMaybe<Scalars['BigInt']['input']>;
+  updatedAt_gt?: InputMaybe<Scalars['BigInt']['input']>;
+  updatedAt_gte?: InputMaybe<Scalars['BigInt']['input']>;
+  updatedAt_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
+  updatedAt_lt?: InputMaybe<Scalars['BigInt']['input']>;
+  updatedAt_lte?: InputMaybe<Scalars['BigInt']['input']>;
+  updatedAt_not?: InputMaybe<Scalars['BigInt']['input']>;
+  updatedAt_not_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
+  yieldEarned?: InputMaybe<Scalars['BigInt']['input']>;
+  yieldEarned_gt?: InputMaybe<Scalars['BigInt']['input']>;
+  yieldEarned_gte?: InputMaybe<Scalars['BigInt']['input']>;
+  yieldEarned_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
+  yieldEarned_lt?: InputMaybe<Scalars['BigInt']['input']>;
+  yieldEarned_lte?: InputMaybe<Scalars['BigInt']['input']>;
+  yieldEarned_not?: InputMaybe<Scalars['BigInt']['input']>;
+  yieldEarned_not_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
 };
 
-
-export type MutationInsert_UsersArgs = {
-  objects: Array<Users_Insert_Input>;
-  on_conflict?: InputMaybe<Users_On_Conflict>;
-};
-
-
-export type MutationUpdate_UsersArgs = {
-  _set?: InputMaybe<Users_Set_Input>;
-  where: Users_Bool_Exp;
-};
-
-export type Payload = {
-  __typename?: 'Payload';
-  customers?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
-  id?: Maybe<Scalars['ID']['output']>;
-  manufacturer?: Maybe<Scalars['String']['output']>;
-  nationality?: Maybe<Scalars['String']['output']>;
-  norad_id?: Maybe<Array<Maybe<Scalars['Int']['output']>>>;
-  orbit?: Maybe<Scalars['String']['output']>;
-  orbit_params?: Maybe<PayloadOrbitParams>;
-  payload_mass_kg?: Maybe<Scalars['Float']['output']>;
-  payload_mass_lbs?: Maybe<Scalars['Float']['output']>;
-  payload_type?: Maybe<Scalars['String']['output']>;
-  reused?: Maybe<Scalars['Boolean']['output']>;
-};
-
-export type PayloadOrbitParams = {
-  __typename?: 'PayloadOrbitParams';
-  apoapsis_km?: Maybe<Scalars['Float']['output']>;
-  arg_of_pericenter?: Maybe<Scalars['Float']['output']>;
-  eccentricity?: Maybe<Scalars['Float']['output']>;
-  epoch?: Maybe<Scalars['Date']['output']>;
-  inclination_deg?: Maybe<Scalars['Float']['output']>;
-  lifespan_years?: Maybe<Scalars['Float']['output']>;
-  longitude?: Maybe<Scalars['Float']['output']>;
-  mean_anomaly?: Maybe<Scalars['Float']['output']>;
-  mean_motion?: Maybe<Scalars['Float']['output']>;
-  periapsis_km?: Maybe<Scalars['Float']['output']>;
-  period_min?: Maybe<Scalars['Float']['output']>;
-  raan?: Maybe<Scalars['Float']['output']>;
-  reference_system?: Maybe<Scalars['String']['output']>;
-  regime?: Maybe<Scalars['String']['output']>;
-  semi_major_axis_km?: Maybe<Scalars['Float']['output']>;
-};
-
-export type PayloadsFind = {
-  apoapsis_km?: InputMaybe<Scalars['Float']['input']>;
-  customer?: InputMaybe<Scalars['String']['input']>;
-  eccentricity?: InputMaybe<Scalars['Float']['input']>;
-  epoch?: InputMaybe<Scalars['Date']['input']>;
-  inclination_deg?: InputMaybe<Scalars['Float']['input']>;
-  lifespan_years?: InputMaybe<Scalars['Float']['input']>;
-  longitude?: InputMaybe<Scalars['Float']['input']>;
-  manufacturer?: InputMaybe<Scalars['String']['input']>;
-  mean_motion?: InputMaybe<Scalars['Float']['input']>;
-  nationality?: InputMaybe<Scalars['String']['input']>;
-  norad_id?: InputMaybe<Scalars['Int']['input']>;
-  orbit?: InputMaybe<Scalars['String']['input']>;
-  payload_id?: InputMaybe<Scalars['ID']['input']>;
-  payload_type?: InputMaybe<Scalars['String']['input']>;
-  periapsis_km?: InputMaybe<Scalars['Float']['input']>;
-  period_min?: InputMaybe<Scalars['Float']['input']>;
-  raan?: InputMaybe<Scalars['Float']['input']>;
-  reference_system?: InputMaybe<Scalars['String']['input']>;
-  regime?: InputMaybe<Scalars['String']['input']>;
-  reused?: InputMaybe<Scalars['Boolean']['input']>;
-  semi_major_axis_km?: InputMaybe<Scalars['Float']['input']>;
-};
+export enum Order_OrderBy {
+  CancelledTxHash = 'cancelledTxHash',
+  CreatedAtBlock = 'createdAtBlock',
+  CreatedTxHash = 'createdTxHash',
+  Creator = 'creator',
+  CreatorAddress = 'creator__address',
+  CreatorId = 'creator__id',
+  ExecutedAtBlock = 'executedAtBlock',
+  ExecutedTxHash = 'executedTxHash',
+  ExecutionFee = 'executionFee',
+  Executor = 'executor',
+  ExecutorAddress = 'executor__address',
+  ExecutorId = 'executor__id',
+  Id = 'id',
+  InputAfterFee = 'inputAfterFee',
+  InputAmount = 'inputAmount',
+  InputToken = 'inputToken',
+  LimitPrice = 'limitPrice',
+  MinReturnAmount = 'minReturnAmount',
+  OrderEncodedData = 'orderEncodedData',
+  OrderId = 'orderId',
+  OutputToken = 'outputToken',
+  Recipient = 'recipient',
+  ReturnAmount = 'returnAmount',
+  Shares = 'shares',
+  Status = 'status',
+  StoplossAmount = 'stoplossAmount',
+  StoplossPrice = 'stoplossPrice',
+  Timestamp = 'timestamp',
+  UpdatedAt = 'updatedAt',
+  YieldEarned = 'yieldEarned'
+}
 
 export type Query = {
   __typename?: 'Query';
-  capsule?: Maybe<Capsule>;
-  capsules?: Maybe<Array<Maybe<Capsule>>>;
-  capsulesPast?: Maybe<Array<Maybe<Capsule>>>;
-  capsulesUpcoming?: Maybe<Array<Maybe<Capsule>>>;
-  company?: Maybe<Info>;
-  core?: Maybe<Core>;
-  cores?: Maybe<Array<Maybe<Core>>>;
-  coresPast?: Maybe<Array<Maybe<Core>>>;
-  coresUpcoming?: Maybe<Array<Maybe<Core>>>;
-  dragon?: Maybe<Dragon>;
-  dragons?: Maybe<Array<Maybe<Dragon>>>;
-  histories?: Maybe<Array<Maybe<History>>>;
-  historiesResult?: Maybe<HistoriesResult>;
-  history?: Maybe<History>;
-  landpad?: Maybe<Landpad>;
-  landpads?: Maybe<Array<Maybe<Landpad>>>;
-  launch?: Maybe<Launch>;
-  launchLatest?: Maybe<Launch>;
-  launchNext?: Maybe<Launch>;
-  launches?: Maybe<Array<Maybe<Launch>>>;
-  launchesPast?: Maybe<Array<Maybe<Launch>>>;
-  launchesPastResult?: Maybe<LaunchesPastResult>;
-  launchesUpcoming?: Maybe<Array<Maybe<Launch>>>;
-  launchpad?: Maybe<Launchpad>;
-  launchpads?: Maybe<Array<Maybe<Launchpad>>>;
-  mission?: Maybe<Mission>;
-  missions?: Maybe<Array<Maybe<Mission>>>;
-  missionsResult?: Maybe<MissionResult>;
-  payload?: Maybe<Payload>;
-  payloads?: Maybe<Array<Maybe<Payload>>>;
-  roadster?: Maybe<Roadster>;
-  rocket?: Maybe<Rocket>;
-  rockets?: Maybe<Array<Maybe<Rocket>>>;
-  rocketsResult?: Maybe<RocketsResult>;
-  ship?: Maybe<Ship>;
-  ships?: Maybe<Array<Maybe<Ship>>>;
-  shipsResult?: Maybe<ShipsResult>;
-  /** fetch data from the table: "users" */
-  users: Array<Users>;
-  /** fetch aggregated fields from the table: "users" */
-  users_aggregate: Users_Aggregate;
-  /** fetch data from the table: "users" using primary key columns */
-  users_by_pk?: Maybe<Users>;
+  /** Access to subgraph metadata */
+  _meta?: Maybe<_Meta_>;
+  executor?: Maybe<Executor>;
+  executors: Array<Executor>;
+  handler?: Maybe<Handler>;
+  handlers: Array<Handler>;
+  order?: Maybe<Order>;
+  orders: Array<Order>;
+  rebalance?: Maybe<Rebalance>;
+  rebalances: Array<Rebalance>;
+  state?: Maybe<State>;
+  states: Array<State>;
+  tokenDetail?: Maybe<TokenDetail>;
+  tokenDetails: Array<TokenDetail>;
+  user?: Maybe<User>;
+  users: Array<User>;
 };
 
 
-export type QueryCapsuleArgs = {
+export type Query_MetaArgs = {
+  block?: InputMaybe<Block_Height>;
+};
+
+
+export type QueryExecutorArgs = {
+  block?: InputMaybe<Block_Height>;
   id: Scalars['ID']['input'];
+  subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type QueryCapsulesArgs = {
-  find?: InputMaybe<CapsulesFind>;
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  offset?: InputMaybe<Scalars['Int']['input']>;
-  order?: InputMaybe<Scalars['String']['input']>;
-  sort?: InputMaybe<Scalars['String']['input']>;
+export type QueryExecutorsArgs = {
+  block?: InputMaybe<Block_Height>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<Executor_OrderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  skip?: InputMaybe<Scalars['Int']['input']>;
+  subgraphError?: _SubgraphErrorPolicy_;
+  where?: InputMaybe<Executor_Filter>;
 };
 
 
-export type QueryCapsulesPastArgs = {
-  find?: InputMaybe<CapsulesFind>;
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  offset?: InputMaybe<Scalars['Int']['input']>;
-  order?: InputMaybe<Scalars['String']['input']>;
-  sort?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type QueryCapsulesUpcomingArgs = {
-  find?: InputMaybe<CapsulesFind>;
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  offset?: InputMaybe<Scalars['Int']['input']>;
-  order?: InputMaybe<Scalars['String']['input']>;
-  sort?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type QueryCoreArgs = {
+export type QueryHandlerArgs = {
+  block?: InputMaybe<Block_Height>;
   id: Scalars['ID']['input'];
+  subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type QueryCoresArgs = {
-  find?: InputMaybe<CoresFind>;
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  offset?: InputMaybe<Scalars['Int']['input']>;
-  order?: InputMaybe<Scalars['String']['input']>;
-  sort?: InputMaybe<Scalars['String']['input']>;
+export type QueryHandlersArgs = {
+  block?: InputMaybe<Block_Height>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<Handler_OrderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  skip?: InputMaybe<Scalars['Int']['input']>;
+  subgraphError?: _SubgraphErrorPolicy_;
+  where?: InputMaybe<Handler_Filter>;
 };
 
 
-export type QueryCoresPastArgs = {
-  find?: InputMaybe<CoresFind>;
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  offset?: InputMaybe<Scalars['Int']['input']>;
-  order?: InputMaybe<Scalars['String']['input']>;
-  sort?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type QueryCoresUpcomingArgs = {
-  find?: InputMaybe<CoresFind>;
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  offset?: InputMaybe<Scalars['Int']['input']>;
-  order?: InputMaybe<Scalars['String']['input']>;
-  sort?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type QueryDragonArgs = {
+export type QueryOrderArgs = {
+  block?: InputMaybe<Block_Height>;
   id: Scalars['ID']['input'];
+  subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type QueryDragonsArgs = {
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  offset?: InputMaybe<Scalars['Int']['input']>;
+export type QueryOrdersArgs = {
+  block?: InputMaybe<Block_Height>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<Order_OrderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  skip?: InputMaybe<Scalars['Int']['input']>;
+  subgraphError?: _SubgraphErrorPolicy_;
+  where?: InputMaybe<Order_Filter>;
 };
 
 
-export type QueryHistoriesArgs = {
-  find?: InputMaybe<HistoryFind>;
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  offset?: InputMaybe<Scalars['Int']['input']>;
-  order?: InputMaybe<Scalars['String']['input']>;
-  sort?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type QueryHistoriesResultArgs = {
-  find?: InputMaybe<HistoryFind>;
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  offset?: InputMaybe<Scalars['Int']['input']>;
-  order?: InputMaybe<Scalars['String']['input']>;
-  sort?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type QueryHistoryArgs = {
+export type QueryRebalanceArgs = {
+  block?: InputMaybe<Block_Height>;
   id: Scalars['ID']['input'];
+  subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type QueryLandpadArgs = {
+export type QueryRebalancesArgs = {
+  block?: InputMaybe<Block_Height>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<Rebalance_OrderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  skip?: InputMaybe<Scalars['Int']['input']>;
+  subgraphError?: _SubgraphErrorPolicy_;
+  where?: InputMaybe<Rebalance_Filter>;
+};
+
+
+export type QueryStateArgs = {
+  block?: InputMaybe<Block_Height>;
   id: Scalars['ID']['input'];
+  subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type QueryLandpadsArgs = {
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  offset?: InputMaybe<Scalars['Int']['input']>;
+export type QueryStatesArgs = {
+  block?: InputMaybe<Block_Height>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<State_OrderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  skip?: InputMaybe<Scalars['Int']['input']>;
+  subgraphError?: _SubgraphErrorPolicy_;
+  where?: InputMaybe<State_Filter>;
 };
 
 
-export type QueryLaunchArgs = {
+export type QueryTokenDetailArgs = {
+  block?: InputMaybe<Block_Height>;
   id: Scalars['ID']['input'];
+  subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type QueryLaunchLatestArgs = {
-  offset?: InputMaybe<Scalars['Int']['input']>;
+export type QueryTokenDetailsArgs = {
+  block?: InputMaybe<Block_Height>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<TokenDetail_OrderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  skip?: InputMaybe<Scalars['Int']['input']>;
+  subgraphError?: _SubgraphErrorPolicy_;
+  where?: InputMaybe<TokenDetail_Filter>;
 };
 
 
-export type QueryLaunchNextArgs = {
-  offset?: InputMaybe<Scalars['Int']['input']>;
-};
-
-
-export type QueryLaunchesArgs = {
-  find?: InputMaybe<LaunchFind>;
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  offset?: InputMaybe<Scalars['Int']['input']>;
-  order?: InputMaybe<Scalars['String']['input']>;
-  sort?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type QueryLaunchesPastArgs = {
-  find?: InputMaybe<LaunchFind>;
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  offset?: InputMaybe<Scalars['Int']['input']>;
-  order?: InputMaybe<Scalars['String']['input']>;
-  sort?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type QueryLaunchesPastResultArgs = {
-  find?: InputMaybe<LaunchFind>;
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  offset?: InputMaybe<Scalars['Int']['input']>;
-  order?: InputMaybe<Scalars['String']['input']>;
-  sort?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type QueryLaunchesUpcomingArgs = {
-  find?: InputMaybe<LaunchFind>;
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  offset?: InputMaybe<Scalars['Int']['input']>;
-  order?: InputMaybe<Scalars['String']['input']>;
-  sort?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type QueryLaunchpadArgs = {
+export type QueryUserArgs = {
+  block?: InputMaybe<Block_Height>;
   id: Scalars['ID']['input'];
-};
-
-
-export type QueryLaunchpadsArgs = {
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  offset?: InputMaybe<Scalars['Int']['input']>;
-};
-
-
-export type QueryMissionArgs = {
-  id: Scalars['ID']['input'];
-};
-
-
-export type QueryMissionsArgs = {
-  find?: InputMaybe<MissionsFind>;
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  offset?: InputMaybe<Scalars['Int']['input']>;
-};
-
-
-export type QueryMissionsResultArgs = {
-  find?: InputMaybe<MissionsFind>;
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  offset?: InputMaybe<Scalars['Int']['input']>;
-};
-
-
-export type QueryPayloadArgs = {
-  id: Scalars['ID']['input'];
-};
-
-
-export type QueryPayloadsArgs = {
-  find?: InputMaybe<PayloadsFind>;
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  offset?: InputMaybe<Scalars['Int']['input']>;
-  order?: InputMaybe<Scalars['String']['input']>;
-  sort?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type QueryRocketArgs = {
-  id: Scalars['ID']['input'];
-};
-
-
-export type QueryRocketsArgs = {
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  offset?: InputMaybe<Scalars['Int']['input']>;
-};
-
-
-export type QueryRocketsResultArgs = {
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  offset?: InputMaybe<Scalars['Int']['input']>;
-};
-
-
-export type QueryShipArgs = {
-  id: Scalars['ID']['input'];
-};
-
-
-export type QueryShipsArgs = {
-  find?: InputMaybe<ShipsFind>;
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  offset?: InputMaybe<Scalars['Int']['input']>;
-  order?: InputMaybe<Scalars['String']['input']>;
-  sort?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type QueryShipsResultArgs = {
-  find?: InputMaybe<ShipsFind>;
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  offset?: InputMaybe<Scalars['Int']['input']>;
-  order?: InputMaybe<Scalars['String']['input']>;
-  sort?: InputMaybe<Scalars['String']['input']>;
+  subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
 export type QueryUsersArgs = {
-  distinct_on?: InputMaybe<Array<Users_Select_Column>>;
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  offset?: InputMaybe<Scalars['Int']['input']>;
-  order_by?: InputMaybe<Array<Users_Order_By>>;
-  where?: InputMaybe<Users_Bool_Exp>;
+  block?: InputMaybe<Block_Height>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<User_OrderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  skip?: InputMaybe<Scalars['Int']['input']>;
+  subgraphError?: _SubgraphErrorPolicy_;
+  where?: InputMaybe<User_Filter>;
 };
 
-
-export type QueryUsers_AggregateArgs = {
-  distinct_on?: InputMaybe<Array<Users_Select_Column>>;
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  offset?: InputMaybe<Scalars['Int']['input']>;
-  order_by?: InputMaybe<Array<Users_Order_By>>;
-  where?: InputMaybe<Users_Bool_Exp>;
+export type Rebalance = {
+  __typename?: 'Rebalance';
+  id: Scalars['ID']['output'];
+  rebalancedBy: Scalars['Bytes']['output'];
+  timestamp: Scalars['BigInt']['output'];
+  txCost: Scalars['BigDecimal']['output'];
+  txHash?: Maybe<Scalars['Bytes']['output']>;
 };
 
-
-export type QueryUsers_By_PkArgs = {
-  id: Scalars['uuid']['input'];
-};
-
-export type Result = {
-  __typename?: 'Result';
-  totalCount?: Maybe<Scalars['Int']['output']>;
-};
-
-export type Roadster = {
-  __typename?: 'Roadster';
-  apoapsis_au?: Maybe<Scalars['Float']['output']>;
-  details?: Maybe<Scalars['String']['output']>;
-  earth_distance_km?: Maybe<Scalars['Float']['output']>;
-  earth_distance_mi?: Maybe<Scalars['Float']['output']>;
-  eccentricity?: Maybe<Scalars['Float']['output']>;
-  epoch_jd?: Maybe<Scalars['Float']['output']>;
-  inclination?: Maybe<Scalars['Float']['output']>;
-  launch_date_unix?: Maybe<Scalars['Date']['output']>;
-  launch_date_utc?: Maybe<Scalars['Date']['output']>;
-  launch_mass_kg?: Maybe<Scalars['Int']['output']>;
-  launch_mass_lbs?: Maybe<Scalars['Int']['output']>;
-  longitude?: Maybe<Scalars['Float']['output']>;
-  mars_distance_km?: Maybe<Scalars['Float']['output']>;
-  mars_distance_mi?: Maybe<Scalars['Float']['output']>;
-  name?: Maybe<Scalars['String']['output']>;
-  norad_id?: Maybe<Scalars['Int']['output']>;
-  orbit_type?: Maybe<Scalars['Float']['output']>;
-  periapsis_arg?: Maybe<Scalars['Float']['output']>;
-  periapsis_au?: Maybe<Scalars['Float']['output']>;
-  period_days?: Maybe<Scalars['Float']['output']>;
-  semi_major_axis_au?: Maybe<Scalars['Float']['output']>;
-  speed_kph?: Maybe<Scalars['Float']['output']>;
-  speed_mph?: Maybe<Scalars['Float']['output']>;
-  wikipedia?: Maybe<Scalars['String']['output']>;
-};
-
-export type Rocket = {
-  __typename?: 'Rocket';
-  active?: Maybe<Scalars['Boolean']['output']>;
-  boosters?: Maybe<Scalars['Int']['output']>;
-  company?: Maybe<Scalars['String']['output']>;
-  cost_per_launch?: Maybe<Scalars['Int']['output']>;
-  country?: Maybe<Scalars['String']['output']>;
-  description?: Maybe<Scalars['String']['output']>;
-  diameter?: Maybe<Distance>;
-  engines?: Maybe<RocketEngines>;
-  first_flight?: Maybe<Scalars['Date']['output']>;
-  first_stage?: Maybe<RocketFirstStage>;
-  height?: Maybe<Distance>;
-  id?: Maybe<Scalars['ID']['output']>;
-  landing_legs?: Maybe<RocketLandingLegs>;
-  mass?: Maybe<Mass>;
-  name?: Maybe<Scalars['String']['output']>;
-  payload_weights?: Maybe<Array<Maybe<RocketPayloadWeight>>>;
-  second_stage?: Maybe<RocketSecondStage>;
-  stages?: Maybe<Scalars['Int']['output']>;
-  success_rate_pct?: Maybe<Scalars['Int']['output']>;
-  type?: Maybe<Scalars['String']['output']>;
-  wikipedia?: Maybe<Scalars['String']['output']>;
-};
-
-export type RocketEngines = {
-  __typename?: 'RocketEngines';
-  engine_loss_max?: Maybe<Scalars['String']['output']>;
-  layout?: Maybe<Scalars['String']['output']>;
-  number?: Maybe<Scalars['Int']['output']>;
-  propellant_1?: Maybe<Scalars['String']['output']>;
-  propellant_2?: Maybe<Scalars['String']['output']>;
-  thrust_sea_level?: Maybe<Force>;
-  thrust_to_weight?: Maybe<Scalars['Float']['output']>;
-  thrust_vacuum?: Maybe<Force>;
-  type?: Maybe<Scalars['String']['output']>;
-  version?: Maybe<Scalars['String']['output']>;
-};
-
-export type RocketFirstStage = {
-  __typename?: 'RocketFirstStage';
-  burn_time_sec?: Maybe<Scalars['Int']['output']>;
-  engines?: Maybe<Scalars['Int']['output']>;
-  fuel_amount_tons?: Maybe<Scalars['Float']['output']>;
-  reusable?: Maybe<Scalars['Boolean']['output']>;
-  thrust_sea_level?: Maybe<Force>;
-  thrust_vacuum?: Maybe<Force>;
-};
-
-export type RocketLandingLegs = {
-  __typename?: 'RocketLandingLegs';
-  material?: Maybe<Scalars['String']['output']>;
-  number?: Maybe<Scalars['Int']['output']>;
-};
-
-export type RocketPayloadWeight = {
-  __typename?: 'RocketPayloadWeight';
-  id?: Maybe<Scalars['String']['output']>;
-  kg?: Maybe<Scalars['Int']['output']>;
-  lb?: Maybe<Scalars['Int']['output']>;
-  name?: Maybe<Scalars['String']['output']>;
-};
-
-export type RocketSecondStage = {
-  __typename?: 'RocketSecondStage';
-  burn_time_sec?: Maybe<Scalars['Int']['output']>;
-  engines?: Maybe<Scalars['Int']['output']>;
-  fuel_amount_tons?: Maybe<Scalars['Float']['output']>;
-  payloads?: Maybe<RocketSecondStagePayloads>;
-  thrust?: Maybe<Force>;
-};
-
-export type RocketSecondStagePayloadCompositeFairing = {
-  __typename?: 'RocketSecondStagePayloadCompositeFairing';
-  diameter?: Maybe<Distance>;
-  height?: Maybe<Distance>;
-};
-
-export type RocketSecondStagePayloads = {
-  __typename?: 'RocketSecondStagePayloads';
-  composite_fairing?: Maybe<RocketSecondStagePayloadCompositeFairing>;
-  option_1?: Maybe<Scalars['String']['output']>;
-};
-
-export type RocketsResult = {
-  __typename?: 'RocketsResult';
-  data?: Maybe<Array<Maybe<Rocket>>>;
-  result?: Maybe<Result>;
-};
-
-export type Ship = {
-  __typename?: 'Ship';
-  abs?: Maybe<Scalars['Int']['output']>;
-  active?: Maybe<Scalars['Boolean']['output']>;
-  attempted_landings?: Maybe<Scalars['Int']['output']>;
-  class?: Maybe<Scalars['Int']['output']>;
-  course_deg?: Maybe<Scalars['Int']['output']>;
-  home_port?: Maybe<Scalars['String']['output']>;
-  id?: Maybe<Scalars['ID']['output']>;
-  image?: Maybe<Scalars['String']['output']>;
-  imo?: Maybe<Scalars['Int']['output']>;
-  missions?: Maybe<Array<Maybe<ShipMission>>>;
-  mmsi?: Maybe<Scalars['Int']['output']>;
-  model?: Maybe<Scalars['String']['output']>;
-  name?: Maybe<Scalars['String']['output']>;
-  position?: Maybe<ShipLocation>;
-  roles?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
-  speed_kn?: Maybe<Scalars['Float']['output']>;
-  status?: Maybe<Scalars['String']['output']>;
-  successful_landings?: Maybe<Scalars['Int']['output']>;
-  type?: Maybe<Scalars['String']['output']>;
-  url?: Maybe<Scalars['String']['output']>;
-  weight_kg?: Maybe<Scalars['Int']['output']>;
-  weight_lbs?: Maybe<Scalars['Int']['output']>;
-  year_built?: Maybe<Scalars['Int']['output']>;
-};
-
-export type ShipLocation = {
-  __typename?: 'ShipLocation';
-  latitude?: Maybe<Scalars['Float']['output']>;
-  longitude?: Maybe<Scalars['Float']['output']>;
-};
-
-export type ShipMission = {
-  __typename?: 'ShipMission';
-  flight?: Maybe<Scalars['String']['output']>;
-  name?: Maybe<Scalars['String']['output']>;
-};
-
-export type ShipsFind = {
-  abs?: InputMaybe<Scalars['Int']['input']>;
-  active?: InputMaybe<Scalars['Boolean']['input']>;
-  attempted_landings?: InputMaybe<Scalars['Int']['input']>;
-  class?: InputMaybe<Scalars['Int']['input']>;
-  course_deg?: InputMaybe<Scalars['Int']['input']>;
-  home_port?: InputMaybe<Scalars['String']['input']>;
+export type Rebalance_Filter = {
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<Rebalance_Filter>>>;
   id?: InputMaybe<Scalars['ID']['input']>;
-  imo?: InputMaybe<Scalars['Int']['input']>;
-  latitude?: InputMaybe<Scalars['Float']['input']>;
-  longitude?: InputMaybe<Scalars['Float']['input']>;
-  mission?: InputMaybe<Scalars['String']['input']>;
-  mmsi?: InputMaybe<Scalars['Int']['input']>;
-  model?: InputMaybe<Scalars['String']['input']>;
-  name?: InputMaybe<Scalars['String']['input']>;
-  role?: InputMaybe<Scalars['String']['input']>;
-  speed_kn?: InputMaybe<Scalars['Int']['input']>;
-  status?: InputMaybe<Scalars['String']['input']>;
-  successful_landings?: InputMaybe<Scalars['Int']['input']>;
-  type?: InputMaybe<Scalars['String']['input']>;
-  weight_kg?: InputMaybe<Scalars['Int']['input']>;
-  weight_lbs?: InputMaybe<Scalars['Int']['input']>;
-  year_built?: InputMaybe<Scalars['Int']['input']>;
+  id_gt?: InputMaybe<Scalars['ID']['input']>;
+  id_gte?: InputMaybe<Scalars['ID']['input']>;
+  id_in?: InputMaybe<Array<Scalars['ID']['input']>>;
+  id_lt?: InputMaybe<Scalars['ID']['input']>;
+  id_lte?: InputMaybe<Scalars['ID']['input']>;
+  id_not?: InputMaybe<Scalars['ID']['input']>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']['input']>>;
+  or?: InputMaybe<Array<InputMaybe<Rebalance_Filter>>>;
+  rebalancedBy?: InputMaybe<Scalars['Bytes']['input']>;
+  rebalancedBy_contains?: InputMaybe<Scalars['Bytes']['input']>;
+  rebalancedBy_gt?: InputMaybe<Scalars['Bytes']['input']>;
+  rebalancedBy_gte?: InputMaybe<Scalars['Bytes']['input']>;
+  rebalancedBy_in?: InputMaybe<Array<Scalars['Bytes']['input']>>;
+  rebalancedBy_lt?: InputMaybe<Scalars['Bytes']['input']>;
+  rebalancedBy_lte?: InputMaybe<Scalars['Bytes']['input']>;
+  rebalancedBy_not?: InputMaybe<Scalars['Bytes']['input']>;
+  rebalancedBy_not_contains?: InputMaybe<Scalars['Bytes']['input']>;
+  rebalancedBy_not_in?: InputMaybe<Array<Scalars['Bytes']['input']>>;
+  timestamp?: InputMaybe<Scalars['BigInt']['input']>;
+  timestamp_gt?: InputMaybe<Scalars['BigInt']['input']>;
+  timestamp_gte?: InputMaybe<Scalars['BigInt']['input']>;
+  timestamp_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
+  timestamp_lt?: InputMaybe<Scalars['BigInt']['input']>;
+  timestamp_lte?: InputMaybe<Scalars['BigInt']['input']>;
+  timestamp_not?: InputMaybe<Scalars['BigInt']['input']>;
+  timestamp_not_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
+  txCost?: InputMaybe<Scalars['BigDecimal']['input']>;
+  txCost_gt?: InputMaybe<Scalars['BigDecimal']['input']>;
+  txCost_gte?: InputMaybe<Scalars['BigDecimal']['input']>;
+  txCost_in?: InputMaybe<Array<Scalars['BigDecimal']['input']>>;
+  txCost_lt?: InputMaybe<Scalars['BigDecimal']['input']>;
+  txCost_lte?: InputMaybe<Scalars['BigDecimal']['input']>;
+  txCost_not?: InputMaybe<Scalars['BigDecimal']['input']>;
+  txCost_not_in?: InputMaybe<Array<Scalars['BigDecimal']['input']>>;
+  txHash?: InputMaybe<Scalars['Bytes']['input']>;
+  txHash_contains?: InputMaybe<Scalars['Bytes']['input']>;
+  txHash_gt?: InputMaybe<Scalars['Bytes']['input']>;
+  txHash_gte?: InputMaybe<Scalars['Bytes']['input']>;
+  txHash_in?: InputMaybe<Array<Scalars['Bytes']['input']>>;
+  txHash_lt?: InputMaybe<Scalars['Bytes']['input']>;
+  txHash_lte?: InputMaybe<Scalars['Bytes']['input']>;
+  txHash_not?: InputMaybe<Scalars['Bytes']['input']>;
+  txHash_not_contains?: InputMaybe<Scalars['Bytes']['input']>;
+  txHash_not_in?: InputMaybe<Array<Scalars['Bytes']['input']>>;
 };
 
-export type ShipsResult = {
-  __typename?: 'ShipsResult';
-  data?: Maybe<Array<Maybe<Ship>>>;
-  result?: Maybe<Result>;
+export enum Rebalance_OrderBy {
+  Id = 'id',
+  RebalancedBy = 'rebalancedBy',
+  Timestamp = 'timestamp',
+  TxCost = 'txCost',
+  TxHash = 'txHash'
+}
+
+export type State = {
+  __typename?: 'State';
+  cancellationFeePercent?: Maybe<Scalars['BigDecimal']['output']>;
+  handlers?: Maybe<Array<Handler>>;
+  id: Scalars['ID']['output'];
+  lastRebalanceTime: Scalars['BigInt']['output'];
+  protocolFeePercent?: Maybe<Scalars['BigDecimal']['output']>;
 };
 
-/** expression to compare columns of type String. All fields are combined with logical 'AND'. */
-export type String_Comparison_Exp = {
-  _eq?: InputMaybe<Scalars['String']['input']>;
-  _gt?: InputMaybe<Scalars['String']['input']>;
-  _gte?: InputMaybe<Scalars['String']['input']>;
-  _ilike?: InputMaybe<Scalars['String']['input']>;
-  _in?: InputMaybe<Array<Scalars['String']['input']>>;
-  _is_null?: InputMaybe<Scalars['Boolean']['input']>;
-  _like?: InputMaybe<Scalars['String']['input']>;
-  _lt?: InputMaybe<Scalars['String']['input']>;
-  _lte?: InputMaybe<Scalars['String']['input']>;
-  _neq?: InputMaybe<Scalars['String']['input']>;
-  _nilike?: InputMaybe<Scalars['String']['input']>;
-  _nin?: InputMaybe<Array<Scalars['String']['input']>>;
-  _nlike?: InputMaybe<Scalars['String']['input']>;
-  _nsimilar?: InputMaybe<Scalars['String']['input']>;
-  _similar?: InputMaybe<Scalars['String']['input']>;
+
+export type StateHandlersArgs = {
+  first?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<Handler_OrderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  skip?: InputMaybe<Scalars['Int']['input']>;
+  where?: InputMaybe<Handler_Filter>;
 };
+
+export type State_Filter = {
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<State_Filter>>>;
+  cancellationFeePercent?: InputMaybe<Scalars['BigDecimal']['input']>;
+  cancellationFeePercent_gt?: InputMaybe<Scalars['BigDecimal']['input']>;
+  cancellationFeePercent_gte?: InputMaybe<Scalars['BigDecimal']['input']>;
+  cancellationFeePercent_in?: InputMaybe<Array<Scalars['BigDecimal']['input']>>;
+  cancellationFeePercent_lt?: InputMaybe<Scalars['BigDecimal']['input']>;
+  cancellationFeePercent_lte?: InputMaybe<Scalars['BigDecimal']['input']>;
+  cancellationFeePercent_not?: InputMaybe<Scalars['BigDecimal']['input']>;
+  cancellationFeePercent_not_in?: InputMaybe<Array<Scalars['BigDecimal']['input']>>;
+  handlers_?: InputMaybe<Handler_Filter>;
+  id?: InputMaybe<Scalars['ID']['input']>;
+  id_gt?: InputMaybe<Scalars['ID']['input']>;
+  id_gte?: InputMaybe<Scalars['ID']['input']>;
+  id_in?: InputMaybe<Array<Scalars['ID']['input']>>;
+  id_lt?: InputMaybe<Scalars['ID']['input']>;
+  id_lte?: InputMaybe<Scalars['ID']['input']>;
+  id_not?: InputMaybe<Scalars['ID']['input']>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']['input']>>;
+  lastRebalanceTime?: InputMaybe<Scalars['BigInt']['input']>;
+  lastRebalanceTime_gt?: InputMaybe<Scalars['BigInt']['input']>;
+  lastRebalanceTime_gte?: InputMaybe<Scalars['BigInt']['input']>;
+  lastRebalanceTime_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
+  lastRebalanceTime_lt?: InputMaybe<Scalars['BigInt']['input']>;
+  lastRebalanceTime_lte?: InputMaybe<Scalars['BigInt']['input']>;
+  lastRebalanceTime_not?: InputMaybe<Scalars['BigInt']['input']>;
+  lastRebalanceTime_not_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
+  or?: InputMaybe<Array<InputMaybe<State_Filter>>>;
+  protocolFeePercent?: InputMaybe<Scalars['BigDecimal']['input']>;
+  protocolFeePercent_gt?: InputMaybe<Scalars['BigDecimal']['input']>;
+  protocolFeePercent_gte?: InputMaybe<Scalars['BigDecimal']['input']>;
+  protocolFeePercent_in?: InputMaybe<Array<Scalars['BigDecimal']['input']>>;
+  protocolFeePercent_lt?: InputMaybe<Scalars['BigDecimal']['input']>;
+  protocolFeePercent_lte?: InputMaybe<Scalars['BigDecimal']['input']>;
+  protocolFeePercent_not?: InputMaybe<Scalars['BigDecimal']['input']>;
+  protocolFeePercent_not_in?: InputMaybe<Array<Scalars['BigDecimal']['input']>>;
+};
+
+export enum State_OrderBy {
+  CancellationFeePercent = 'cancellationFeePercent',
+  Handlers = 'handlers',
+  Id = 'id',
+  LastRebalanceTime = 'lastRebalanceTime',
+  ProtocolFeePercent = 'protocolFeePercent'
+}
+
+export enum Status {
+  Active = 'ACTIVE',
+  Cancelled = 'CANCELLED',
+  Executed = 'EXECUTED'
+}
 
 export type Subscription = {
   __typename?: 'Subscription';
-  /** fetch data from the table: "users" */
-  users: Array<Users>;
-  /** fetch aggregated fields from the table: "users" */
-  users_aggregate: Users_Aggregate;
-  /** fetch data from the table: "users" using primary key columns */
-  users_by_pk?: Maybe<Users>;
+  /** Access to subgraph metadata */
+  _meta?: Maybe<_Meta_>;
+  executor?: Maybe<Executor>;
+  executors: Array<Executor>;
+  handler?: Maybe<Handler>;
+  handlers: Array<Handler>;
+  order?: Maybe<Order>;
+  orders: Array<Order>;
+  rebalance?: Maybe<Rebalance>;
+  rebalances: Array<Rebalance>;
+  state?: Maybe<State>;
+  states: Array<State>;
+  tokenDetail?: Maybe<TokenDetail>;
+  tokenDetails: Array<TokenDetail>;
+  user?: Maybe<User>;
+  users: Array<User>;
+};
+
+
+export type Subscription_MetaArgs = {
+  block?: InputMaybe<Block_Height>;
+};
+
+
+export type SubscriptionExecutorArgs = {
+  block?: InputMaybe<Block_Height>;
+  id: Scalars['ID']['input'];
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type SubscriptionExecutorsArgs = {
+  block?: InputMaybe<Block_Height>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<Executor_OrderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  skip?: InputMaybe<Scalars['Int']['input']>;
+  subgraphError?: _SubgraphErrorPolicy_;
+  where?: InputMaybe<Executor_Filter>;
+};
+
+
+export type SubscriptionHandlerArgs = {
+  block?: InputMaybe<Block_Height>;
+  id: Scalars['ID']['input'];
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type SubscriptionHandlersArgs = {
+  block?: InputMaybe<Block_Height>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<Handler_OrderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  skip?: InputMaybe<Scalars['Int']['input']>;
+  subgraphError?: _SubgraphErrorPolicy_;
+  where?: InputMaybe<Handler_Filter>;
+};
+
+
+export type SubscriptionOrderArgs = {
+  block?: InputMaybe<Block_Height>;
+  id: Scalars['ID']['input'];
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type SubscriptionOrdersArgs = {
+  block?: InputMaybe<Block_Height>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<Order_OrderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  skip?: InputMaybe<Scalars['Int']['input']>;
+  subgraphError?: _SubgraphErrorPolicy_;
+  where?: InputMaybe<Order_Filter>;
+};
+
+
+export type SubscriptionRebalanceArgs = {
+  block?: InputMaybe<Block_Height>;
+  id: Scalars['ID']['input'];
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type SubscriptionRebalancesArgs = {
+  block?: InputMaybe<Block_Height>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<Rebalance_OrderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  skip?: InputMaybe<Scalars['Int']['input']>;
+  subgraphError?: _SubgraphErrorPolicy_;
+  where?: InputMaybe<Rebalance_Filter>;
+};
+
+
+export type SubscriptionStateArgs = {
+  block?: InputMaybe<Block_Height>;
+  id: Scalars['ID']['input'];
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type SubscriptionStatesArgs = {
+  block?: InputMaybe<Block_Height>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<State_OrderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  skip?: InputMaybe<Scalars['Int']['input']>;
+  subgraphError?: _SubgraphErrorPolicy_;
+  where?: InputMaybe<State_Filter>;
+};
+
+
+export type SubscriptionTokenDetailArgs = {
+  block?: InputMaybe<Block_Height>;
+  id: Scalars['ID']['input'];
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type SubscriptionTokenDetailsArgs = {
+  block?: InputMaybe<Block_Height>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<TokenDetail_OrderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  skip?: InputMaybe<Scalars['Int']['input']>;
+  subgraphError?: _SubgraphErrorPolicy_;
+  where?: InputMaybe<TokenDetail_Filter>;
+};
+
+
+export type SubscriptionUserArgs = {
+  block?: InputMaybe<Block_Height>;
+  id: Scalars['ID']['input'];
+  subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
 export type SubscriptionUsersArgs = {
-  distinct_on?: InputMaybe<Array<Users_Select_Column>>;
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  offset?: InputMaybe<Scalars['Int']['input']>;
-  order_by?: InputMaybe<Array<Users_Order_By>>;
-  where?: InputMaybe<Users_Bool_Exp>;
+  block?: InputMaybe<Block_Height>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<User_OrderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  skip?: InputMaybe<Scalars['Int']['input']>;
+  subgraphError?: _SubgraphErrorPolicy_;
+  where?: InputMaybe<User_Filter>;
 };
 
-
-export type SubscriptionUsers_AggregateArgs = {
-  distinct_on?: InputMaybe<Array<Users_Select_Column>>;
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  offset?: InputMaybe<Scalars['Int']['input']>;
-  order_by?: InputMaybe<Array<Users_Order_By>>;
-  where?: InputMaybe<Users_Bool_Exp>;
+export type TokenDetail = {
+  __typename?: 'TokenDetail';
+  address: Scalars['Bytes']['output'];
+  bufferPercent?: Maybe<Scalars['BigInt']['output']>;
+  id: Scalars['ID']['output'];
+  isWhitelistToken: Scalars['Boolean']['output'];
+  strategy?: Maybe<Scalars['Bytes']['output']>;
+  totalFunds: Scalars['BigInt']['output'];
+  totalShares: Scalars['BigInt']['output'];
 };
 
-
-export type SubscriptionUsers_By_PkArgs = {
-  id: Scalars['uuid']['input'];
+export type TokenDetail_Filter = {
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<BlockChangedFilter>;
+  address?: InputMaybe<Scalars['Bytes']['input']>;
+  address_contains?: InputMaybe<Scalars['Bytes']['input']>;
+  address_gt?: InputMaybe<Scalars['Bytes']['input']>;
+  address_gte?: InputMaybe<Scalars['Bytes']['input']>;
+  address_in?: InputMaybe<Array<Scalars['Bytes']['input']>>;
+  address_lt?: InputMaybe<Scalars['Bytes']['input']>;
+  address_lte?: InputMaybe<Scalars['Bytes']['input']>;
+  address_not?: InputMaybe<Scalars['Bytes']['input']>;
+  address_not_contains?: InputMaybe<Scalars['Bytes']['input']>;
+  address_not_in?: InputMaybe<Array<Scalars['Bytes']['input']>>;
+  and?: InputMaybe<Array<InputMaybe<TokenDetail_Filter>>>;
+  bufferPercent?: InputMaybe<Scalars['BigInt']['input']>;
+  bufferPercent_gt?: InputMaybe<Scalars['BigInt']['input']>;
+  bufferPercent_gte?: InputMaybe<Scalars['BigInt']['input']>;
+  bufferPercent_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
+  bufferPercent_lt?: InputMaybe<Scalars['BigInt']['input']>;
+  bufferPercent_lte?: InputMaybe<Scalars['BigInt']['input']>;
+  bufferPercent_not?: InputMaybe<Scalars['BigInt']['input']>;
+  bufferPercent_not_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
+  id?: InputMaybe<Scalars['ID']['input']>;
+  id_gt?: InputMaybe<Scalars['ID']['input']>;
+  id_gte?: InputMaybe<Scalars['ID']['input']>;
+  id_in?: InputMaybe<Array<Scalars['ID']['input']>>;
+  id_lt?: InputMaybe<Scalars['ID']['input']>;
+  id_lte?: InputMaybe<Scalars['ID']['input']>;
+  id_not?: InputMaybe<Scalars['ID']['input']>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']['input']>>;
+  isWhitelistToken?: InputMaybe<Scalars['Boolean']['input']>;
+  isWhitelistToken_in?: InputMaybe<Array<Scalars['Boolean']['input']>>;
+  isWhitelistToken_not?: InputMaybe<Scalars['Boolean']['input']>;
+  isWhitelistToken_not_in?: InputMaybe<Array<Scalars['Boolean']['input']>>;
+  or?: InputMaybe<Array<InputMaybe<TokenDetail_Filter>>>;
+  strategy?: InputMaybe<Scalars['Bytes']['input']>;
+  strategy_contains?: InputMaybe<Scalars['Bytes']['input']>;
+  strategy_gt?: InputMaybe<Scalars['Bytes']['input']>;
+  strategy_gte?: InputMaybe<Scalars['Bytes']['input']>;
+  strategy_in?: InputMaybe<Array<Scalars['Bytes']['input']>>;
+  strategy_lt?: InputMaybe<Scalars['Bytes']['input']>;
+  strategy_lte?: InputMaybe<Scalars['Bytes']['input']>;
+  strategy_not?: InputMaybe<Scalars['Bytes']['input']>;
+  strategy_not_contains?: InputMaybe<Scalars['Bytes']['input']>;
+  strategy_not_in?: InputMaybe<Array<Scalars['Bytes']['input']>>;
+  totalFunds?: InputMaybe<Scalars['BigInt']['input']>;
+  totalFunds_gt?: InputMaybe<Scalars['BigInt']['input']>;
+  totalFunds_gte?: InputMaybe<Scalars['BigInt']['input']>;
+  totalFunds_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
+  totalFunds_lt?: InputMaybe<Scalars['BigInt']['input']>;
+  totalFunds_lte?: InputMaybe<Scalars['BigInt']['input']>;
+  totalFunds_not?: InputMaybe<Scalars['BigInt']['input']>;
+  totalFunds_not_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
+  totalShares?: InputMaybe<Scalars['BigInt']['input']>;
+  totalShares_gt?: InputMaybe<Scalars['BigInt']['input']>;
+  totalShares_gte?: InputMaybe<Scalars['BigInt']['input']>;
+  totalShares_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
+  totalShares_lt?: InputMaybe<Scalars['BigInt']['input']>;
+  totalShares_lte?: InputMaybe<Scalars['BigInt']['input']>;
+  totalShares_not?: InputMaybe<Scalars['BigInt']['input']>;
+  totalShares_not_in?: InputMaybe<Array<Scalars['BigInt']['input']>>;
 };
 
-export type Volume = {
-  __typename?: 'Volume';
-  cubic_feet?: Maybe<Scalars['Int']['output']>;
-  cubic_meters?: Maybe<Scalars['Int']['output']>;
-};
-
-/** conflict action */
-export enum Conflict_Action {
-  /** ignore the insert on this row */
-  Ignore = 'ignore',
-  /** update the row with the given values */
-  Update = 'update'
-}
-
-/** column ordering options */
-export enum Order_By {
-  /** in the ascending order, nulls last */
-  Asc = 'asc',
-  /** in the ascending order, nulls first */
-  AscNullsFirst = 'asc_nulls_first',
-  /** in the ascending order, nulls last */
-  AscNullsLast = 'asc_nulls_last',
-  /** in the descending order, nulls first */
-  Desc = 'desc',
-  /** in the descending order, nulls first */
-  DescNullsFirst = 'desc_nulls_first',
-  /** in the descending order, nulls last */
-  DescNullsLast = 'desc_nulls_last'
-}
-
-/** expression to compare columns of type timestamptz. All fields are combined with logical 'AND'. */
-export type Timestamptz_Comparison_Exp = {
-  _eq?: InputMaybe<Scalars['timestamptz']['input']>;
-  _gt?: InputMaybe<Scalars['timestamptz']['input']>;
-  _gte?: InputMaybe<Scalars['timestamptz']['input']>;
-  _in?: InputMaybe<Array<Scalars['timestamptz']['input']>>;
-  _is_null?: InputMaybe<Scalars['Boolean']['input']>;
-  _lt?: InputMaybe<Scalars['timestamptz']['input']>;
-  _lte?: InputMaybe<Scalars['timestamptz']['input']>;
-  _neq?: InputMaybe<Scalars['timestamptz']['input']>;
-  _nin?: InputMaybe<Array<Scalars['timestamptz']['input']>>;
-};
-
-/** columns and relationships of "users" */
-export type Users = {
-  __typename?: 'users';
-  id: Scalars['uuid']['output'];
-  name?: Maybe<Scalars['String']['output']>;
-  rocket?: Maybe<Scalars['String']['output']>;
-  timestamp: Scalars['timestamptz']['output'];
-  twitter?: Maybe<Scalars['String']['output']>;
-};
-
-/** aggregated selection of "users" */
-export type Users_Aggregate = {
-  __typename?: 'users_aggregate';
-  aggregate?: Maybe<Users_Aggregate_Fields>;
-  nodes: Array<Users>;
-};
-
-/** aggregate fields of "users" */
-export type Users_Aggregate_Fields = {
-  __typename?: 'users_aggregate_fields';
-  count?: Maybe<Scalars['Int']['output']>;
-  max?: Maybe<Users_Max_Fields>;
-  min?: Maybe<Users_Min_Fields>;
-};
-
-
-/** aggregate fields of "users" */
-export type Users_Aggregate_FieldsCountArgs = {
-  columns?: InputMaybe<Array<Users_Select_Column>>;
-  distinct?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-/** order by aggregate values of table "users" */
-export type Users_Aggregate_Order_By = {
-  count?: InputMaybe<Order_By>;
-  max?: InputMaybe<Users_Max_Order_By>;
-  min?: InputMaybe<Users_Min_Order_By>;
-};
-
-/** input type for inserting array relation for remote table "users" */
-export type Users_Arr_Rel_Insert_Input = {
-  data: Array<Users_Insert_Input>;
-  on_conflict?: InputMaybe<Users_On_Conflict>;
-};
-
-/** Boolean expression to filter rows from the table "users". All fields are combined with a logical 'AND'. */
-export type Users_Bool_Exp = {
-  _and?: InputMaybe<Array<InputMaybe<Users_Bool_Exp>>>;
-  _not?: InputMaybe<Users_Bool_Exp>;
-  _or?: InputMaybe<Array<InputMaybe<Users_Bool_Exp>>>;
-  id?: InputMaybe<Uuid_Comparison_Exp>;
-  name?: InputMaybe<String_Comparison_Exp>;
-  rocket?: InputMaybe<String_Comparison_Exp>;
-  timestamp?: InputMaybe<Timestamptz_Comparison_Exp>;
-  twitter?: InputMaybe<String_Comparison_Exp>;
-};
-
-/** unique or primary key constraints on table "users" */
-export enum Users_Constraint {
-  /** unique or primary key constraint */
-  UsersPkey = 'users_pkey'
-}
-
-/** input type for inserting data into table "users" */
-export type Users_Insert_Input = {
-  id?: InputMaybe<Scalars['uuid']['input']>;
-  name?: InputMaybe<Scalars['String']['input']>;
-  rocket?: InputMaybe<Scalars['String']['input']>;
-  timestamp?: InputMaybe<Scalars['timestamptz']['input']>;
-  twitter?: InputMaybe<Scalars['String']['input']>;
-};
-
-/** aggregate max on columns */
-export type Users_Max_Fields = {
-  __typename?: 'users_max_fields';
-  name?: Maybe<Scalars['String']['output']>;
-  rocket?: Maybe<Scalars['String']['output']>;
-  timestamp?: Maybe<Scalars['timestamptz']['output']>;
-  twitter?: Maybe<Scalars['String']['output']>;
-};
-
-/** order by max() on columns of table "users" */
-export type Users_Max_Order_By = {
-  name?: InputMaybe<Order_By>;
-  rocket?: InputMaybe<Order_By>;
-  timestamp?: InputMaybe<Order_By>;
-  twitter?: InputMaybe<Order_By>;
-};
-
-/** aggregate min on columns */
-export type Users_Min_Fields = {
-  __typename?: 'users_min_fields';
-  name?: Maybe<Scalars['String']['output']>;
-  rocket?: Maybe<Scalars['String']['output']>;
-  timestamp?: Maybe<Scalars['timestamptz']['output']>;
-  twitter?: Maybe<Scalars['String']['output']>;
-};
-
-/** order by min() on columns of table "users" */
-export type Users_Min_Order_By = {
-  name?: InputMaybe<Order_By>;
-  rocket?: InputMaybe<Order_By>;
-  timestamp?: InputMaybe<Order_By>;
-  twitter?: InputMaybe<Order_By>;
-};
-
-/** response of any mutation on the table "users" */
-export type Users_Mutation_Response = {
-  __typename?: 'users_mutation_response';
-  /** number of affected rows by the mutation */
-  affected_rows: Scalars['Int']['output'];
-  /** data of the affected rows by the mutation */
-  returning: Array<Users>;
-};
-
-/** input type for inserting object relation for remote table "users" */
-export type Users_Obj_Rel_Insert_Input = {
-  data: Users_Insert_Input;
-  on_conflict?: InputMaybe<Users_On_Conflict>;
-};
-
-/** on conflict condition type for table "users" */
-export type Users_On_Conflict = {
-  constraint: Users_Constraint;
-  update_columns: Array<Users_Update_Column>;
-};
-
-/** ordering options when selecting data from "users" */
-export type Users_Order_By = {
-  id?: InputMaybe<Order_By>;
-  name?: InputMaybe<Order_By>;
-  rocket?: InputMaybe<Order_By>;
-  timestamp?: InputMaybe<Order_By>;
-  twitter?: InputMaybe<Order_By>;
-};
-
-/** select columns of table "users" */
-export enum Users_Select_Column {
-  /** column name */
+export enum TokenDetail_OrderBy {
+  Address = 'address',
+  BufferPercent = 'bufferPercent',
   Id = 'id',
-  /** column name */
-  Name = 'name',
-  /** column name */
-  Rocket = 'rocket',
-  /** column name */
-  Timestamp = 'timestamp',
-  /** column name */
-  Twitter = 'twitter'
+  IsWhitelistToken = 'isWhitelistToken',
+  Strategy = 'strategy',
+  TotalFunds = 'totalFunds',
+  TotalShares = 'totalShares'
 }
 
-/** input type for updating data in table "users" */
-export type Users_Set_Input = {
-  id?: InputMaybe<Scalars['uuid']['input']>;
-  name?: InputMaybe<Scalars['String']['input']>;
-  rocket?: InputMaybe<Scalars['String']['input']>;
-  timestamp?: InputMaybe<Scalars['timestamptz']['input']>;
-  twitter?: InputMaybe<Scalars['String']['input']>;
+export type User = {
+  __typename?: 'User';
+  address: Scalars['Bytes']['output'];
+  id: Scalars['ID']['output'];
+  orders?: Maybe<Array<Order>>;
 };
 
-/** update columns of table "users" */
-export enum Users_Update_Column {
-  /** column name */
+
+export type UserOrdersArgs = {
+  first?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<Order_OrderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  skip?: InputMaybe<Scalars['Int']['input']>;
+  where?: InputMaybe<Order_Filter>;
+};
+
+export type User_Filter = {
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<BlockChangedFilter>;
+  address?: InputMaybe<Scalars['Bytes']['input']>;
+  address_contains?: InputMaybe<Scalars['Bytes']['input']>;
+  address_gt?: InputMaybe<Scalars['Bytes']['input']>;
+  address_gte?: InputMaybe<Scalars['Bytes']['input']>;
+  address_in?: InputMaybe<Array<Scalars['Bytes']['input']>>;
+  address_lt?: InputMaybe<Scalars['Bytes']['input']>;
+  address_lte?: InputMaybe<Scalars['Bytes']['input']>;
+  address_not?: InputMaybe<Scalars['Bytes']['input']>;
+  address_not_contains?: InputMaybe<Scalars['Bytes']['input']>;
+  address_not_in?: InputMaybe<Array<Scalars['Bytes']['input']>>;
+  and?: InputMaybe<Array<InputMaybe<User_Filter>>>;
+  id?: InputMaybe<Scalars['ID']['input']>;
+  id_gt?: InputMaybe<Scalars['ID']['input']>;
+  id_gte?: InputMaybe<Scalars['ID']['input']>;
+  id_in?: InputMaybe<Array<Scalars['ID']['input']>>;
+  id_lt?: InputMaybe<Scalars['ID']['input']>;
+  id_lte?: InputMaybe<Scalars['ID']['input']>;
+  id_not?: InputMaybe<Scalars['ID']['input']>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']['input']>>;
+  or?: InputMaybe<Array<InputMaybe<User_Filter>>>;
+  orders_?: InputMaybe<Order_Filter>;
+};
+
+export enum User_OrderBy {
+  Address = 'address',
   Id = 'id',
-  /** column name */
-  Name = 'name',
-  /** column name */
-  Rocket = 'rocket',
-  /** column name */
-  Timestamp = 'timestamp',
-  /** column name */
-  Twitter = 'twitter'
+  Orders = 'orders'
 }
 
-/** expression to compare columns of type uuid. All fields are combined with logical 'AND'. */
-export type Uuid_Comparison_Exp = {
-  _eq?: InputMaybe<Scalars['uuid']['input']>;
-  _gt?: InputMaybe<Scalars['uuid']['input']>;
-  _gte?: InputMaybe<Scalars['uuid']['input']>;
-  _in?: InputMaybe<Array<Scalars['uuid']['input']>>;
-  _is_null?: InputMaybe<Scalars['Boolean']['input']>;
-  _lt?: InputMaybe<Scalars['uuid']['input']>;
-  _lte?: InputMaybe<Scalars['uuid']['input']>;
-  _neq?: InputMaybe<Scalars['uuid']['input']>;
-  _nin?: InputMaybe<Array<Scalars['uuid']['input']>>;
+export type _Block_ = {
+  __typename?: '_Block_';
+  /** The hash of the block */
+  hash?: Maybe<Scalars['Bytes']['output']>;
+  /** The block number */
+  number: Scalars['Int']['output'];
+  /** The hash of the parent block */
+  parentHash?: Maybe<Scalars['Bytes']['output']>;
+  /** Integer representation of the timestamp stored in blocks for the chain */
+  timestamp?: Maybe<Scalars['Int']['output']>;
 };
 
-export type SampleQueryQueryVariables = Exact<{
-  dragonId: Scalars['ID']['input'];
-}>;
+/** The type for the top-level _meta field */
+export type _Meta_ = {
+  __typename?: '_Meta_';
+  /**
+   * Information about a specific subgraph block. The hash of the block
+   * will be null if the _meta field has a block constraint that asks for
+   * a block number. It will be filled if the _meta field has no block constraint
+   * and therefore asks for the latest  block
+   *
+   */
+  block: _Block_;
+  /** The deployment ID */
+  deployment: Scalars['String']['output'];
+  /** If `true`, the subgraph encountered indexing errors at some past block */
+  hasIndexingErrors: Scalars['Boolean']['output'];
+};
+
+export enum _SubgraphErrorPolicy_ {
+  /** Data will be returned even if the subgraph has indexing errors */
+  Allow = 'allow',
+  /** If the subgraph has indexing errors, data will be omitted. The default. */
+  Deny = 'deny'
+}
+
+export type GetOrdersQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type SampleQueryQuery = { __typename?: 'Query', company?: { __typename?: 'Info', ceo?: string | null } | null, roadster?: { __typename?: 'Roadster', apoapsis_au?: number | null } | null, capsulesUpcoming?: Array<{ __typename?: 'Capsule', dragon?: { __typename?: 'Dragon', active?: boolean | null, crew_capacity?: number | null } | null } | null> | null, dragons?: Array<{ __typename?: 'Dragon', id?: string | null } | null> | null, dragon?: { __typename?: 'Dragon', id?: string | null, active?: boolean | null, crew_capacity?: number | null } | null };
+export type GetOrdersQuery = { __typename?: 'Query', states: Array<{ __typename?: 'State', protocolFeePercent?: any | null }>, orders: Array<{ __typename?: 'Order', id: string, yieldEarned?: any | null, orderId: any, recipient: any, creator: { __typename?: 'User', id: string } }> };
 
 
-export const SampleQueryDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"SampleQuery"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"dragonId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"company"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"ceo"}}]}},{"kind":"Field","name":{"kind":"Name","value":"roadster"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"apoapsis_au"}}]}},{"kind":"Field","name":{"kind":"Name","value":"capsulesUpcoming"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"dragon"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"active"}},{"kind":"Field","name":{"kind":"Name","value":"crew_capacity"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"dragons"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}},{"kind":"Field","name":{"kind":"Name","value":"dragon"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"dragonId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"active"}},{"kind":"Field","name":{"kind":"Name","value":"crew_capacity"}}]}}]}}]} as unknown as DocumentNode<SampleQueryQuery, SampleQueryQueryVariables>;
+export const GetOrdersDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetOrders"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"states"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"protocolFeePercent"}}]}},{"kind":"Field","name":{"kind":"Name","value":"orders"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"first"},"value":{"kind":"IntValue","value":"5"}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"yieldEarned"}},{"kind":"Field","name":{"kind":"Name","value":"orderId"}},{"kind":"Field","name":{"kind":"Name","value":"creator"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}},{"kind":"Field","name":{"kind":"Name","value":"recipient"}}]}}]}}]} as unknown as DocumentNode<GetOrdersQuery, GetOrdersQueryVariables>;
