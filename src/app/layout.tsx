@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
 import { Inter, Gabarito, Kode_Mono } from "next/font/google";
-import "./globals.css";
-import "@rainbow-me/rainbowkit/styles.css";
 import { Providers } from "./providers";
 import Container from "app/components/Container/Container";
 import styles from "./home-page/Homepage.module.scss";
 import Navigation from "app/home-page/Navigation/Navigation";
 import { Layout } from "antd";
+import "@rainbow-me/rainbowkit/styles.css";
+import "./globals.css";
 
 const gabarito = Gabarito({
   subsets: ["latin"],
@@ -34,6 +34,19 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link
+          rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossOrigin=""
+        />
+        {/* eslint-disable-next-line @next/next/no-page-custom-font */}
+        <link
+          href="https://fonts.googleapis.com/css2?family=Rammetto+One&display=swap"
+          rel="stylesheet"
+        />
+      </head>
       <body className={gabarito.variable}>
         <Providers>
           <Layout className={styles.Home}>

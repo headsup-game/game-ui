@@ -10,13 +10,14 @@ import {
   Row,
   Typography,
 } from "antd";
-import Navigation from "app/home-page/Navigation/Navigation";
 import React from "react";
 import styles from "./Homepage.module.scss";
 import Container from "app/components/Container/Container";
 import { IoMdLock } from "react-icons/io";
 import { motion } from "framer-motion";
 import Link from "next/link";
+import PlayingCard from "app/components/PlayingCard/PlayingCard";
+import Image from "next/image";
 
 const { Paragraph, Title } = Typography;
 
@@ -124,6 +125,27 @@ const HomePage = () => {
                   </Flex>
                 </Flex>
               </motion.div>
+            </Col>
+          </Row>
+        </Container>
+
+        {/* Exploration Section */}
+        <Container>
+          <Row>
+            <Col span={5}>
+              <Flex align="center" gap={20}>
+                <PlayingCard value={7} suit="SPADES" color="blue" />
+                <PlayingCard value={8} suit="DIAMONDS" color="red" />
+                <PlayingCard value={4} suit="HEARTS" color="blue" />
+                <PlayingCard value={2} suit="CLUBS" color="violet" />
+                <Image
+                  src="/images/card-assets/card-back.svg"
+                  alt="ten_of_spades"
+                  width={112}
+                  height={157}
+                  className={styles.PlayingCard}
+                />
+              </Flex>
             </Col>
           </Row>
         </Container>
