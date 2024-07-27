@@ -4,12 +4,12 @@ import styles from "./PlayingCard.module.scss";
 import { Flex } from "antd";
 import Image from "next/image";
 
-type SUITS = "SPADES" | "HEARTS" | "CLUBS" | "DIAMONDS";
-type CardValue = 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | "J" | "Q" | "K" | "A";
-type color = "red" | "blue" | "violet";
+export type SUITS = "SPADES" | "HEARTS" | "CLUBS" | "DIAMONDS";
+export type CardValue = 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | "J" | "Q" | "K" | "A";
+export type Color = "red" | "blue" | "violet";
 
 interface PlayingCardProps {
-  color: color;
+  color: Color;
   value: CardValue;
   suit: SUITS;
   className?: string;
