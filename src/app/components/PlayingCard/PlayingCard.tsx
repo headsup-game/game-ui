@@ -21,7 +21,7 @@ const ramettoOne = Rammetto_One({ subsets: ["latin"], weight: "400" });
 const PlayingCard = (props: PlayingCardProps) => {
   const { className, color, value, suit, onClick } = props;
 
-  const getBGColor = (color) => {
+  const getBGColor = (color: string) => {
     switch (color) {
       case "red":
         return "#FEBEBE";
@@ -34,7 +34,7 @@ const PlayingCard = (props: PlayingCardProps) => {
     }
   };
 
-  const getColor = (color) => {
+  const getColor = (color: string) => {
     switch (color) {
       case "red":
         return "#FF4848";
