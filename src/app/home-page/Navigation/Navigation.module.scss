@@ -1,0 +1,10 @@
+.Navigation,
+.Menu {
+  background: #141127;
+}
+
+.Menu {
+  & .ant-menu-item-selected {
+    background: lighten(#141127, 5%);
+  }
+}

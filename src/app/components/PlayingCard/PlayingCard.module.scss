@@ -1,0 +1,43 @@
+.PlayingCard {
+  display: flex;
+  width: 130px;
+  max-width: 100%;
+  height: auto;
+  cursor: pointer;
+  border-radius: 5px;
+  aspect-ratio: 63 / 88;
+  padding: 12px 22px;
+  position: relative;
+  border: 1px solid #000;
+}
+
+.PlayingCardText {
+  text-align: center;
+  text-shadow: 0px 3.485px 0px #000;
+  -webkit-text-stroke-width: 1.7425199747085571;
+  -webkit-text-stroke-color: #000;
+  font-family: "Rammetto One", sans-serif !important;
+  font-size: 5rem;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
+}
+
+.PlayingCardSuit {
+  position: absolute;
+  left: 8px;
+  top: 8px;
+  width: 23px;
+  height: 23px;
+  object-fit: contain;
+}
+
+.PlayingCardSuitInvert {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  transform: rotate(180deg);
+  width: 23px;
+  height: 23px;
+  object-fit: contain;
+}
