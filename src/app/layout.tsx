@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Gabarito, Kode_Mono } from "next/font/google";
+// import { Kode_Mono } from "next/font/google";
 import { Providers } from "./providers";
 import Container from "app/components/Container/Container";
 import styles from "./home-page/Homepage.module.scss";
@@ -8,19 +8,12 @@ import { Layout } from "antd";
 import "@rainbow-me/rainbowkit/styles.css";
 import "./globals.css";
 
-const gabarito = Gabarito({
-  subsets: ["latin"],
-  display: "swap",
-  variable: "--font-gabarito",
-});
-
 // const KodeMono = Kode_Mono({
 //   subsets: ["latin"],
 //   display: "swap",
 //   variable: "--font-kode-mono",
+//   weight: ["400", "500", "600", "700"],
 // });
-
-// const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Play Poker with your friends and win big!",
@@ -46,8 +39,13 @@ export default function RootLayout({
           href="https://fonts.googleapis.com/css2?family=Rammetto+One&display=swap"
           rel="stylesheet"
         />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Kode+Mono:wght@400..700&family=Rammetto+One&display=swap"
+          rel="stylesheet"
+        />
       </head>
-      <body className={gabarito.variable}>
+      {/* <body className={KodeMono.variable}> */}
+      <body>
         <Providers>
           <Layout className={styles.Home}>
             <Navigation />

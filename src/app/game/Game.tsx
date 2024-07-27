@@ -1,13 +1,11 @@
 import Container from "app/components/Container/Container";
 import styles from "./Game.module.scss";
-import { Col, Divider, Flex, Row } from "antd";
+import { Col, Flex, Row } from "antd";
 import Image from "next/image";
 import BetForm from "app/game/BetForm";
 import RecentBets from "app/game/RecentBets";
 import dynamic from "next/dynamic";
-import FlipCard from "@components/FlipCard";
 import FlopCards from "app/game/FlopCards";
-import { useState } from "react";
 import GameCards from "app/game/GameCards";
 
 const GameTimer = dynamic(() => import("app/game/GameTimer"), { ssr: false });
