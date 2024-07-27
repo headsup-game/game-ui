@@ -1,28 +1,30 @@
+"use client";
+
 import Container from "app/components/Container/Container";
 import styles from "./Game.module.scss";
-import { Col, Flex, Row } from "antd";
+import { Button, Col, Flex, Row } from "antd";
 import Image from "next/image";
 import BetForm from "app/game/BetForm";
 import RecentBets from "app/game/RecentBets";
 import dynamic from "next/dynamic";
 import FlopCards from "app/game/FlopCards";
 import GameCards from "app/game/GameCards";
+import { useState } from "react";
+import BetwinModal from "app/components/BetwinModal/BetwinModal";
 
 const GameTimer = dynamic(() => import("app/game/GameTimer"), { ssr: false });
 
 const Game = () => {
+  const [showModal, setShowModal] = useState(false);
   const Timer = new Date();
   Timer.setSeconds(Timer.getSeconds() + 30); // 30 secs timer
 
   return (
     <Container>
       <Row className={styles.GameContainer} gutter={20}>
-        {/* Game Timer */}
         <Col span={3}>
-          <Flex vertical gap={14} align="center">
-            <GameTimer Timer={Timer} />
-            <Flex>Flop Timer:</Flex>
-          </Flex>
+          {/* Game Timer */}
+          <GameTimer Timer={Timer} />
         </Col>
 
         {/* Game Cards */}
@@ -32,6 +34,10 @@ const Game = () => {
 
           {/* Game Cards */}
           <GameCards />
+
+          {/* Temp button */}
+          {/* TODO: Remove this once modal is implemented */}
+          <Button onClick={() => setShowModal(true)}>Show Success Modal</Button>
         </Col>
 
         {/* Game Controls/Actions */}
@@ -56,6 +62,9 @@ const Game = () => {
 
       {/* Recent Bets */}
       <RecentBets />
+
+      {/* Modal */}
+      {showModal && <BetwinModal open={showModal} setOpen={setShowModal} />}
     </Container>
   );
 };

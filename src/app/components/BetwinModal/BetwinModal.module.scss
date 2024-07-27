@@ -1,6 +1,41 @@
 .BetwinModal {
-  border-radius: var(--spacing-6, 24px);
-  border: 1px solid #312a5e;
-  background: #1f1c37;
-  box-shadow: 0px 0px 97.6px 0px rgba(142, 72, 255, 0.3);
+}
+
+.Divider {
+  margin: 30px 0;
+  background: #312a5e;
+  height: 1px;
+  border: 0;
+}
+
+.Title {
+  font-size: 50px;
+  font-weight: 700;
+  line-height: 120%; /* 58.634px */
+  margin-bottom: 20px;
+}
+
+.SubTitle {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 120%; /* 19.2px */
+}
+
+.ListHeading {
+  color: #fff;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 120%; /* 19.2px */
+}
+
+.ListValue {
+  color: #fff;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 120%; /* 19.2px */
+}
+
+.ListValueGreen {
+  color: #00ff0a;
 }

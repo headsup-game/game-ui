@@ -38,9 +38,12 @@ const GameTimer = ({ Timer }) => {
   }, [Timer]);
 
   return (
-    <Flex align="center" justify="center" className={styles.GameTimer}>
-      {minutes > 0 && <span>{minutes}</span>}
-      {seconds > 0 && <span>{seconds}</span>}{" "}
+    <Flex vertical gap={14} align="center">
+      <Flex align="center" justify="center" className={styles.GameTimer}>
+        {minutes > 0 && <span>{minutes}</span>}
+        {seconds > 0 && <span>{seconds}</span>}{" "}
+      </Flex>
+      <Flex>Flop Timer:</Flex>
     </Flex>
   );
 };
