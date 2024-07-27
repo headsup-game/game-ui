@@ -1,3 +1,6 @@
+import { getEnumName } from "utils/enumHelper"
+import { CardDto } from "./cardDto"
+
 export type Card = {
   suit: Suit,
   rank: Rank
@@ -25,4 +28,12 @@ export enum Rank {
   Queen,
   King,
   Ace
+}
+
+export function getCardFromCardDto(cardDto: CardDto): Card {
+  return {
+    suit: cardDto.suit,
+    rank: cardDto.rank,
+    image: `/images/${getEnumName(Rank, cardDto.rank)?.toLowerCase()}_of_${getEnumName(Suit, cardDto.suit)?.toLowerCase()}.png`
+  }
 }
