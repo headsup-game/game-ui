@@ -1,5 +1,5 @@
-import { GameStateDto } from '../interfaces/gameStateDto';
-import { Rank, Suit } from '../interfaces/card';
+import { GameStateDto } from 'interfaces/gameStateDto';
+import { Rank, Suit } from 'interfaces/card';
 
 export const getGameInfoFromContract = async (): Promise<GameStateDto> => {
   return {
