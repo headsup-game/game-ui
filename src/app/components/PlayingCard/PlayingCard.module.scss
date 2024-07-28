@@ -2,7 +2,8 @@
   display: flex;
   width: 130px;
   max-width: 100%;
-  height: auto;
+  height: 100%;
+  min-height: auto;
   cursor: pointer;
   border-radius: 5px;
   aspect-ratio: 63 / 88;

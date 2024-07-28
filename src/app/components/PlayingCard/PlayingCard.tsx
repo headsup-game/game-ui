@@ -3,17 +3,15 @@ import { Rammetto_One } from "next/font/google";
 import styles from "./PlayingCard.module.scss";
 import { Flex } from "antd";
 import Image from "next/image";
-
-export type SUITS = "SPADES" | "HEARTS" | "CLUBS" | "DIAMONDS";
-export type CardValue = 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | "J" | "Q" | "K" | "A";
-export type Color = "red" | "blue" | "violet";
+import { Color, getRankValue, Rank, Suit } from "interfaces/card";
 
 interface PlayingCardProps {
   color: Color;
-  value: CardValue;
-  suit: SUITS;
+  value: Rank;
+  suit: Suit;
   className?: string;
   onClick?: () => void;
+  styles?: React.CSSProperties;
 }
 
 const ramettoOne = Rammetto_One({ subsets: ["latin"], weight: "400" });
@@ -21,67 +19,73 @@ const ramettoOne = Rammetto_One({ subsets: ["latin"], weight: "400" });
 const PlayingCard = (props: PlayingCardProps) => {
   const { className, color, value, suit, onClick } = props;
 
-  const getBGColor = (color: string) => {
+  const getBGColor = (color: Color) => {
     switch (color) {
-      case "red":
+      case Color.RED:
         return "#FEBEBE";
-      case "blue":
+      case Color.BLUE:
         return "#C7BEFE";
-      case "violet":
+      case Color.VIOLET:
         return "#E6BEFE";
       default:
         return "#FEBEBE";
     }
   };
 
-  const getColor = (color: string) => {
+  const getColor = (color: Color) => {
     switch (color) {
-      case "red":
+      case Color.RED:
         return "#FF4848";
-      case "blue":
+      case Color.BLUE:
         return "#4865FF";
-      case "violet":
+      case Color.VIOLET:
         return "#8E48FF";
       default:
         return "#FF4848";
     }
   };
 
-  const getSuitIcon = (suit = "CLUBS", color = "red") => {
+  const getSuitIcon = ({
+    suit = Suit.Clubs,
+    color = Color.RED,
+  }: {
+    suit: Suit;
+    color: Color;
+  }): string => {
     const suitIcons = {
-      HEARTS: {
-        red: "/images/card-assets/hearts-red.svg",
-        blue: "/images/card-assets/hearts-blue.svg",
-        violet: "/images/card-assets/hearts-violet.svg",
+      0: {
+        0: "/images/card-assets/hearts-red.svg",
+        1: "/images/card-assets/hearts-blue.svg",
+        2: "/images/card-assets/hearts-violet.svg",
       },
-      CLUBS: {
-        red: "/images/card-assets/clubs-red.svg",
-        blue: "/images/card-assets/clubs-blue.svg",
-        violet: "/images/card-assets/clubs-violet.svg",
+      1: {
+        0: "/images/card-assets/diamonds-red.svg",
+        1: "/images/card-assets/diamonds-blue.svg",
+        2: "/images/card-assets/diamonds-violet.svg",
       },
-      DIAMONDS: {
-        red: "/images/card-assets/diamonds-red.svg",
-        blue: "/images/card-assets/diamonds-blue.svg",
-        violet: "/images/card-assets/diamonds-violet.svg",
+      2: {
+        0: "/images/card-assets/clubs-red.svg",
+        1: "/images/card-assets/clubs-blue.svg",
+        2: "/images/card-assets/clubs-violet.svg",
       },
-      SPADES: {
-        red: "/images/card-assets/spades-red.svg",
-        blue: "/images/card-assets/spades-blue.svg",
-        violet: "/images/card-assets/spades-violet.svg",
+      3: {
+        0: "/images/card-assets/spades-red.svg",
+        1: "/images/card-assets/spades-blue.svg",
+        2: "/images/card-assets/spades-violet.svg",
       },
     };
 
-    const suitIcon = suitIcons[suit]?.[color] || suitIcons["CLUBS"]["red"];
-
-    return suitIcon;
+    return suitIcons[suit]?.[color] || "";
   };
 
   return (
     <Flex
-      className={`${styles.PlayingCard} ${className}`}
+      className={`${className} ${styles.PlayingCard}`}
       align="center"
       justify="center"
+      onClick={onClick}
       style={{
+        ...props.styles,
         backgroundColor: getBGColor(color),
       }}
     >
@@ -91,17 +95,17 @@ const PlayingCard = (props: PlayingCardProps) => {
           color: getColor(color),
         }}
       >
-        {value}
+        {getRankValue(value)}
       </Flex>
       <Image
-        src={getSuitIcon(suit, color)}
+        src={getSuitIcon({ suit, color })}
         alt="hearts"
         width={40}
         height={40}
         className={styles.PlayingCardSuit}
       />
       <Image
-        src={getSuitIcon(suit, color)}
+        src={getSuitIcon({ suit, color })}
         alt="hearts"
         width={40}
         height={40}

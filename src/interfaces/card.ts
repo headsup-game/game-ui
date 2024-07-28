@@ -1,17 +1,17 @@
-import { getEnumName } from "utils/enumHelper"
-import { CardDto } from "./cardDto"
+import { getEnumName } from "utils/enumHelper";
+import { CardDto } from "./cardDto";
 
-export type Card = {
-  suit: Suit,
-  rank: Rank
-  image: string
+export enum Color {
+  RED,
+  BLUE,
+  VIOLET,
 }
 
 export enum Suit {
   Hearts,
   Diamonds,
   Clubs,
-  Spades
+  Spades,
 }
 
 export enum Rank {
@@ -27,13 +27,62 @@ export enum Rank {
   Jack,
   Queen,
   King,
-  Ace
+  Ace,
 }
+
+export const getRankValue = (rank: Rank) => {
+  switch (rank) {
+    case Rank.Two:
+      return 2;
+    case Rank.Three:
+      return 3;
+    case Rank.Four:
+      return 4;
+    case Rank.Five:
+      return 5;
+    case Rank.Six:
+      return 6;
+    case Rank.Seven:
+      return 7;
+    case Rank.Eight:
+      return 8;
+    case Rank.Nine:
+      return 9;
+    case Rank.Ten:
+      return 10;
+    case Rank.Jack:
+      return "J";
+    case Rank.Queen:
+      return "Q";
+    case Rank.King:
+      return "K";
+    case Rank.Ace:
+      return "A";
+    default:
+      return 2;
+  }
+};
+
+export type Card = {
+  suit: Suit;
+  rank: Rank;
+  image: string;
+};
+
+export type NewCard = {
+  suit: Suit;
+  rank: Rank;
+  color: Color;
+  faceDown?: boolean;
+};
 
 export function getCardFromCardDto(cardDto: CardDto): Card {
   return {
     suit: cardDto.suit,
     rank: cardDto.rank,
-    image: `/images/${getEnumName(Rank, cardDto.rank)?.toLowerCase()}_of_${getEnumName(Suit, cardDto.suit)?.toLowerCase()}.png`
-  }
+    image: `/images/${getEnumName(
+      Rank,
+      cardDto.rank
+    )?.toLowerCase()}_of_${getEnumName(Suit, cardDto.suit)?.toLowerCase()}.png`,
+  };
 }

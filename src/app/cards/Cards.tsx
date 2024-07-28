@@ -1,13 +1,25 @@
-"use client";
-
 import { Flex } from "antd";
-import PlayingCard, { CardValue, Color, SUITS } from "app/components/PlayingCard/PlayingCard";
-import React from "react";
+import PlayingCard from "app/components/PlayingCard/PlayingCard";
+import { Color, Rank, Suit } from "interfaces/card";
 
 const CardCombinationsPage = () => {
-  const suits: SUITS[] = ["SPADES", "DIAMONDS", "HEARTS", "CLUBS"];
-  const values: CardValue[] = [2, 3, 4, 5, 6, 7, 8, 9, 10, "J", "Q", "K", "A"];
-  const colors: Color[] = ["red", "blue", "violet"]
+  const suits: Suit[] = [Suit.Clubs, Suit.Diamonds, Suit.Hearts, Suit.Spades];
+  const values: Rank[] = [
+    Rank.Two,
+    Rank.Three,
+    Rank.Four,
+    Rank.Five,
+    Rank.Six,
+    Rank.Seven,
+    Rank.Eight,
+    Rank.Nine,
+    Rank.Ten,
+    Rank.Jack,
+    Rank.Queen,
+    Rank.King,
+    Rank.Ace,
+  ];
+  const colors: Color[] = [Color.RED, Color.BLUE, Color.VIOLET];
 
   return (
     <Flex align="center" justify="center" wrap gap={20}>
