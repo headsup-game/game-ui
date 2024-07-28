@@ -2,20 +2,27 @@ import { Col, Flex, Row } from "antd";
 import Image from "next/image";
 import styles from "./Game.module.scss";
 import FlipCard from "@components/FlipCard";
+import PlayingCard from "app/components/PlayingCard/PlayingCard";
+import { Color, Rank, Suit } from "interfaces/card";
 
 const FlopCards = () => {
   return (
     <Row className={styles.FlopCardsContainer} align={"middle"}>
       <Col>
-        <Flex>
-          <Image
-            src="/images/two_of_clubs.png"
-            alt="two_of_clubs"
-            width={200}
-            height={170}
-            className={styles.FlopCard}
-          />
-        </Flex>
+        <FlipCard
+          width={"100%"}
+          frontContent={
+            <PlayingCard
+              color={Color.RED}
+              value={Rank.Ace}
+              suit={Suit.Diamonds}
+              className={styles.FlopCard}
+              styles={{
+                width: "100%",
+              }}
+            />
+          }
+        />
       </Col>
       <Col>
         <Flex>

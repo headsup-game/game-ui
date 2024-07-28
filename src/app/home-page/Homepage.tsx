@@ -129,27 +129,6 @@ const HomePage = () => {
           </Row>
         </Container>
 
-        {/* Exploration Section */}
-        <Container>
-          <Row>
-            <Col span={5}>
-              <Flex align="center" gap={20}>
-                <PlayingCard value={7} suit="SPADES" color="blue" />
-                <PlayingCard value={8} suit="DIAMONDS" color="red" />
-                <PlayingCard value={4} suit="HEARTS" color="blue" />
-                <PlayingCard value={2} suit="CLUBS" color="violet" />
-                <Image
-                  src="/images/card-assets/card-back.svg"
-                  alt="ten_of_spades"
-                  width={112}
-                  height={157}
-                  className={styles.PlayingCard}
-                />
-              </Flex>
-            </Col>
-          </Row>
-        </Container>
-
         {/* FAQ */}
         <Container className={styles.FAQContainer}>
           <Title level={2} className={styles.FAQHeading}>

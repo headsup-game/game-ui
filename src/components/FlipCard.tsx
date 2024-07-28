@@ -1,22 +1,34 @@
-"use client";
-
 import React, { useEffect, useRef, useState } from "react";
 import { motion, MotionStyle, useSpring } from "framer-motion";
+import Image from "next/image";
+import styles from "app/game/Game.module.scss";
 
-interface FlipCardProps {
+export interface FlipCardProps {
+  frontContent: JSX.Element;
   width?: string | number;
   height?: string | number;
-  frontContent: JSX.Element;
-  backContent: JSX.Element;
+  backContent?: JSX.Element;
+  initFaceDown?: boolean;
+  style?: React.CSSProperties;
 }
 
 const FlipCard: React.FC<FlipCardProps> = ({
   width = 108,
   height = 158,
   frontContent,
-  backContent,
+  style = {},
+  initFaceDown = true,
+  backContent = (
+    <Image
+      src="/images/card_back_side.svg"
+      alt="two_of_clubs"
+      width={200}
+      height={170}
+      className={styles.FlopCard}
+    />
+  ),
 }) => {
-  const [isFlipped, setIsFlipped] = useState(false);
+  const [isFlipped, setIsFlipped] = useState(initFaceDown || false);
   const ref = useRef(null);
 
   const flipCardStyle: MotionStyle = {
@@ -58,6 +70,7 @@ const FlipCard: React.FC<FlipCardProps> = ({
     setRotateXaxis(0);
     setRotateYaxis(0);
   };
+
   const spring = {
     type: "spring",
     stiffness: 300,
@@ -72,6 +85,10 @@ const FlipCard: React.FC<FlipCardProps> = ({
     dy.set(rotateYaxis);
   }, [rotateXaxis, rotateYaxis]);
 
+  useEffect(() => {
+    setIsFlipped(initFaceDown);
+  }, [initFaceDown]);
+
   return (
     <motion.div
       onClick={handleClick}
@@ -82,6 +99,7 @@ const FlipCard: React.FC<FlipCardProps> = ({
         width: width,
         display: "flex",
         aspectRatio: "63/88",
+        ...style,
       }}
     >
       <motion.div
