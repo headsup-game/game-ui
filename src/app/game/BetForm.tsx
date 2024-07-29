@@ -113,7 +113,6 @@ const BetForm = ({roundId, minimumAllowedBetAmount}) => {
           marginBottom: 24,
         }}
       >
-        {CurrencyFormatter(betAmount * 3500, 2, "USD")}
         <Flex align="center" gap={6}>
           {[0.01, 0.05, 0.1].map((item) => (
             <Button
