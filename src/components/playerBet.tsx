@@ -42,7 +42,7 @@ export const PlayerBet: React.FC<PlayerBetProps> = ({ roundNumber, playerId, pla
           placeholder="Enter custom amount"
           className="mt-2 px-2 py-1 rounded border"
         />
-        <Bet playerId={playerId} betAmount={betAmount} roundNumber={roundNumber} playerName={playerName} onBettingStateChange={handleBetState} />
+        <Bet playerId={playerId} betAmount={betAmount} roundNumber={roundNumber} playerName={playerName} onBettingStateChange={handleBetState} minimumAllowedBetAmount={0.001} />
       </div>
     </div>
   )
