@@ -13,10 +13,16 @@ import { useEffect, useState } from "react";
 import BetwinModal from "app/components/BetwinModal/BetwinModal";
 import CardSet from "components/CardSet";
 import { Rank, Suit, Color, NewCard } from "interfaces/card";
+import {useAccount} from "wagmi";
+import {GameState, getGameStateFromGameStateDto} from "../../interfaces/gameState";
+import {GameStateDto} from "../../interfaces/gameStateDto";
+import {getGameInfoFromContract} from "../../utils/contract";
 
 const GameTimer = dynamic(() => import("app/game/GameTimer"), { ssr: false });
 
 const Game = () => {
+  const [gameState, setGameState] = useState<GameState | null>(null);
+
   const Timer = new Date();
   Timer.setSeconds(Timer.getSeconds() + 20); // 30 secs timer
   const [showModal, setShowModal] = useState(false);
@@ -40,6 +46,21 @@ const Game = () => {
       faceDown: true,
     },
   ]);
+
+  useEffect(() => {
+    const fetchGameState = async () => {
+      try {
+        const gameInfoData: GameStateDto = await getGameInfoFromContract();
+        setGameState(getGameStateFromGameStateDto(gameInfoData));
+      } catch (error) {
+        console.error('Error fetching game state:', error);
+      }
+    };
+
+    const interval = setInterval(fetchGameState, 500);
+
+    return () => clearInterval(interval);
+  }, []);
 
   const flipCards = (index?: number) => {
     if (!index) {
@@ -122,7 +143,7 @@ const Game = () => {
             </div>
 
             {/* Bet Form */}
-            <BetForm />
+            <BetForm roundId={gameState?.roundNumber ?? 0} minimumAllowedBetAmount={gameState?.minimumAllowedBetAmount}/>
           </Flex>
         </Col>
       </Row>

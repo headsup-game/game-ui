@@ -3,20 +3,25 @@ import { useAccount, useSimulateContract, useWaitForTransactionReceipt, useWrite
 import * as constants from 'utils/constants';
 import { contractABI } from 'utils/abi';
 import { parseEther } from 'viem';
+import {Button} from "antd";
+import styles from "../app/game/Game.module.scss";
 
 type BetProps = {
-  playerId: number;
+  playerId: number|null;
   betAmount: number;
   roundNumber: number;
   playerName: string;
   onBettingStateChange: (state: string) => void;
+  minimumAllowedBetAmount: number;
 }
 
-export const Bet: React.FC<BetProps> = ({ playerId, betAmount, roundNumber, playerName, onBettingStateChange }) => {
+export const Bet: React.FC<BetProps> = ({ playerId, betAmount, roundNumber, playerName, onBettingStateChange, minimumAllowedBetAmount }) => {
   const { isConnected, address } = useAccount()
   const [hash, setHash] = useState<string | null>(null)
+  const [requestInProgress, setRequestInProgress] = useState(false);
+  const [disabled, setDisabled] = useState(true);
 
-  // Call simulation hook with disabled state 
+  // Call simulation hook with disabled state
   const { refetch: simulateContract } = useSimulateContract({
     address: constants.CONTRACT_ADDRESS as `0x${string}`,
     abi: contractABI,
@@ -33,6 +38,17 @@ export const Bet: React.FC<BetProps> = ({ playerId, betAmount, roundNumber, play
     hash: hash as `0x${string}`
   })
 
+  useEffect(() => {
+    if (playerId === null || betAmount === 0) {
+      setDisabled(true);
+    } else if (betAmount < minimumAllowedBetAmount) {
+      setDisabled(true);
+    }
+    else {
+      setDisabled(false);
+    }
+  }, [playerId, betAmount]);
+
   // wait for transaction status changes
   useEffect(() => {
     if(transactionStatus === 'success')
@@ -43,10 +59,11 @@ export const Bet: React.FC<BetProps> = ({ playerId, betAmount, roundNumber, play
     {
       onBettingStateChange(`Player Bet on ${playerName} failed with error:${transactionError?.message}`);
     }
-  },[onBettingStateChange, transactionStatus, playerName, transactionData, transactionError])
+  },[onBettingStateChange, transactionStatus, transactionData, playerName, transactionError])
 
   // handler called when bet button is clicked
   const handleBetOnPlayer = async () => {
+    setRequestInProgress(true);
     try {
       onBettingStateChange(`Placed Bet on ${playerName} called`)
 
@@ -71,6 +88,8 @@ export const Bet: React.FC<BetProps> = ({ playerId, betAmount, roundNumber, play
       }
     } catch (error) {
       onBettingStateChange(`Placed Bet on ${playerName} failed with error:${error}`)
+    } finally {
+      setRequestInProgress(false);
     }
   }
 
@@ -78,9 +97,17 @@ export const Bet: React.FC<BetProps> = ({ playerId, betAmount, roundNumber, play
     return null;
   } else {
     return (
-      <div>
-        <button className='mt-4 px-4 py-2 bg-blue-500 text-white rounded' onClick={handleBetOnPlayer}>Bet on {playerName}</button>
-      </div>
+        <Button
+            type="primary"
+            htmlType="submit"
+            block
+            className={styles.BetFormCTA}
+            loading={requestInProgress}
+            disabled={disabled}
+            onClick={handleBetOnPlayer}
+        >
+          Bet on {playerName}
+        </Button>
     )
   }
 }
