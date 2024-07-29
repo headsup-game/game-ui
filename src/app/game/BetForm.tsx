@@ -22,13 +22,13 @@ const BetForm = ({roundId, minimumAllowedBetAmount}) => {
   const {data: walletBalance} = useBalance({
     address,
   })
+  const [logMessages, setLogMessages] = useState<string[]>([]);
 
   const handlePlayerChange = (e) => {
     const id = e.target.value;
     setPlayerId(id);
   };
 
-  const [logMessages, setLogMessages] = useState<string[]>([]);
 
   const handleLogs = useCallback((state: string) => {
     setLogMessages(prev => [...prev, state]);
