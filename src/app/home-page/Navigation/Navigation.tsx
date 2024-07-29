@@ -4,6 +4,7 @@ import { Layout, Menu, MenuProps, Image } from "antd";
 import React from "react";
 import styles from "./Navigation.module.scss";
 import Link from "next/link";
+import {ConnectButton} from "@rainbow-me/rainbowkit";
 
 const { Header } = Layout;
 
@@ -51,6 +52,8 @@ const Navigation = () => {
         style={{ flex: 1, minWidth: 0 }}
         className={styles.Menu}
       />
+      <ConnectButton chainStatus="name" showBalance={true} />
+
     </Header>
   );
 };

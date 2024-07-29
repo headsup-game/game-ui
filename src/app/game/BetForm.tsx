@@ -3,39 +3,42 @@
 import { Button, Col, Flex, Form, InputNumber, Radio, Row } from "antd";
 import styles from "./Game.module.scss";
 import { FaEthereum } from "react-icons/fa";
-import { useState } from "react";
+import React, {useCallback, useState} from "react";
 import { CurrencyFormatter } from "utils/formatters";
+import {Bet} from "@components/bet";
+
+const playerOptions = {
+  0: 'Red',
+  1: 'Blue'
+};
 
 const BetForm = () => {
   const [BetForm] = Form.useForm();
-  const [requestInProgress, setRequestInProgress] = useState(false);
-  const [betAmountFiat, setBetAmountFiat] = useState(0);
+  const [betAmount, setBetAmount] = useState(0);
   const [rounds, setRounds] = useState(1);
+  const [player, setPlayer] = useState<{id: number|null, name: string}>({id: null, name: ''});
 
-  const submitBet = (values) => {
-    setRequestInProgress(true);
-    const { side, amount } = values;
-    const postObj = {
-      amount: amount,
-      side,
-      rounds: rounds,
-    };
-    setTimeout(() => {
-      setRequestInProgress(false);
-    }, 2000);
-    console.log("Post Obj: ", postObj);
+  const handlePlayerChange = (e) => {
+    const id = e.target.value;
+    setPlayer({id: id, name: playerOptions[id]});
   };
+
+  const [logMessages, setLogMessages] = useState<string[]>([]);
+
+  const handleLogs = useCallback((state: string) => {
+    setLogMessages(prev => [...prev, state]);
+  }, [setLogMessages]);
+
 
   return (
     <Form
       form={BetForm}
       layout="vertical"
       className={styles.BetForm}
-      onFinish={submitBet}
       requiredMark={false}
       colon
       initialValues={{
-        amount: betAmountFiat || 0,
+        amount: betAmount || 0,
         rounds: rounds || 1,
       }}
     >
@@ -51,15 +54,15 @@ const BetForm = () => {
           },
         ]}
       >
-        <Radio.Group className={styles.BetFormRadio}>
+        <Radio.Group className={styles.BetFormRadio} onChange={handlePlayerChange}>
           <Radio.Button
-            value={"red"}
+            value={0}
             style={{ background: "red", borderColor: "red" }}
           >
             Red
           </Radio.Button>
           <Radio.Button
-            value={"blue"}
+            value={1}
             style={{ background: "blue", borderColor: "blue" }}
           >
             Blue
@@ -70,7 +73,7 @@ const BetForm = () => {
       {/* Current balance */}
       <Flex
         className={styles.BetFormBalance}
-        onClick={() => setBetAmountFiat(0.003)}
+        onClick={() => setBetAmount(0.003)}
       >
         Current Balance: 0.003 ETH
       </Flex>
@@ -92,7 +95,7 @@ const BetForm = () => {
           style={{
             width: "100%",
           }}
-          onChange={(val) => setBetAmountFiat(Number(val))}
+          onChange={(val) => setBetAmount(Number(val))}
         />
       </Form.Item>
 
@@ -105,7 +108,7 @@ const BetForm = () => {
           marginBottom: 24,
         }}
       >
-        {CurrencyFormatter(betAmountFiat * 3500, 2, "USD")}
+        {CurrencyFormatter(betAmount * 3500, 2, "USD")}
         <Flex align="center" gap={6}>
           {[0.01, 0.05, 0.1].map((item) => (
             <Button
@@ -113,7 +116,7 @@ const BetForm = () => {
               className={styles.BetFormButton}
               onClick={() => {
                 BetForm.setFieldsValue({ amount: Number(item) });
-                setBetAmountFiat(item);
+                setBetAmount(item);
               }}
             >
               {item}
@@ -151,17 +154,13 @@ const BetForm = () => {
           ETH
         </Col>
         <Col span={11}>
-          <Button
-            type="primary"
-            htmlType="submit"
-            block
-            className={styles.BetFormCTA}
-            loading={requestInProgress}
-            disabled={requestInProgress}
-          >
-            Place Bet
-          </Button>
+          <Bet playerId={player.id} betAmount={betAmount} roundNumber={rounds} playerName={player.name} onBettingStateChange={handleLogs} />
         </Col>
+      </Row>
+      <Row gutter={12}>
+          {logMessages.map((msg, index) => (
+              <div key={index}>{msg}</div>
+          ))}
       </Row>
     </Form>
   );
