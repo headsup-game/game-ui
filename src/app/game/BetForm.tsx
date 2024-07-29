@@ -3,24 +3,29 @@
 import { Button, Col, Flex, Form, InputNumber, Radio, Row } from "antd";
 import styles from "./Game.module.scss";
 import { FaEthereum } from "react-icons/fa";
-import React, {useCallback, useState} from "react";
+import React, { useCallback, useState } from "react";
 import { CurrencyFormatter } from "utils/formatters";
-import {Bet} from "@components/bet";
+import { Bet } from "@components/bet";
+import {useAccount, useBalance, UseBalanceReturnType} from "wagmi";
 
-const playerOptions = {
-  0: 'Red',
-  1: 'Blue'
-};
+enum PlayerName {
+  Red,
+  Blue
+}
 
-const BetForm = () => {
+const BetForm = ({roundId, minimumAllowedBetAmount}) => {
+  const { isConnected, address } = useAccount()
   const [BetForm] = Form.useForm();
   const [betAmount, setBetAmount] = useState(0);
   const [rounds, setRounds] = useState(1);
-  const [player, setPlayer] = useState<{id: number|null, name: string}>({id: null, name: ''});
+  const [playerId, setPlayerId] = useState<number | null>(null);
+  const {data: walletBalance} = useBalance({
+    address,
+  })
 
   const handlePlayerChange = (e) => {
     const id = e.target.value;
-    setPlayer({id: id, name: playerOptions[id]});
+    setPlayerId(id);
   };
 
   const [logMessages, setLogMessages] = useState<string[]>([]);
@@ -73,9 +78,8 @@ const BetForm = () => {
       {/* Current balance */}
       <Flex
         className={styles.BetFormBalance}
-        onClick={() => setBetAmount(0.003)}
       >
-        Current Balance: 0.003 ETH
+        Current Balance: Formatted: {walletBalance?.formatted}
       </Flex>
 
       {/* Bet Amount */}
@@ -95,6 +99,7 @@ const BetForm = () => {
           style={{
             width: "100%",
           }}
+          value={betAmount}
           onChange={(val) => setBetAmount(Number(val))}
         />
       </Form.Item>
@@ -135,9 +140,8 @@ const BetForm = () => {
           {[1, 2, 5, 10, 15]?.map((item) => (
             <Button
               key={item}
-              className={`${styles.BetFormButton} ${
-                item === rounds && styles.BetFormButtonActive
-              }`}
+              className={`${styles.BetFormButton} ${item === rounds && styles.BetFormButtonActive
+                }`}
               onClick={() => setRounds(item)}
             >
               {item}
@@ -154,13 +158,13 @@ const BetForm = () => {
           ETH
         </Col>
         <Col span={11}>
-          <Bet playerId={player.id} betAmount={betAmount} roundNumber={rounds} playerName={player.name} onBettingStateChange={handleLogs} />
+          <Bet playerId={playerId} betAmount={betAmount} roundNumber={roundId} playerName={playerId !== null ? PlayerName[playerId] : ""} onBettingStateChange={handleLogs} minimumAllowedBetAmount={minimumAllowedBetAmount} />
         </Col>
       </Row>
       <Row gutter={12}>
-          {logMessages.map((msg, index) => (
-              <div key={index}>{msg}</div>
-          ))}
+        {logMessages.map((msg, index) => (
+          <div key={index}>{msg}</div>
+        ))}
       </Row>
     </Form>
   );

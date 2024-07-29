@@ -12,9 +12,10 @@ type BetProps = {
   roundNumber: number;
   playerName: string;
   onBettingStateChange: (state: string) => void;
+  minimumAllowedBetAmount: number;
 }
 
-export const Bet: React.FC<BetProps> = ({ playerId, betAmount, roundNumber, playerName, onBettingStateChange }) => {
+export const Bet: React.FC<BetProps> = ({ playerId, betAmount, roundNumber, playerName, onBettingStateChange, minimumAllowedBetAmount }) => {
   const { isConnected, address } = useAccount()
   const [hash, setHash] = useState<string | null>(null)
   const [requestInProgress, setRequestInProgress] = useState(false);
@@ -39,7 +40,11 @@ export const Bet: React.FC<BetProps> = ({ playerId, betAmount, roundNumber, play
 
   useEffect(() => {
     if (playerId === null || betAmount === 0) {
-    } else {
+      setDisabled(true);
+    } else if (betAmount < minimumAllowedBetAmount) {
+      setDisabled(true);
+    }
+    else {
       setDisabled(false);
     }
   }, [playerId, betAmount]);
