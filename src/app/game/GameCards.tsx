@@ -1,13 +1,57 @@
-"use client";
-
 import { Col, Flex, Row } from "antd";
-import { useState } from "react";
-import styles from "./Game.module.scss";
+import { useEffect, useState } from "react";
+import styles from "./Game.module.css";
 import FlipCard from "@components/FlipCard";
 import Image from "next/image";
+import { Color, NewCard, Rank, Suit } from "interfaces/card";
+import CardSet from "@components/CardSet";
 
 const GameCards = () => {
   const [selectedCard, setSelectedCard] = useState<string>("");
+  const [redCards, setRedCards] = useState<NewCard[]>([]);
+  const [blueCards, setBlueCards] = useState<NewCard[]>([]);
+  const [faceDown, setFaceDown] = useState<boolean>(true);
+
+  useEffect(() => {
+    // use fetch here to get the community cards
+    const redCards = [
+      {
+        suit: Suit.Spades,
+        rank: Rank.Ten,
+        color: Color.RED,
+        faceDown: true,
+      },
+      {
+        suit: Suit.Hearts,
+        rank: Rank.King,
+        color: Color.RED,
+        faceDown: true,
+      },
+    ];
+    const blueCards = [
+      {
+        suit: Suit.Diamonds,
+        rank: Rank.Ace,
+        color: Color.BLUE,
+        faceDown: true,
+      },
+      {
+        suit: Suit.Spades,
+
+        rank: Rank.Jack,
+        color: Color.BLUE,
+        faceDown: true,
+      },
+    ];
+
+    setRedCards(redCards);
+    setBlueCards(blueCards);
+
+    setTimeout(() => {
+      setFaceDown(false);
+    }, 1500);
+  }, []);
+
   return (
     <Row
       align={"middle"}
@@ -32,51 +76,11 @@ const GameCards = () => {
             onClick={() => setSelectedCard("red")}
           >
             <Row gutter={14} style={{ width: "100%", margin: 0 }}>
-              <Col span={12}>
-                <FlipCard
-                  width={"100%"}
-                  height={150}
-                  frontContent={
-                    <Image
-                      src="/images/seven_of_hearts.png"
-                      alt="two_of_clubs"
-                      width={117}
-                      height={150}
-                      className={styles.FlopCard}
-                    />
-                  }
-                  backContent={
-                    <Image
-                      src="/images/card_back_side.svg"
-                      alt="two_of_clubs"
-                      width={117}
-                      height={150}
-                      className={styles.FlopCard}
-                    />
-                  }
-                />
-              </Col>
-              <Col span={12}>
-                <FlipCard
-                  width={`100%`}
-                  frontContent={
-                    <Image
-                      src="/images/seven_of_hearts.png"
-                      alt="two_of_clubs"
-                      width={117}
-                      height={150}
-                      className={styles.FlopCard}
-                    />
-                  }
-                  backContent={
-                    <Image
-                      src="/images/card_back_side.svg"
-                      alt="two_of_clubs"
-                      width={117}
-                      height={150}
-                      className={styles.FlopCard}
-                    />
-                  }
+              <Col span={24}>
+                <CardSet
+                  numberOfCards={2}
+                  cards={redCards}
+                  initFaceDown={faceDown}
                 />
               </Col>
             </Row>
@@ -121,51 +125,11 @@ const GameCards = () => {
             onClick={() => setSelectedCard("blue")}
           >
             <Row gutter={14} style={{ width: "100%", margin: 0 }}>
-              <Col span={12}>
-                <FlipCard
-                  width={"100%"}
-                  height={150}
-                  frontContent={
-                    <Image
-                      src="/images/seven_of_hearts.png"
-                      alt="two_of_clubs"
-                      width={117}
-                      height={150}
-                      className={styles.FlopCard}
-                    />
-                  }
-                  backContent={
-                    <Image
-                      src="/images/card_back_side.svg"
-                      alt="two_of_clubs"
-                      width={117}
-                      height={150}
-                      className={styles.FlopCard}
-                    />
-                  }
-                />
-              </Col>
-              <Col span={12}>
-                <FlipCard
-                  width={`100%`}
-                  frontContent={
-                    <Image
-                      src="/images/seven_of_hearts.png"
-                      alt="two_of_clubs"
-                      width={117}
-                      height={150}
-                      className={styles.FlopCard}
-                    />
-                  }
-                  backContent={
-                    <Image
-                      src="/images/card_back_side.svg"
-                      alt="two_of_clubs"
-                      width={117}
-                      height={150}
-                      className={styles.FlopCard}
-                    />
-                  }
+              <Col span={24}>
+                <CardSet
+                  numberOfCards={2}
+                  cards={blueCards}
+                  initFaceDown={faceDown}
                 />
               </Col>
             </Row>

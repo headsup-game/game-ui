@@ -74,6 +74,7 @@ export type NewCard = {
   rank: Rank;
   color: Color;
   faceDown?: boolean;
+  animationDelay?: number;
 };
 
 export function getCardFromCardDto(cardDto: CardDto): Card {

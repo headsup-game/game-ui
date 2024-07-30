@@ -1,22 +1,19 @@
 "use client";
 
 import Container from "app/components/Container/Container";
-import styles from "./Game.module.scss";
+import styles from "./Game.module.css";
 import { Button, Col, Divider, Flex, Row } from "antd";
 import Image from "next/image";
 import BetForm from "app/game/BetForm";
 import RecentBets from "app/game/RecentBets";
 import dynamic from "next/dynamic";
-import FlopCards from "app/game/FlopCards";
+import CommunityCards from "app/game/CommunityCards";
 import GameCards from "app/game/GameCards";
 import { useEffect, useState } from "react";
 import BetwinModal from "app/components/BetwinModal/BetwinModal";
-import CardSet from "components/CardSet";
-import { Rank, Suit, Color, NewCard } from "interfaces/card";
-import {useAccount} from "wagmi";
-import {GameState, getGameStateFromGameStateDto} from "../../interfaces/gameState";
-import {GameStateDto} from "../../interfaces/gameStateDto";
-import {getGameInfoFromContract} from "../../utils/contract";
+import { GameState, getGameStateFromGameStateDto } from "interfaces/gameState";
+import { GameStateDto } from "interfaces/gameStateDto";
+import { getGameInfoFromContract } from "utils/contract";
 
 const GameTimer = dynamic(() => import("app/game/GameTimer"), { ssr: false });
 
@@ -26,26 +23,6 @@ const Game = () => {
   const Timer = new Date();
   Timer.setSeconds(Timer.getSeconds() + 20); // 30 secs timer
   const [showModal, setShowModal] = useState(false);
-  const [showCards, setShowCards] = useState<NewCard[]>([
-    {
-      suit: Suit.Hearts,
-      rank: Rank.Ace,
-      color: Color.RED,
-      faceDown: true,
-    },
-    {
-      suit: Suit.Diamonds,
-      rank: Rank.Jack,
-      color: Color.BLUE,
-      faceDown: true,
-    },
-    {
-      suit: Suit.Spades,
-      rank: Rank.Ten,
-      color: Color.VIOLET,
-      faceDown: true,
-    },
-  ]);
 
   useEffect(() => {
     const fetchGameState = async () => {
@@ -53,7 +30,7 @@ const Game = () => {
         const gameInfoData: GameStateDto = await getGameInfoFromContract();
         setGameState(getGameStateFromGameStateDto(gameInfoData));
       } catch (error) {
-        console.error('Error fetching game state:', error);
+        console.error("Error fetching game state:", error);
       }
     };
 
@@ -61,22 +38,6 @@ const Game = () => {
 
     return () => clearInterval(interval);
   }, []);
-
-  const flipCards = (index?: number) => {
-    if (!index) {
-      setShowCards(showCards.map((card) => ({ ...card, faceDown: false })));
-    } else if (index >= 0 && index < showCards.length) {
-      setShowCards(
-        showCards.map((card, i) =>
-          i === index ? { ...card, faceDown: false } : card
-        )
-      );
-    }
-  };
-
-  const addCard = (card: NewCard) => {
-    setShowCards([...showCards, card]);
-  };
 
   return (
     <Container>
@@ -89,43 +50,12 @@ const Game = () => {
         {/* Game Cards */}
         <Col span={15}>
           {/* Flop Cards */}
-          <FlopCards />
+          <CommunityCards />
 
           {/* Game Cards */}
           <GameCards />
 
           <Divider />
-          <Row>
-            <Col span={24}>
-              <CardSet
-                numberOfCards={5}
-                cards={showCards}
-                initFaceDown={true}
-              />
-            </Col>
-            <Col span={24}>
-              <Flex gap={12}>
-                {/* TODO: Remove this once modal is implemented */}
-                <Button onClick={() => setShowModal(true)}>
-                  Show Success Modal
-                </Button>
-                <Button onClick={() => flipCards()}>Flip Cards</Button>
-                <Button onClick={() => flipCards(1)}>Flip Card 2</Button>
-                <Button
-                  onClick={() =>
-                    addCard({
-                      rank: Rank.Three,
-                      suit: Suit.Hearts,
-                      color: Color.RED,
-                      faceDown: true,
-                    })
-                  }
-                >
-                  Add 1 more card
-                </Button>
-              </Flex>
-            </Col>
-          </Row>
         </Col>
 
         {/* Game Controls/Actions */}
@@ -143,13 +73,20 @@ const Game = () => {
             </div>
 
             {/* Bet Form */}
-            <BetForm roundId={gameState?.roundNumber ?? 0} minimumAllowedBetAmount={gameState?.minimumAllowedBetAmount}/>
+            <BetForm
+              roundId={gameState?.roundNumber ?? 0}
+              minimumAllowedBetAmount={gameState?.minimumAllowedBetAmount}
+            />
           </Flex>
         </Col>
       </Row>
 
       {/* Recent Bets */}
       <RecentBets />
+
+      {/* Open Modal */}
+      <Divider />
+      <Button onClick={() => setShowModal(true)}>Open Success Modal</Button>
 
       {/* Modal */}
       {showModal && <BetwinModal open={showModal} setOpen={setShowModal} />}

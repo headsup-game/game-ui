@@ -1,5 +1,6 @@
 import { Divider, Flex, Modal } from "antd";
 import styles from "./BetwinModal.module.scss";
+import CommunityCards from "app/game/CommunityCards";
 
 const BetwinModal = ({
   open,
@@ -33,9 +34,7 @@ const BetwinModal = ({
         Blue Wins
       </Flex>
       {/* Winining Card Sets */}
-      <Flex justify="center" className={styles.Title}>
-        Winning Card sets will come here
-      </Flex>
+      <CommunityCards />
 
       <Flex justify="center" className={styles.SubTitle}>
         by a Straight Flush

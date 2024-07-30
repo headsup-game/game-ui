@@ -4,7 +4,7 @@ import * as constants from 'utils/constants';
 import { contractABI } from 'utils/abi';
 import { parseEther } from 'viem';
 import {Button} from "antd";
-import styles from "../app/game/Game.module.scss";
+import styles from "../app/game/Game.module.css";
 
 type BetProps = {
   playerId: number|null;

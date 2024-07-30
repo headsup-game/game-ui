@@ -33,26 +33,21 @@
 }
 
 .BetForm {
-  margin: 20px 0 0;
+  margin: 20px 0 0 !important;
   color: #fff !important;
   & label {
     color: #fff !important;
   }
   & input {
-    color: #fff;
+    color: #fff !important;
+    height: 38px;
   }
-  :global {
-    input {
-      color: #fff !important;
-      height: 38px;
-    }
-    .ant-input-number-affix-wrapper {
-      height: 40px;
-      background-color: transparent;
-      border-radius: var(--radius-md, 8px);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      box-shadow: 0px 1px 2px 0px rgba(18, 18, 23, 0.05);
-    }
+  & :global(.ant-input-number-affix-wrapper) {
+    height: 40px !important;
+    background-color: transparent !important;
+    border-radius: var(--radius-md, 8px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0px 1px 2px 0px rgba(18, 18, 23, 0.05);
   }
 }
 
@@ -60,23 +55,21 @@
   color: #fff !important;
   font-size: 14px !important;
   font-weight: 700;
-  line-height: 24px; /* 171.429% */
-  background: transparent;
+  line-height: 24px !important; /* 171.429% */
 }
 
 .BetFormRadio {
-  display: flex;
+  display: flex !important;
   align-items: center;
   gap: var(--spacing-2, 22px);
-  :global {
-    .ant-radio-button-wrapper-checked {
-      border-color: #fff !important;
-      transition: border 0.25s ease-in-out;
-    }
+  & :global(.ant-radio-button-wrapper-checked) {
+    border-color: #fff !important;
+    transition: border 0.25s ease-in-out;
   }
   & > label {
     color: #fff !important;
     border: 1px solid #fff;
+    background: transparent;
     transition: border 0.25s ease-in-out;
     border-radius: 8px;
     border-start-end-radius: 8px !important;
@@ -105,25 +98,25 @@
 }
 
 .BetFormButton {
-  border-color: rgba(141, 108, 239, 0.14);
-  background: rgba(141, 108, 239, 0.14);
-  padding: 4px 8px;
-  height: auto;
-  color: var(--color-text-button-primary-normal, #fff);
-  font-size: 9.5px;
-  font-weight: 500;
-  line-height: 16.254px; /* 171.429% */
+  &:global(.ant-btn) {
+    border-color: rgba(141, 108, 239, 0.14);
+    background: rgba(141, 108, 239, 0.14);
+    padding: 4px 8px;
+    height: auto;
+    color: var(--color-text-button-primary-normal, #fff);
+    font-size: 9.5px;
+    font-weight: 500;
+    line-height: 16.254px; /* 171.429% */
+  }
 }
 
 .BetFormRadioRounds {
   display: flex;
   align-items: center;
   gap: var(--spacing-2, 22px);
-  :global {
-    .ant-radio-button-wrapper-checked {
-      border-color: #fff !important;
-      transition: border 0.25s ease-in-out;
-    }
+  & :global(.ant-radio-button-wrapper-checked) {
+    border-color: #fff !important;
+    transition: border 0.25s ease-in-out;
   }
   & > label {
     color: #fff !important;
@@ -152,9 +145,18 @@
 }
 
 .BetFormCTA {
-  height: 40px;
-  border-radius: var(--radius-md, 8px);
-  background: var(--color-background-button-primary-normal, #7047eb);
+  &:global(.ant-btn) {
+    color: #fff !important;
+    height: 40px;
+    border-radius: var(--radius-md, 8px);
+    background: var(
+      --color-background-button-primary-normal,
+      #7047eb
+    ) !important;
+    &:disabled {
+      opacity: 0.5 !important;
+    }
+  }
 }
 
 .BetFormTotal {
@@ -191,10 +193,8 @@
   align-items: center;
   margin-top: 40px;
   gap: 16px;
-  :global {
-    .ant-col {
-      width: calc(100% / 5 - 16px) !important;
-    }
+  > :global(.ant-col) {
+    width: calc(100% / 5 - 16px) !important;
   }
 }
 

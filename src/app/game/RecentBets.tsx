@@ -2,7 +2,7 @@
 
 import { ConfigProvider, Table, Typography } from "antd";
 import Container from "app/components/Container/Container";
-import styles from "./Game.module.scss";
+import styles from "./Game.module.css";
 
 const { Title } = Typography;
 
