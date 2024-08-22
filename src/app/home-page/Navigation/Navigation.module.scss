@@ -1,10 +1,16 @@
-.Navigation,
 .Menu {
-  background: #141127;
+  background: #141127 !important;
+  height: 64px !important;
+  & :global(.ant-menu-item) {
+    padding: 26px 24px 26px !important;
+    line-height: 1;
+  }
+  &:global(.ant-menu-item-selected) {
+    background: lighten(#141127, 5%) !important;
+  }
 }
 
-.Menu {
-  & .ant-menu-item-selected {
-    background: lighten(#141127, 5%);
-  }
+.Navigation {
+  background: #141127 !important;
+  height: 64px !important;
 }

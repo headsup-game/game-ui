@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
-import { motion, MotionStyle, useSpring } from "framer-motion";
+import { delay, motion, MotionStyle, useSpring } from "framer-motion";
 import Image from "next/image";
-import styles from "app/game/Game.module.scss";
+import styles from "app/game/Game.module.css";
 
 export interface FlipCardProps {
   frontContent: JSX.Element;
@@ -10,6 +10,7 @@ export interface FlipCardProps {
   backContent?: JSX.Element;
   initFaceDown?: boolean;
   style?: React.CSSProperties;
+  animationDelay?: number;
 }
 
 const FlipCard: React.FC<FlipCardProps> = ({
@@ -18,6 +19,7 @@ const FlipCard: React.FC<FlipCardProps> = ({
   frontContent,
   style = {},
   initFaceDown = true,
+  animationDelay = 0,
   backContent = (
     <Image
       src="/images/card_back_side.svg"
@@ -28,7 +30,7 @@ const FlipCard: React.FC<FlipCardProps> = ({
     />
   ),
 }) => {
-  const [isFlipped, setIsFlipped] = useState(initFaceDown || false);
+  const [isFlipped, setIsFlipped] = useState(initFaceDown);
   const ref = useRef(null);
 
   const flipCardStyle: MotionStyle = {
@@ -125,12 +127,15 @@ const FlipCard: React.FC<FlipCardProps> = ({
         >
           <motion.div
             animate={{ rotateY: isFlipped ? -180 : 0 }}
-            transition={spring}
+            transition={{
+              delay: animationDelay,
+              ...spring,
+            }}
             style={{
               width: "100%",
               height: "100%",
               zIndex: isFlipped ? 0 : 1,
-              backfaceVisibility: "hidden",
+              // backfaceVisibility: "hidden",
               position: "absolute",
               aspectRatio: "63/88",
             }}
@@ -140,12 +145,15 @@ const FlipCard: React.FC<FlipCardProps> = ({
           <motion.div
             initial={{ rotateY: 180 }}
             animate={{ rotateY: isFlipped ? 0 : 180 }}
-            transition={spring}
+            transition={{
+              delay: animationDelay,
+              ...spring,
+            }}
             style={{
               width: "100%",
               height: "100%",
               zIndex: isFlipped ? 1 : 0,
-              backfaceVisibility: "hidden",
+              // backfaceVisibility: "hidden",
               position: "absolute",
               aspectRatio: "63/88",
             }}

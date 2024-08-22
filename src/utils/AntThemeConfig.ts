@@ -1,18 +1,11 @@
 import { ThemeConfig } from "antd";
 
 export const ANT_CUSTOM_THEME: ThemeConfig = {
-  cssVar: true,
+  // cssVar: true,
   token: {
     size: 14,
     borderRadius: 6,
-    wireframe: false,
     colorPrimary: "#7047EB",
-    colorSuccess: "#008060",
-    colorError: "#cd432d",
-    colorInfo: "#008060",
-    colorTextBase: "#000000",
-    colorBorder: "#b0b0b0",
-    colorPrimaryHover: "#7047EB",
     controlHeight: 40,
     fontWeightStrong: 700,
     fontSizeHeading1: 94,

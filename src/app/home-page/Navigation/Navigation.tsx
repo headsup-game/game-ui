@@ -1,12 +1,9 @@
-"use client";
-
 import { Layout, Menu, MenuProps, Image } from "antd";
 import React from "react";
 import styles from "./Navigation.module.scss";
 import Link from "next/link";
-import {ConnectButton} from "@rainbow-me/rainbowkit";
-
-const { Header } = Layout;
+import { ConnectButton } from "@rainbow-me/rainbowkit";
+import { Header } from "antd/es/layout/layout";
 
 const Navigation = () => {
   const NavItems: MenuProps["items"] = [
@@ -53,7 +50,6 @@ const Navigation = () => {
         className={styles.Menu}
       />
       <ConnectButton chainStatus="name" showBalance={true} />
-
     </Header>
   );
 };
