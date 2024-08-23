@@ -1,11 +1,11 @@
 import { Col, Row } from "antd";
 import styles from "./Game.module.css";
-import { Color, NewCard, Rank, Suit } from "interfaces/card";
+import { Color, Card, Rank, Suit } from "interfaces/card";
 import CardSet from "@components/CardSet";
 import { useEffect, useState } from "react";
 
-const CommunityCards = () => {
-  const [showCards, setShowCards] = useState<NewCard[]>([]);
+const CommunityCards = ({cards}: {cards: Card[]}) => {
+  const [showCards, setShowCards] = useState<Card[]>(cards);
   const [faceDown, setFaceDown] = useState<boolean>(true);
 
   const flipCards = (index?: number) => {
@@ -20,45 +20,11 @@ const CommunityCards = () => {
     }
   };
 
-  const addCard = (card: NewCard) => {
+  const addCard = (card: Card) => {
     setShowCards([...showCards, card]);
   };
 
   useEffect(() => {
-    // use fetch here to get the community cards
-    const cards = [
-      {
-        suit: Suit.Hearts,
-        rank: Rank.Ace,
-        color: Color.RED,
-        faceDown: true,
-      },
-      {
-        suit: Suit.Diamonds,
-        rank: Rank.Jack,
-        color: Color.BLUE,
-        faceDown: true,
-      },
-      {
-        suit: Suit.Spades,
-        rank: Rank.Ten,
-        color: Color.RED,
-        faceDown: true,
-      },
-      {
-        suit: Suit.Hearts,
-        rank: Rank.King,
-        color: Color.RED,
-        faceDown: true,
-      },
-      {
-        suit: Suit.Clubs,
-        rank: Rank.Queen,
-        color: Color.BLUE,
-        faceDown: true,
-      },
-    ];
-    setShowCards(cards);
     setTimeout(() => {
       setFaceDown(true);
     }, 1500);

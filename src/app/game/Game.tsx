@@ -14,12 +14,15 @@ import BetwinModal from "app/components/BetwinModal/BetwinModal";
 import { GameState, getGameStateFromGameStateDto } from "interfaces/gameState";
 import { GameStateDto } from "interfaces/gameStateDto";
 import { getGameInfoFromContract } from "utils/contract";
+import {Color, Card, Rank, Suit} from "interfaces/card";
 
 const GameTimer = dynamic(() => import("app/game/GameTimer"), { ssr: false });
 
 const Game = () => {
   const [gameState, setGameState] = useState<GameState | null>(null);
-
+  const [communityCards, setCommunityCards] = useState<Card[]>([]);
+  const [redCards, setRedCards] = useState<Card[]>([]);
+  const [blueCards, setBlueCards] = useState<Card[]>([]);
   const Timer = new Date();
   Timer.setSeconds(Timer.getSeconds() + 20); // 30 secs timer
   const [showModal, setShowModal] = useState(false);
@@ -29,14 +32,13 @@ const Game = () => {
       try {
         const gameInfoData: GameStateDto = await getGameInfoFromContract();
         setGameState(getGameStateFromGameStateDto(gameInfoData));
+        setRedCards(gameInfoData.playerACards);
+        setBlueCards(gameInfoData.playerBCards)
       } catch (error) {
         console.error("Error fetching game state:", error);
       }
     };
-
-    const interval = setInterval(fetchGameState, 500);
-
-    return () => clearInterval(interval);
+    fetchGameState();
   }, []);
 
   return (
@@ -50,10 +52,10 @@ const Game = () => {
         {/* Game Cards */}
         <Col span={15}>
           {/* Flop Cards */}
-          <CommunityCards />
+          <CommunityCards cards={communityCards}/>
 
           {/* Game Cards */}
-          <GameCards />
+          <GameCards redCardsInput={redCards} blueCardsInput={blueCards}/>
 
           <Divider />
         </Col>

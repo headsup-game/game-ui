@@ -66,12 +66,6 @@ export const getRankValue = (rank: Rank) => {
 export type Card = {
   suit: Suit;
   rank: Rank;
-  image: string;
-};
-
-export type NewCard = {
-  suit: Suit;
-  rank: Rank;
   color: Color;
   faceDown?: boolean;
   animationDelay?: number;
@@ -81,9 +75,6 @@ export function getCardFromCardDto(cardDto: CardDto): Card {
   return {
     suit: cardDto.suit,
     rank: cardDto.rank,
-    image: `/images/${getEnumName(
-      Rank,
-      cardDto.rank
-    )?.toLowerCase()}_of_${getEnumName(Suit, cardDto.suit)?.toLowerCase()}.png`,
+    color: Color.BLUE,
   };
 }

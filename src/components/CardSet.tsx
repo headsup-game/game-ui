@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
 import FlipCard from "./FlipCard";
-import { NewCard } from "interfaces/card";
+import { Card } from "interfaces/card";
 import PlayingCard from "app/components/PlayingCard/PlayingCard";
 import { Flex } from "antd";
 
 interface CardSetProps {
   numberOfCards: number;
-  cards: NewCard[];
+  cards: Card[];
   initFaceDown?: boolean;
 }
 

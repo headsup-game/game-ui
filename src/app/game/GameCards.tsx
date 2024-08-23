@@ -3,50 +3,16 @@ import { useEffect, useState } from "react";
 import styles from "./Game.module.css";
 import FlipCard from "@components/FlipCard";
 import Image from "next/image";
-import { Color, NewCard, Rank, Suit } from "interfaces/card";
+import { Color, Card, Rank, Suit } from "interfaces/card";
 import CardSet from "@components/CardSet";
 
-const GameCards = () => {
+const GameCards = ({redCardsInput, blueCardsInput}: {redCardsInput: Card[], blueCardsInput: Card[]}) => {
   const [selectedCard, setSelectedCard] = useState<string>("");
-  const [redCards, setRedCards] = useState<NewCard[]>([]);
-  const [blueCards, setBlueCards] = useState<NewCard[]>([]);
+  const [redCards, setRedCards] = useState<Card[]>(redCardsInput);
+  const [blueCards, setBlueCards] = useState<Card[]>(blueCardsInput);
   const [faceDown, setFaceDown] = useState<boolean>(true);
 
   useEffect(() => {
-    // use fetch here to get the community cards
-    const redCards = [
-      {
-        suit: Suit.Spades,
-        rank: Rank.Ten,
-        color: Color.RED,
-        faceDown: true,
-      },
-      {
-        suit: Suit.Hearts,
-        rank: Rank.King,
-        color: Color.RED,
-        faceDown: true,
-      },
-    ];
-    const blueCards = [
-      {
-        suit: Suit.Diamonds,
-        rank: Rank.Ace,
-        color: Color.BLUE,
-        faceDown: true,
-      },
-      {
-        suit: Suit.Spades,
-
-        rank: Rank.Jack,
-        color: Color.BLUE,
-        faceDown: true,
-      },
-    ];
-
-    setRedCards(redCards);
-    setBlueCards(blueCards);
-
     setTimeout(() => {
       setFaceDown(false);
     }, 1500);
