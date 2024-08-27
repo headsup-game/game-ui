@@ -15,10 +15,9 @@ const CardSet: React.FC<CardSetProps> = ({
   initFaceDown,
   cards,
 }) => {
-  const [currentCards, setCurrentCards] = useState(cards);
   const [isLoaded, setIsLoaded] = useState(false);
 
-  const getFaceDownVar = (card) => {
+  const getFaceDownVar = (card: Card) => {
     if (initFaceDown === true) {
       return true;
     } else if (initFaceDown === false) {
@@ -33,19 +32,18 @@ const CardSet: React.FC<CardSetProps> = ({
   };
 
   useEffect(() => {
-    console.log("Udpated cards: ", cards);
     const updatedCards = cards.map((card, index) => ({
       ...card,
       faceDown: getFaceDownVar(card),
       animationDelay: isLoaded ? undefined : index * 0.1, // Apply animation delay
     }));
-    setCurrentCards(updatedCards);
+
     setIsLoaded(true); // Set isLoaded to true after initial load
   }, [cards, initFaceDown]);
 
   return (
     <Flex align="center" className="card-set" gap={14}>
-      {currentCards.slice(0, numberOfCards).map((card, index) => (
+      {cards.slice(0, numberOfCards).map((card, index) => (
         <FlipCard
           key={index}
           style={{

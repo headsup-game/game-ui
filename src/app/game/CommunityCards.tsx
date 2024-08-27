@@ -32,8 +32,8 @@ const CommunityCards = ({cards}: {cards: Card[]}) => {
 
   return (
     <Row className={styles.FlopCardsContainer} align={"middle"}>
-      <Col span={24}>
-        <CardSet numberOfCards={5} cards={showCards} initFaceDown={faceDown} />
+      <Col span={20} offset={2}>
+        <CardSet numberOfCards={5} cards={cards} initFaceDown={faceDown} />
       </Col>
     </Row>
   );

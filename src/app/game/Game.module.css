@@ -1,7 +1,7 @@
 .GameContainer {
   border-radius: var(--spacing-6, 24px);
   background: #060215;
-  margin: 80px 0 54px;
+  margin: 30px 0 54px;
   padding: 34px;
 }
 
@@ -9,6 +9,7 @@
   border-radius: var(--spacing-6, 24px);
   background: #141127;
   padding: 16px;
+  ;
 }
 
 .GameCard {
@@ -29,19 +30,23 @@
   color: #fff;
   font-size: 32px;
   font-weight: 800;
-  line-height: 120%; /* 38.4px */
+  line-height: 120%;
+  /* 38.4px */
 }
 
 .BetForm {
-  margin: 20px 0 0 !important;
+  margin: 10px 0 0 !important;
   color: #fff !important;
+
   & label {
     color: #fff !important;
   }
+
   & input {
     color: #fff !important;
     height: 38px;
   }
+
   & :global(.ant-input-number-affix-wrapper) {
     height: 40px !important;
     background-color: transparent !important;
@@ -55,18 +60,21 @@
   color: #fff !important;
   font-size: 14px !important;
   font-weight: 700;
-  line-height: 24px !important; /* 171.429% */
+  line-height: 24px !important;
+  /* 171.429% */
 }
 
 .BetFormRadio {
   display: flex !important;
   align-items: center;
   gap: var(--spacing-2, 22px);
+
   & :global(.ant-radio-button-wrapper-checked) {
     border-color: #fff !important;
     transition: border 0.25s ease-in-out;
   }
-  & > label {
+
+  &>label {
     color: #fff !important;
     border: 1px solid #fff;
     background: transparent;
@@ -80,6 +88,7 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
+
     &::before {
       content: "" !important;
       width: 0 !important;
@@ -92,7 +101,8 @@
   font-size: 14px;
   font-style: normal;
   font-weight: 400;
-  line-height: 24px; /* 171.429% */
+  line-height: 24px;
+  /* 171.429% */
   margin-bottom: 24px;
   cursor: pointer;
 }
@@ -106,7 +116,8 @@
     color: var(--color-text-button-primary-normal, #fff);
     font-size: 9.5px;
     font-weight: 500;
-    line-height: 16.254px; /* 171.429% */
+    line-height: 16.254px;
+    /* 171.429% */
   }
 }
 
@@ -114,11 +125,13 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-2, 22px);
+
   & :global(.ant-radio-button-wrapper-checked) {
     border-color: #fff !important;
     transition: border 0.25s ease-in-out;
   }
-  & > label {
+
+  &>label {
     color: #fff !important;
     border: 1px solid #fff;
     transition: border 0.25s ease-in-out;
@@ -131,6 +144,7 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
+
     &::before {
       content: "" !important;
       width: 0 !important;
@@ -149,10 +163,9 @@
     color: #fff !important;
     height: 40px;
     border-radius: var(--radius-md, 8px);
-    background: var(
-      --color-background-button-primary-normal,
-      #7047eb
-    ) !important;
+    background: var(--color-background-button-primary-normal,
+        #7047eb) !important;
+
     &:disabled {
       opacity: 0.5 !important;
     }
@@ -164,7 +177,8 @@
   font-size: 14px;
   font-style: normal;
   font-weight: 400;
-  line-height: 24px; /* 171.429% */
+  line-height: 24px;
+  /* 171.429% */
   margin-bottom: 24px;
 }
 
@@ -178,21 +192,21 @@
 }
 
 .GameTimer {
-  height: 84px;
-  width: 84px;
-  border-radius: 50%;
+  margin-top: 10px;
+  border-radius: 15%;
   color: #fff;
-  border: 2.316px solid #fff;
-  font-size: 41.256px;
+  font-size: 20px;
   font-weight: var(--radius-3xl, 400);
-  line-height: 55.008px; /* 133.333% */
+  line-height: 55.008px;
+  /* 133.333% */
 }
 
 .FlopCardsContainer {
   display: flex;
   align-items: center;
-  margin-top: 40px;
+  margin-top: 0px;
   gap: 16px;
+
   > :global(.ant-col) {
     width: calc(100% / 5 - 16px) !important;
   }
@@ -207,40 +221,38 @@
 }
 
 .GameCards {
-  margin-top: 40px;
+  margin-top: 0px;
 }
 
 .WinPercentageStrip {
+  color: #fff;
   border-radius: 37.373px;
   padding: 6px 12px;
   font-size: 14px;
   font-weight: 700;
-  line-height: 17.939px; /* 128.136% */
+  line-height: 17.939px;
+  /* 128.136% */
 }
 
 .WinPercentageStripRed {
-  background: linear-gradient(
-      0deg,
+  background: linear-gradient(0deg,
       rgba(255, 72, 72, 0.12) 0%,
-      rgba(255, 72, 72, 0.12) 100%
-    ),
+      rgba(255, 72, 72, 0.12) 100%),
     rgba(255, 255, 255, 0.05);
   transition: all 0.25s ease-in-out;
 }
 
 .WinPercentageStripBlue {
-  background: linear-gradient(
-      0deg,
+  background: linear-gradient(0deg,
       rgba(72, 101, 255, 0.12) 0%,
-      rgba(72, 101, 255, 0.12) 100%
-    ),
+      rgba(72, 101, 255, 0.12) 100%),
     rgba(255, 255, 255, 0.05);
   transition: all 0.25s ease-in-out;
 }
 
 .GameCardsContainer {
-  width: 100%;
-  padding: 25px;
+  width: 80%;
+  padding: 20px;
   border: 5px solid transparent;
   border-radius: 20px;
   cursor: pointer;

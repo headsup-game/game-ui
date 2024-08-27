@@ -8,6 +8,9 @@
   &:global(.ant-menu-item-selected) {
     background: lighten(#141127, 5%) !important;
   }
+  &:global(.ant-menu-dark>.ant-menu.ant-menu-horizontal >.ant-menu-submenu){
+    border-radius: 12px !important;
+  }
 }
 
 .Navigation {

@@ -46,7 +46,8 @@ const FlipCard: React.FC<FlipCardProps> = ({
     back: { rotateY: 180 },
   };
 
-  const handleClick = () => setIsFlipped(!isFlipped);
+  // const handleClick = () => setIsFlipped(!isFlipped);
+  const handleClick = () => {};
 
   const [rotateXaxis, setRotateXaxis] = useState(0);
   const [rotateYaxis, setRotateYaxis] = useState(0);
@@ -143,8 +144,8 @@ const FlipCard: React.FC<FlipCardProps> = ({
             {frontContent}
           </motion.div>
           <motion.div
-            initial={{ rotateY: 180 }}
-            animate={{ rotateY: isFlipped ? 0 : 180 }}
+            initial={{ rotateY: 0 }}
+            animate={{ rotateY: isFlipped ? 0 : 0 }}
             transition={{
               delay: animationDelay,
               ...spring,

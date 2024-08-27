@@ -7,7 +7,7 @@ type PlayerBetProps = {
   playerId: number;
   playerName: string;
   cards: Card[]
-  totalBetAmounts: number;
+  totalBetAmounts: string;
   onBetStateChange: (state: string) => void;
 }
 

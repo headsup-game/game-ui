@@ -26,5 +26,8 @@ export const ANT_CUSTOM_THEME: ThemeConfig = {
     Input: {
       colorBorder: "rgba(255, 255, 255, 0.20)",
     },
+    Menu: {
+      horizontalItemBorderRadius: 12,
+    },
   },
 };

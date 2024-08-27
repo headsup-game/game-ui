@@ -4,9 +4,9 @@ export type GameStateDto = {
   gameState: number;
   currentRoundNumber: number;
   totalNumberOfBetsOnPlayerA: number;
-  totalBetAmountOnPlayerA: number;
+  totalBetAmountOnPlayerA: string;
   totalNumberOfBetsOnPlayerB: number;
-  totalBetAmountOnPlayerB: number;
+  totalBetAmountOnPlayerB: string;
   communityCards: Card[];
   currentRoundBetEndTimestamp: bigint;
   nextGameStartTimestamp?: bigint;
