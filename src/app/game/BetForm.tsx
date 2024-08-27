@@ -79,9 +79,9 @@ const BetForm = ({ roundId, minimumAllowedBetAmount }) => {
       </Form.Item>
 
       {/* Current balance */}
-      <Flex className={styles.BetFormBalance}>
-        Current Balance: Formatted: {walletBalance?.formatted}
-      </Flex>
+      {/* <Flex className={styles.BetFormBalance}> */}
+      {/*   Current Balance: Formatted: {walletBalance?.formatted} */}
+      {/* </Flex> */}
 
       {/* Bet Amount */}
       <Form.Item

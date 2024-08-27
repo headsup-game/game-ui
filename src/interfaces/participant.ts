@@ -4,5 +4,5 @@ export type Participant = {
   id: number
   cards: Card[]
   totalNumberOfBets: number
-  totalBetAmounts: number
+  totalBetAmounts: string
 }

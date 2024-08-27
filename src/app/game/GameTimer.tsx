@@ -1,50 +1,30 @@
 "use client";
 
 import { Flex } from "antd";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useTimer } from "react-timer-hook";
 import styles from "./Game.module.css";
 
-const GameTimer = ({ Timer }) => {
+const GameTimer = ({ timer: timerExpiryDateTime, timerMessage: timerMessage}: {timer: Date, timerMessage: string}) => {
   const {
     totalSeconds,
-    seconds,
-    minutes,
-    hours,
-    days,
-    isRunning,
-    start,
-    pause,
-    resume,
     restart,
   } = useTimer({
-    expiryTimestamp: Timer,
+    expiryTimestamp: timerExpiryDateTime,
     autoStart: true,
   });
-
-  const getNext20Seconds = () => {
-    const currentTime = new Date();
-    const next20Seconds = new Date(currentTime.getTime() + 30000);
-    return next20Seconds;
-  };
+  const [updateTime, setUpdateTime] = useState<Date>(new Date());
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      const next30Seconds = getNext20Seconds();
-      restart(next30Seconds, true); // Restart the timer with the new expiryTimestamp and autoStart
-    }, 30000);
-
-    return () => clearInterval(interval); // Clear interval on component unmount
-  }, [Timer]);
+      console.log("Timer Update");
+      setUpdateTime(new Date());
+      restart(timerExpiryDateTime, true); // Restart the timer with the new expiryTimestamp and autoStart
+  }, [timerExpiryDateTime.getTime()]);
 
   return (
-    <Flex vertical gap={14} align="center">
       <Flex align="center" justify="center" className={styles.GameTimer}>
-        {minutes > 0 && <span>{minutes}</span>}
-        {seconds > 0 && <span>{seconds}</span>}{" "}
+        {totalSeconds > 0 ? <span>{timerMessage}{totalSeconds} seconds</span> : <span>{timerMessage}</span>}{" "}
       </Flex>
-      <Flex>Flop Timer:</Flex>
-    </Flex>
   );
 };
 

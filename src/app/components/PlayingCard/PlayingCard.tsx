@@ -1,5 +1,4 @@
 /* eslint-disable @next/next/no-page-custom-font */
-import { Rammetto_One } from "next/font/google";
 import styles from "./PlayingCard.module.scss";
 import { Flex } from "antd";
 import Image from "next/image";
@@ -13,8 +12,6 @@ interface PlayingCardProps {
   onClick?: () => void;
   styles?: React.CSSProperties;
 }
-
-const ramettoOne = Rammetto_One({ subsets: ["latin"], weight: "400" });
 
 const PlayingCard = (props: PlayingCardProps) => {
   const { className, color, value, suit, onClick } = props;
@@ -53,26 +50,31 @@ const PlayingCard = (props: PlayingCardProps) => {
     color: Color;
   }): string => {
     const suitIcons = {
-      0: {
+      "Clubs": {
         0: "/images/card-assets/hearts-red.svg",
         1: "/images/card-assets/hearts-blue.svg",
         2: "/images/card-assets/hearts-violet.svg",
       },
-      1: {
+      "Diamonds": {
         0: "/images/card-assets/diamonds-red.svg",
         1: "/images/card-assets/diamonds-blue.svg",
         2: "/images/card-assets/diamonds-violet.svg",
       },
-      2: {
+      "Hearts": {
         0: "/images/card-assets/clubs-red.svg",
         1: "/images/card-assets/clubs-blue.svg",
         2: "/images/card-assets/clubs-violet.svg",
       },
-      3: {
+      "Spades": {
         0: "/images/card-assets/spades-red.svg",
         1: "/images/card-assets/spades-blue.svg",
         2: "/images/card-assets/spades-violet.svg",
       },
+      "None": {
+        0: "",
+        1: "",
+        2: "",
+      }
     };
 
     return suitIcons[suit]?.[color] || "";
@@ -89,28 +91,32 @@ const PlayingCard = (props: PlayingCardProps) => {
         backgroundColor: getBGColor(color),
       }}
     >
-      <Flex
+      {value != Rank.None && <Flex
         className={styles.PlayingCardText}
         style={{
           color: getColor(color),
         }}
       >
         {getRankValue(value)}
-      </Flex>
-      <Image
-        src={getSuitIcon({ suit, color })}
-        alt="hearts"
-        width={40}
-        height={40}
-        className={styles.PlayingCardSuit}
-      />
-      <Image
-        src={getSuitIcon({ suit, color })}
-        alt="hearts"
-        width={40}
-        height={40}
-        className={styles.PlayingCardSuitInvert}
-      />
+      </Flex>}
+      {suit != Suit.None && (
+        <Image
+          src={getSuitIcon({ suit, color })}
+          alt="hearts"
+          width={40}
+          height={40}
+          className={styles.PlayingCardSuit}
+        />
+      )}
+      {suit != Suit.None && (
+        <Image
+          src={getSuitIcon({ suit, color })}
+          alt="hearts"
+          width={40}
+          height={40}
+          className={styles.PlayingCardSuitInvert}
+        />
+      )}
     </Flex>
   );
 };

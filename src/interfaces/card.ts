@@ -8,26 +8,28 @@ export enum Color {
 }
 
 export enum Suit {
-  Hearts,
-  Diamonds,
-  Clubs,
-  Spades,
+  Clubs = 'Clubs',
+  Diamonds = 'Diamonds',
+  Hearts = 'Hearts',
+  Spades = 'Spades',
+  None = 'None'
 }
 
 export enum Rank {
-  Two,
-  Three,
-  Four,
-  Five,
-  Six,
-  Seven,
-  Eight,
-  Nine,
-  Ten,
-  Jack,
-  Queen,
-  King,
-  Ace,
+  Ace = 'Ace',
+  Eight = 'Eight',
+  Five = 'Five',
+  Four = 'Four',
+  Jack = 'Jack',
+  King = 'King',
+  Nine = 'Nine',
+  Queen = 'Queen',
+  Seven = 'Seven',
+  Six = 'Six',
+  Ten = 'Ten',
+  Three = 'Three',
+  Two = 'Two',
+  None = 'None'
 }
 
 export const getRankValue = (rank: Rank) => {
@@ -59,17 +61,11 @@ export const getRankValue = (rank: Rank) => {
     case Rank.Ace:
       return "A";
     default:
-      return 2;
+      return "";
   }
 };
 
 export type Card = {
-  suit: Suit;
-  rank: Rank;
-  image: string;
-};
-
-export type NewCard = {
   suit: Suit;
   rank: Rank;
   color: Color;
@@ -81,9 +77,8 @@ export function getCardFromCardDto(cardDto: CardDto): Card {
   return {
     suit: cardDto.suit,
     rank: cardDto.rank,
-    image: `/images/${getEnumName(
-      Rank,
-      cardDto.rank
-    )?.toLowerCase()}_of_${getEnumName(Suit, cardDto.suit)?.toLowerCase()}.png`,
+    color: cardDto.color,
+    faceDown: cardDto.faceDown,
+    animationDelay: cardDto.animationDelay,
   };
 }

@@ -1,13 +1,17 @@
 import { Divider, Flex, Modal } from "antd";
 import styles from "./BetwinModal.module.scss";
 import CommunityCards from "app/game/CommunityCards";
+import { GameState } from "interfaces/gameState";
+import GameTimer from "app/game/GameTimer";
 
 const BetwinModal = ({
   open,
   setOpen,
+  gameState
 }: {
   open: boolean;
   setOpen: (open: boolean) => void;
+  gameState: GameState;
 }) => {
   return (
     <Modal
@@ -30,11 +34,9 @@ const BetwinModal = ({
         },
       }}
     >
-      <Flex justify="center" className={styles.Title}>
-        Blue Wins
-      </Flex>
+      <Flex justify="center" className={styles.Title}>{gameState.roundWinnerMessage}</Flex>
       {/* Winining Card Sets */}
-      <CommunityCards />
+      {/* <CommunityCards /> */}
 
       <Flex justify="center" className={styles.SubTitle}>
         by a Straight Flush
@@ -80,8 +82,7 @@ const BetwinModal = ({
           gap={8}
           style={{ marginTop: 10 }}
         >
-          <Flex className={styles.SubTitle}>Next round starts in</Flex> 10
-          seconds!
+          <GameTimer timerMessage={gameState.currentMessage} timer={gameState.currentTimerEndDateTime} />
         </Flex>
       </Flex>
     </Modal>

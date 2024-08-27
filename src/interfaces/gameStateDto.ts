@@ -1,16 +1,16 @@
-import { CardDto } from "./cardDto";
+import {Card} from "interfaces/card"
 
 export type GameStateDto = {
   gameState: number;
   currentRoundNumber: number;
   totalNumberOfBetsOnPlayerA: number;
-  totalBetAmountOnPlayerA: number;
+  totalBetAmountOnPlayerA: string;
   totalNumberOfBetsOnPlayerB: number;
-  totalBetAmountOnPlayerB: number;
-  communityCards: readonly CardDto[];
+  totalBetAmountOnPlayerB: string;
+  communityCards: Card[];
   currentRoundBetEndTimestamp: bigint;
   nextGameStartTimestamp?: bigint;
-  playerACards: readonly CardDto[];
-  playerBCards: readonly CardDto[];
+  playerACards: Card[];
+  playerBCards: Card[];
   minimumAllowedBetAmount: number
 }
