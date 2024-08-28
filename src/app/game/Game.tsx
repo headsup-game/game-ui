@@ -28,6 +28,7 @@ const Game = () => {
     getGameStateFromRound(null)
   );
   const [showModal, setShowModal] = useState(false);
+  const [renderRecentBets, setRenderRecentBets] = useState(false);
 
   const handleRoundData = (data: { rounds: RoundPage }) => {
     if (data?.rounds?.items != null && data?.rounds.items.length == 2) {
@@ -77,6 +78,8 @@ const Game = () => {
             gameState.state == RoundState.Cancelled)
         ) {
           setShowModal(true);
+          setRenderRecentBets(true);
+          // TODO: Update the RecentBets component here.
         } else {
           setShowModal(false);
         }
@@ -129,7 +132,7 @@ const Game = () => {
         </Col>
       </Row>
 
-      <RecentBets />
+      <RecentBets render={renderRecentBets} />
 
       <Divider />
       <Button onClick={() => setShowModal(true)}>Open Success Modal</Button>

@@ -1,57 +1,133 @@
 "use client";
 
+import React, { useState } from "react";
 import { ConfigProvider, Table, Typography } from "antd";
 import Container from "app/components/Container/Container";
-import styles from "./Game.module.scss";
+import styles from "./Game.module.css";
+import { useQuery } from "@apollo/client";
+import { RoundPage } from "gql/graphql";
+import { GET_CURRENT_ROUND_QUERY } from "graphQueries/getCurrentRound";
+import { GameState, getGameStateFromRound } from "interfaces/gameState";
+import CardSet from "@components/CardSet";
+import { Card } from "interfaces/card";
 
 const { Title } = Typography;
 
 const RecentBets = () => {
-  const columns = [
+  // State for table columns and data source
+  const [columns, setColumns] = useState([
+    {
+      title: "Community Cards",
+      dataIndex: "communityCards",
+      key: "communityCards",
+      render: (cards: Card[]) =>
+        Array.isArray(cards) ? (
+          <CardSet numberOfCards={cards.length} cards={cards} />
+        ) : (
+          <span>No Cards</span>
+        ),
+    },
+    {
+      title: "Winner Cards",
+      dataIndex: "winnerCards",
+      key: "winnerCards",
+      render: (cards: Card[]) =>
+        Array.isArray(cards) ? (
+          <CardSet numberOfCards={cards.length} cards={cards} />
+        ) : (
+          <span>No Cards</span>
+        ),
+    },
+    {
+      title: "Ape Cards",
+      dataIndex: "apeCards",
+      key: "winnerCards",
+      render: (cards: Card[]) =>
+        Array.isArray(cards) ? (
+          <CardSet numberOfCards={cards.length} cards={cards} />
+        ) : (
+          <span>No Cards</span>
+        ),
+    },
+    {
+      title: "Punks Cards",
+      dataIndex: "punkCards",
+      key: "winnerCards",
+      render: (cards: Card[]) =>
+        Array.isArray(cards) ? (
+          <CardSet numberOfCards={cards.length} cards={cards} />
+        ) : (
+          <span>No Cards</span>
+        ),
+    },
     {
       title: "Winner",
-      dataIndex: "name",
+      dataIndex: "winner",
       key: "winner",
     },
     {
-      title: "Total bet on red",
-      dataIndex: "red",
-      key: "red",
+      title: "Amounts",
+      dataIndex: "amounts",
+      key: "amounts",
     },
-    {
-      title: "Total bet on blue",
-      dataIndex: "blue",
-      key: "blue",
-    },
-    {
-      title: "Address",
-      dataIndex: "address",
-      key: "address",
-    },
-  ];
-  const dataSource = [
-    {
-      key: "1",
-      name: "randy",
-      red: 45,
-      blue: 32,
-      address: "10 Downing Street",
-    },
-    {
-      key: "2",
-      name: "GT",
-      red: 89,
-      blue: 42,
-      address: "10 Downing Street",
-    },
-    {
-      key: "3",
-      name: "Mak",
-      red: 89,
-      blue: 42,
-      address: "10 Downing Street",
-    },
-  ];
+  ]);
+
+  const [dataSource, setDataSource] = useState([]);
+
+  // Function to handle data from the query
+  const handleRoundData = (data: { rounds: RoundPage }) => {
+    if (data?.rounds?.items && data.rounds.items.length === 2) {
+      const previousRound = data.rounds.items[1];
+
+      try {
+        const gameState: GameState = getGameStateFromRound(previousRound);
+
+        if (!gameState) {
+          console.error("Failed to parse game state");
+          return;
+        }
+
+        const winner =
+          gameState.roundWInner === gameState.participantA.id
+            ? "Participant A"
+            : "Participant B";
+
+        const winnerCards =
+          gameState.roundWInner === gameState.participantA.id
+            ? gameState.participantA.cards || []
+            : gameState.participantB.cards || [];
+
+        const totalBetAmounts =
+          gameState.roundWInner === gameState.participantA.id
+            ? gameState.participantA.totalBetAmounts || "0.0"
+            : gameState.participantB.totalBetAmounts || "0.0";
+
+        const communityCards = gameState.communityCards || [];
+
+        // Ensure data matches expected structure
+        setDataSource([{
+          key: "1",
+          communityCards: communityCards,
+          winnerCards: winnerCards,
+          winner: winner,
+          punkCards: gameState.participantA.cards,
+          apeCards: gameState.participantB.cards,
+          amounts: totalBetAmounts,
+        },
+        ]);
+      } catch (error) {
+        console.error("Error handling round data:", error);
+      }
+    }
+  };
+
+  // Apollo query to fetch round data
+  useQuery<{ rounds: RoundPage }>(GET_CURRENT_ROUND_QUERY, {
+    pollInterval: 12000, // Refetch data every 12000 milliseconds (12 seconds)
+    onCompleted: handleRoundData,
+    notifyOnNetworkStatusChange: true,
+  });
+
   return (
     <Container>
       <Title level={2} className={styles.RecentBetsTitle}>
@@ -72,12 +148,7 @@ const RecentBets = () => {
           },
         }}
       >
-        <Table
-          bordered
-          pagination={false}
-          columns={columns}
-          dataSource={dataSource}
-        />
+        <Table dataSource={dataSource} columns={columns} pagination={false} />
       </ConfigProvider>
     </Container>
   );
