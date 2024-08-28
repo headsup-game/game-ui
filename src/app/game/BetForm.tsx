@@ -1,7 +1,7 @@
 "use client";
 
 import { Button, Col, Flex, Form, InputNumber, Radio, Row } from "antd";
-import styles from "./Game.module.css";
+import styles from "./Game.module.scss";
 import { FaEthereum } from "react-icons/fa";
 import React, { useCallback, useState } from "react";
 import { Bet } from "@components/bet";

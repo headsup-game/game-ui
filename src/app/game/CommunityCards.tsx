@@ -1,10 +1,10 @@
 import { Col, Row } from "antd";
-import styles from "./Game.module.css";
+import styles from "./Game.module.scss";
 import { Color, Card, Rank, Suit } from "interfaces/card";
 import CardSet from "@components/CardSet";
 import { useEffect, useState } from "react";
 
-const CommunityCards = ({cards}: {cards: Card[]}) => {
+const CommunityCards = ({ cards }: { cards: Card[] }) => {
   const [showCards, setShowCards] = useState<Card[]>(cards);
   const [faceDown, setFaceDown] = useState<boolean>(true);
 

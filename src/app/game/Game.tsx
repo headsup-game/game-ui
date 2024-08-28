@@ -1,7 +1,7 @@
 "use client";
 
 import Container from "app/components/Container/Container";
-import styles from "./Game.module.css";
+import styles from "./Game.module.scss";
 import { Button, Col, Divider, Flex, Row } from "antd";
 import Image from "next/image";
 import BetForm from "app/game/BetForm";
@@ -11,7 +11,11 @@ import CommunityCards from "app/game/CommunityCards";
 import GameCards from "app/game/GameCards";
 import { useEffect, useState } from "react";
 import BetwinModal from "app/components/BetwinModal/BetwinModal";
-import { GameState, RoundState, getGameStateFromRound } from "interfaces/gameState";
+import {
+  GameState,
+  RoundState,
+  getGameStateFromRound,
+} from "interfaces/gameState";
 // const GameTimer = dynamic(() => import("app/game/GameTimer"), { ssr: false });
 import { GET_CURRENT_ROUND_QUERY } from "graphQueries/getCurrentRound";
 import { useQuery } from "@apollo/client";
@@ -20,7 +24,9 @@ import { getEnumName } from "utils/enumHelper";
 import GameTimer from "app/game/GameTimer";
 
 const Game = () => {
-  const [gameState, setGameState] = useState<GameState>(getGameStateFromRound(null));
+  const [gameState, setGameState] = useState<GameState>(
+    getGameStateFromRound(null)
+  );
   const [showModal, setShowModal] = useState(false);
 
   const handleRoundData = (data: { rounds: RoundPage }) => {
@@ -29,9 +35,13 @@ const Game = () => {
       const previousRound = data.rounds.items[1];
 
       const currentRoundState: GameState = getGameStateFromRound(currentRound);
-      const previousRoundState: GameState = getGameStateFromRound(previousRound);
+      const previousRoundState: GameState =
+        getGameStateFromRound(previousRound);
 
-      const activeRound: Round = currentRoundState.state == RoundState.Initialized ? previousRound : currentRound;
+      const activeRound: Round =
+        currentRoundState.state == RoundState.Initialized
+          ? previousRound
+          : currentRound;
 
       try {
         const gameState: GameState = getGameStateFromRound(activeRound);
@@ -40,32 +50,41 @@ const Game = () => {
           const currentTimeStamp = Math.floor(Date.now() / 1000);
           const timerEndTimeStamp = currentRound.startTimestamp;
           let timerEndDate = new Date();
-          timerEndDate.setSeconds(timerEndDate.getSeconds() + (timerEndTimeStamp - currentTimeStamp));
+          timerEndDate.setSeconds(
+            timerEndDate.getSeconds() + (timerEndTimeStamp - currentTimeStamp)
+          );
           gameState.currentTimerEndDateTime = timerEndDate;
         }
 
-        if (gameState.state == RoundState.BlindBettingStarted
-          || gameState.state == RoundState.BlindBettingClosedAndHoleCardsRevealed
-          || gameState.state == RoundState.BlindBettingClosedAndHoleCardsNotRevealed
-          || gameState.state == RoundState.BettingStoppedCommunityCardsNotRevealed) {
+        if (
+          gameState.state == RoundState.BlindBettingStarted ||
+          gameState.state ==
+            RoundState.BlindBettingClosedAndHoleCardsRevealed ||
+          gameState.state ==
+            RoundState.BlindBettingClosedAndHoleCardsNotRevealed ||
+          gameState.state == RoundState.BettingStoppedCommunityCardsNotRevealed
+        ) {
           setShowModal(false);
         }
 
         setGameState(gameState);
         const currentTimeStamp = Math.floor(Date.now() / 1000);
-        if (currentTimeStamp > gameState.resultShowTimeStamp && (gameState.state == RoundState.BettingStoppedCommunityCardsRevealedAndCalculatingResults
-          || gameState.state == RoundState.ResultsDeclaredAndEnded
-          || gameState.state == RoundState.Cancelled)) {
+        if (
+          currentTimeStamp > gameState.resultShowTimeStamp &&
+          (gameState.state ==
+            RoundState.BettingStoppedCommunityCardsRevealedAndCalculatingResults ||
+            gameState.state == RoundState.ResultsDeclaredAndEnded ||
+            gameState.state == RoundState.Cancelled)
+        ) {
           setShowModal(true);
         } else {
           setShowModal(false);
         }
-      } catch (error) {
-      }
+      } catch (error) {}
     }
   };
 
-  const { } = useQuery<{ rounds: RoundPage }>(GET_CURRENT_ROUND_QUERY, {
+  const {} = useQuery<{ rounds: RoundPage }>(GET_CURRENT_ROUND_QUERY, {
     pollInterval: 500, // Refetch data every 5000 milliseconds (5 seconds)
     onCompleted: handleRoundData,
     notifyOnNetworkStatusChange: true,
@@ -76,13 +95,18 @@ const Game = () => {
       <Row className={styles.GameContainer} gutter={20}>
         <Col span={18}>
           <CommunityCards cards={gameState.communityCards} />
-          <GameTimer timerMessage={gameState.currentMessage} timer={gameState.currentTimerEndDateTime} />
-          <GameCards redCardsInput={gameState.participantA.cards}
+          <GameTimer
+            timerMessage={gameState.currentMessage}
+            timer={gameState.currentTimerEndDateTime}
+          />
+          <GameCards
+            redCardsInput={gameState.participantA.cards}
             blueCardsInput={gameState.participantB.cards}
             redCardsTotalAmount={gameState.participantA.totalBetAmounts}
             redCardsNumberOfBets={gameState.participantA.totalNumberOfBets}
             blueCardsNumberOfBets={gameState.participantB.totalNumberOfBets}
-            blueCardsTotalAmout={gameState.participantB.totalBetAmounts} />
+            blueCardsTotalAmout={gameState.participantB.totalBetAmounts}
+          />
           <Divider />
         </Col>
         <Col span={6}>
@@ -110,7 +134,13 @@ const Game = () => {
       <Divider />
       <Button onClick={() => setShowModal(true)}>Open Success Modal</Button>
 
-      {showModal && <BetwinModal gameState={gameState} open={showModal} setOpen={setShowModal} />}
+      {showModal && (
+        <BetwinModal
+          gameState={gameState}
+          open={showModal}
+          setOpen={setShowModal}
+        />
+      )}
     </Container>
   );
 };
