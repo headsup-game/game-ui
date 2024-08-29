@@ -1,19 +1,26 @@
 import { Col, Flex, Row } from "antd";
 import { useEffect, useState } from "react";
-import styles from "./Game.module.css";
+import styles from "./Game.module.scss";
 import FlipCard from "@components/FlipCard";
 import Image from "next/image";
 import { Color, Card, Rank, Suit } from "interfaces/card";
 import CardSet from "@components/CardSet";
 import { red } from "colorette";
 
-const GameCards = ({redCardsInput, blueCardsInput, redCardsNumberOfBets, redCardsTotalAmount, blueCardsNumberOfBets, blueCardsTotalAmout}: {
-  redCardsInput: Card[],  
-  blueCardsInput: Card[], 
-  redCardsNumberOfBets: number, 
-  redCardsTotalAmount: string, 
-  blueCardsNumberOfBets: number, 
-  blueCardsTotalAmout: string
+const GameCards = ({
+  redCardsInput,
+  blueCardsInput,
+  redCardsNumberOfBets,
+  redCardsTotalAmount,
+  blueCardsNumberOfBets,
+  blueCardsTotalAmout,
+}: {
+  redCardsInput: Card[];
+  blueCardsInput: Card[];
+  redCardsNumberOfBets: number;
+  redCardsTotalAmount: string;
+  blueCardsNumberOfBets: number;
+  blueCardsTotalAmout: string;
 }) => {
   const [selectedCard, setSelectedCard] = useState<string>("");
   const [faceDown, setFaceDown] = useState<boolean>(true);
@@ -65,12 +72,16 @@ const GameCards = ({redCardsInput, blueCardsInput, redCardsNumberOfBets, redCard
             className={styles.GameCardsPool}
           >
             <Flex vertical>
-              <Flex className={styles.GameCardsPoolAmount}>{redCardsTotalAmount} ETH</Flex>
+              <Flex className={styles.GameCardsPoolAmount}>
+                {redCardsTotalAmount} ETH
+              </Flex>
               <Flex className={styles.GameCardsAmountTitle}>Amount Pool</Flex>
             </Flex>
             <Flex style={{ border: "0.5px solid #fff", height: 40 }}> </Flex>
             <Flex vertical>
-              <Flex className={styles.GameCardsPoolAmount}>{redCardsNumberOfBets}</Flex>
+              <Flex className={styles.GameCardsPoolAmount}>
+                {redCardsNumberOfBets}
+              </Flex>
               <Flex className={styles.GameCardsAmountTitle}>Bets Placed</Flex>
             </Flex>
           </Flex>
@@ -114,12 +125,16 @@ const GameCards = ({redCardsInput, blueCardsInput, redCardsNumberOfBets, redCard
             className={styles.GameCardsPool}
           >
             <Flex vertical>
-              <Flex className={styles.GameCardsPoolAmount}>{blueCardsTotalAmout} ETH</Flex>
+              <Flex className={styles.GameCardsPoolAmount}>
+                {blueCardsTotalAmout} ETH
+              </Flex>
               <Flex className={styles.GameCardsAmountTitle}>Amount Pool</Flex>
             </Flex>
             <Flex style={{ border: "0.5px solid #fff", height: 40 }}> </Flex>
             <Flex vertical>
-              <Flex className={styles.GameCardsPoolAmount}>{blueCardsNumberOfBets}</Flex>
+              <Flex className={styles.GameCardsPoolAmount}>
+                {blueCardsNumberOfBets}
+              </Flex>
               <Flex className={styles.GameCardsAmountTitle}>Bets Placed</Flex>
             </Flex>
           </Flex>

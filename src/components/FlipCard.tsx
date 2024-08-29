@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { delay, motion, MotionStyle, useSpring } from "framer-motion";
 import Image from "next/image";
-import styles from "app/game/Game.module.css";
+import styles from "app/game/Game.module.scss";
 
 export interface FlipCardProps {
   frontContent: JSX.Element;
