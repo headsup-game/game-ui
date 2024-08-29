@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client';
 
 export const GET_CURRENT_ROUND_QUERY =
-  gql`query GetCurrentRound ($limit: Int!) {
+  gql`query GetCurrentRound($limit: Int!, $participant: String!) {
       rounds(orderBy: "epoch", orderDirection: "desc", limit: $limit) {
         items {
           epoch
@@ -49,8 +49,9 @@ export const GET_CURRENT_ROUND_QUERY =
           closeTimestamp
           blindCloseTimestamp
           betCloseTimestamp
-          participants {
+          participants(where: { userId: $participant }) {
             items {
+              amount
               position
               isWinner
             }
@@ -81,6 +82,5 @@ export const GET_CURRENT_ROUND_QUERY =
           }
         }
       }
-    }
-  `;
+    }`;
 

@@ -10,7 +10,9 @@ import { GET_CURRENT_ROUND_QUERY } from "graphQueries/getCurrentRound";
 import { GameState, getGameStateFromRound } from "interfaces/gameState";
 import CardSet from "@components/CardSet";
 import { Card } from "interfaces/card";
-import { Pagination } from 'antd';
+import { Pagination } from "antd";
+import { useAccount } from "wagmi";
+import { ethers } from 'ethers'
 
 const { Title } = Typography;
 
@@ -31,7 +33,7 @@ const RecentBets = () => {
     {
       title: "Ape Cards",
       dataIndex: "apeCards",
-      key: "winnerCards",
+      key: "apeCards",
       render: (cards: Card[]) =>
         Array.isArray(cards) ? (
           <CardSet numberOfCards={cards.length} cards={cards} />
@@ -42,7 +44,7 @@ const RecentBets = () => {
     {
       title: "Punks Cards",
       dataIndex: "punkCards",
-      key: "winnerCards",
+      key: "punkCards",
       render: (cards: Card[]) =>
         Array.isArray(cards) ? (
           <CardSet numberOfCards={cards.length} cards={cards} />
@@ -54,16 +56,42 @@ const RecentBets = () => {
       title: "Amounts",
       dataIndex: "amounts",
       key: "amounts",
+      render: (amounts: { totalPunksBets: string; totalApesBets: string }) => (
+        <div>
+          <div>Total Punks Bets: {amounts.totalPunksBets}</div>
+          <div>Total Apes Bets: {amounts.totalApesBets}</div>
+        </div>
+      ),
+    },
+    {
+      title: "Own Bets",
+      dataIndex: "ownBets",
+      key: "ownBets",
+      render: (bet: { amount: string; position: string; isWinner: boolean }) =>
+        bet ? (
+          <span>
+            {bet.amount} ({bet.position}){" "}
+            {bet.isWinner ? <strong>Won</strong> : <strong>Lost</strong>}
+          </span>
+        ) : (
+          <span>No Bets</span>
+        ),
     },
   ]);
 
-  const [dataSource, setDataSource] = useState<{
-    key: string;
-    communityCards: Card[];
-    punkCards: Card[];
-    apeCards: Card[];
-    amounts: string;
-  }[]>([]);
+  const { isConnected, address } = useAccount();
+
+  const [dataSource, setDataSource] = useState<
+    {
+      key: string;
+      communityCards: Card[];
+      punkCards: Card[];
+      apeCards: Card[];
+      amounts: { totalPunksBets: string; totalApesBets: string };
+      ownBets: { amount: string; position: string; isWinner: boolean } | null;
+    }[]
+  >([]);
+
   // Function to handle data from the query
   const handleRoundData = (data: { rounds: RoundPage }) => {
     const dataSource: {
@@ -71,8 +99,10 @@ const RecentBets = () => {
       communityCards: Card[];
       punkCards: Card[];
       apeCards: Card[];
-      amounts: string;
+      amounts: { totalPunksBets: string; totalApesBets: string };
+      ownBets: { amount: string; position: string; isWinner: boolean } | null;
     }[] = [];
+
     for (const round of data.rounds.items.slice(1)) {
       try {
         const gameState: GameState = getGameStateFromRound(round);
@@ -82,40 +112,46 @@ const RecentBets = () => {
           return;
         }
 
-        const winner =
-          gameState.roundWInner === gameState.participantA.id
-            ? "Participant A"
-            : "Participant B";
-
-        const winnerCards =
-          gameState.roundWInner === gameState.participantA.id
-            ? gameState.participantA.cards || []
-            : gameState.participantB.cards || [];
-
-        const totalBetAmounts =
-          gameState.roundWInner === gameState.participantA.id
-            ? gameState.participantA.totalBetAmounts || "0.0"
-            : gameState.participantB.totalBetAmounts || "0.0";
-
         const communityCards = gameState.communityCards || [];
+        const apeCards = gameState.participantA.cards || [];
+        const punkCards = gameState.participantB.cards || [];
+
+        // Define the total bet amounts for both participants
+        const totalPunksBets = gameState.participantB.totalBetAmounts || "0.0";
+        const totalApesBets = gameState.participantA.totalBetAmounts || "0.0";
+
+        // Extract user's own bet information
+        const ownBet =
+          round.participants?.items.find(
+            (bet) => bet.position === "PUNKS" || bet.position === "APES"
+          ) || null;
+
         dataSource.push({
           key: round.id,
-          communityCards: gameState.communityCards,
-          punkCards: gameState.participantA.cards,
-          apeCards: gameState.participantB.cards,
-          amounts: totalBetAmounts,
-        })
+          communityCards: communityCards,
+          punkCards: punkCards,
+          apeCards: apeCards,
+          amounts: { totalPunksBets, totalApesBets },
+          ownBets: ownBet
+            ? {
+              amount: ethers.formatEther(ownBet.amount),
+              position: ownBet.position,
+              isWinner: ownBet.isWinner,
+            }
+            : null,
+        });
       } catch (error) {
         console.error("Error handling round data:", error);
       }
-      // Ensure data matches expected structure
-      setDataSource(dataSource);
     }
+
+    // Ensure data matches expected structure
+    setDataSource(dataSource);
   };
 
   // Apollo query to fetch round data
   useQuery<{ rounds: RoundPage }>(GET_CURRENT_ROUND_QUERY, {
-    variables: { limit: 10 },
+    variables: { limit: 10, participant: address },
     pollInterval: 12000, // Refetch data every 12000 milliseconds (12 seconds)
     onCompleted: handleRoundData,
     notifyOnNetworkStatusChange: true,
@@ -143,7 +179,6 @@ const RecentBets = () => {
       >
         <Table dataSource={dataSource} columns={columns} pagination={false} />
         <Pagination align="center" defaultCurrent={1} total={50} />
-
       </ConfigProvider>
     </Container>
   );

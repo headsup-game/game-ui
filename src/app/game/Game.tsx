@@ -88,7 +88,7 @@ const Game = () => {
   };
 
   const { } = useQuery<{ rounds: RoundPage }>(GET_CURRENT_ROUND_QUERY, {
-    variables: { limit: 2 },
+    variables: { limit: 2, participant: "" },
     pollInterval: 500, // Refetch data every 5000 milliseconds (5 seconds)
     onCompleted: handleRoundData,
     notifyOnNetworkStatusChange: true,
