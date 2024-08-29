@@ -10,6 +10,7 @@ import { GET_CURRENT_ROUND_QUERY } from "graphQueries/getCurrentRound";
 import { GameState, getGameStateFromRound } from "interfaces/gameState";
 import CardSet from "@components/CardSet";
 import { Card } from "interfaces/card";
+import { Pagination } from 'antd';
 
 const { Title } = Typography;
 
@@ -20,17 +21,6 @@ const RecentBets = () => {
       title: "Community Cards",
       dataIndex: "communityCards",
       key: "communityCards",
-      render: (cards: Card[]) =>
-        Array.isArray(cards) ? (
-          <CardSet numberOfCards={cards.length} cards={cards} />
-        ) : (
-          <span>No Cards</span>
-        ),
-    },
-    {
-      title: "Winner Cards",
-      dataIndex: "winnerCards",
-      key: "winnerCards",
       render: (cards: Card[]) =>
         Array.isArray(cards) ? (
           <CardSet numberOfCards={cards.length} cards={cards} />
@@ -61,26 +51,31 @@ const RecentBets = () => {
         ),
     },
     {
-      title: "Winner",
-      dataIndex: "winner",
-      key: "winner",
-    },
-    {
       title: "Amounts",
       dataIndex: "amounts",
       key: "amounts",
     },
   ]);
 
-  const [dataSource, setDataSource] = useState([]);
-
+  const [dataSource, setDataSource] = useState<{
+    key: string;
+    communityCards: Card[];
+    punkCards: Card[];
+    apeCards: Card[];
+    amounts: string;
+  }[]>([]);
   // Function to handle data from the query
   const handleRoundData = (data: { rounds: RoundPage }) => {
-    if (data?.rounds?.items && data.rounds.items.length === 2) {
-      const previousRound = data.rounds.items[1];
-
+    const dataSource: {
+      key: string;
+      communityCards: Card[];
+      punkCards: Card[];
+      apeCards: Card[];
+      amounts: string;
+    }[] = [];
+    for (const round of data.rounds.items.slice(1)) {
       try {
-        const gameState: GameState = getGameStateFromRound(previousRound);
+        const gameState: GameState = getGameStateFromRound(round);
 
         if (!gameState) {
           console.error("Failed to parse game state");
@@ -103,26 +98,24 @@ const RecentBets = () => {
             : gameState.participantB.totalBetAmounts || "0.0";
 
         const communityCards = gameState.communityCards || [];
-
-        // Ensure data matches expected structure
-        setDataSource([{
-          key: "1",
-          communityCards: communityCards,
-          winnerCards: winnerCards,
-          winner: winner,
+        dataSource.push({
+          key: round.id,
+          communityCards: gameState.communityCards,
           punkCards: gameState.participantA.cards,
           apeCards: gameState.participantB.cards,
           amounts: totalBetAmounts,
-        },
-        ]);
+        })
       } catch (error) {
         console.error("Error handling round data:", error);
       }
+      // Ensure data matches expected structure
+      setDataSource(dataSource);
     }
   };
 
   // Apollo query to fetch round data
   useQuery<{ rounds: RoundPage }>(GET_CURRENT_ROUND_QUERY, {
+    variables: { limit: 10 },
     pollInterval: 12000, // Refetch data every 12000 milliseconds (12 seconds)
     onCompleted: handleRoundData,
     notifyOnNetworkStatusChange: true,
@@ -149,6 +142,8 @@ const RecentBets = () => {
         }}
       >
         <Table dataSource={dataSource} columns={columns} pagination={false} />
+        <Pagination align="center" defaultCurrent={1} total={50} />
+
       </ConfigProvider>
     </Container>
   );

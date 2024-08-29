@@ -1,8 +1,8 @@
 import { gql } from '@apollo/client';
 
 export const GET_CURRENT_ROUND_QUERY =
-  gql`query GetCurrentRound {
-      rounds(orderBy: "epoch", orderDirection: "desc", limit: 2) {
+  gql`query GetCurrentRound ($limit: Int!) {
+      rounds(orderBy: "epoch", orderDirection: "desc", limit: $limit) {
         items {
           epoch
           roundExpiredAfterTimestamp

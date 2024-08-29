@@ -60,9 +60,9 @@ const Game = () => {
         if (
           gameState.state == RoundState.BlindBettingStarted ||
           gameState.state ==
-            RoundState.BlindBettingClosedAndHoleCardsRevealed ||
+          RoundState.BlindBettingClosedAndHoleCardsRevealed ||
           gameState.state ==
-            RoundState.BlindBettingClosedAndHoleCardsNotRevealed ||
+          RoundState.BlindBettingClosedAndHoleCardsNotRevealed ||
           gameState.state == RoundState.BettingStoppedCommunityCardsNotRevealed
         ) {
           setShowModal(false);
@@ -83,11 +83,12 @@ const Game = () => {
         } else {
           setShowModal(false);
         }
-      } catch (error) {}
+      } catch (error) { }
     }
   };
 
-  const {} = useQuery<{ rounds: RoundPage }>(GET_CURRENT_ROUND_QUERY, {
+  const { } = useQuery<{ rounds: RoundPage }>(GET_CURRENT_ROUND_QUERY, {
+    variables: { limit: 2 },
     pollInterval: 500, // Refetch data every 5000 milliseconds (5 seconds)
     onCompleted: handleRoundData,
     notifyOnNetworkStatusChange: true,
@@ -132,7 +133,7 @@ const Game = () => {
         </Col>
       </Row>
 
-      <RecentBets render={renderRecentBets} />
+      <RecentBets />
 
       <Divider />
       <Button onClick={() => setShowModal(true)}>Open Success Modal</Button>
