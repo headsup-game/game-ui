@@ -8,8 +8,8 @@ import { Bet } from "@components/bet";
 import { useAccount, useBalance } from "wagmi";
 
 enum PlayerName {
-  Red,
-  Blue,
+  Apes, // Apes
+  Punks, // Punks
 }
 
 const BetForm = ({ roundId, minimumAllowedBetAmount }) => {
@@ -64,16 +64,16 @@ const BetForm = ({ roundId, minimumAllowedBetAmount }) => {
           onChange={handlePlayerChange}
         >
           <Radio.Button
-            value={0}
+            value={PlayerName.Apes}
             style={{ background: "red", borderColor: "red" }}
           >
-            Red
+            Apes
           </Radio.Button>
           <Radio.Button
-            value={1}
+            value={PlayerName.Punks}
             style={{ background: "blue", borderColor: "blue" }}
           >
-            Blue
+            Punks
           </Radio.Button>
         </Radio.Group>
       </Form.Item>
@@ -140,9 +140,8 @@ const BetForm = ({ roundId, minimumAllowedBetAmount }) => {
           {[1, 2, 5, 10, 15]?.map((item) => (
             <Button
               key={item}
-              className={`${styles.BetFormButton} ${
-                item === rounds && styles.BetFormButtonActive
-              }`}
+              className={`${styles.BetFormButton} ${item === rounds && styles.BetFormButtonActive
+                }`}
               onClick={() => setRounds(item)}
             >
               {item}

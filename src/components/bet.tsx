@@ -39,8 +39,8 @@ export const Bet: React.FC<BetProps> = ({
     abi: contractABI,
     functionName:
       playerId === 0
-        ? constants.CONTRACT_METHOD_PLAYER_A_BET
-        : constants.CONTRACT_METHOD_PLAYER_B_BET,
+        ? constants.CONTRACT_METHOD_APES_BET // Apes
+        : constants.CONTRACT_METHOD_PUNKS_BET, // Punks
     args: [roundNumber ?? 0],
     value: parseEther(betAmount.toString()),
     account: address,

@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { ConfigProvider, Table, Typography } from "antd";
 import Container from "app/components/Container/Container";
-import styles from "./Game.module.css";
+import styles from "./Game.module.scss";
 import { useQuery } from "@apollo/client";
 import { RoundPage } from "gql/graphql";
 import { GET_CURRENT_ROUND_QUERY } from "graphQueries/getCurrentRound";
@@ -34,9 +34,9 @@ const RecentBets = () => {
       title: "Ape Cards",
       dataIndex: "apeCards",
       key: "apeCards",
-      render: (cards: Card[]) =>
-        Array.isArray(cards) ? (
-          <CardSet numberOfCards={cards.length} cards={cards} />
+      render: (data: { cards: Card[], bets: string }) =>
+        Array.isArray(data.cards) ? (
+          <><CardSet numberOfCards={data.cards.length} cards={data.cards} /><span>Total Bet: {data.bets}</span></>
         ) : (
           <span>No Cards</span>
         ),
@@ -45,24 +45,24 @@ const RecentBets = () => {
       title: "Punks Cards",
       dataIndex: "punkCards",
       key: "punkCards",
-      render: (cards: Card[]) =>
-        Array.isArray(cards) ? (
-          <CardSet numberOfCards={cards.length} cards={cards} />
+      render: (data: { cards: Card[], bets: string }) =>
+        Array.isArray(data.cards) ? (
+          <><CardSet numberOfCards={data.cards.length} cards={data.cards} /><span>Total Bet: {data.bets}</span></>
         ) : (
           <span>No Cards</span>
         ),
     },
-    {
-      title: "Amounts",
-      dataIndex: "amounts",
-      key: "amounts",
-      render: (amounts: { totalPunksBets: string; totalApesBets: string }) => (
-        <div>
-          <div>Total Punks Bets: {amounts.totalPunksBets}</div>
-          <div>Total Apes Bets: {amounts.totalApesBets}</div>
-        </div>
-      ),
-    },
+    // {
+    //   title: "Amounts",
+    //   dataIndex: "amounts",
+    //   key: "amounts",
+    //   render: (amounts: { totalPunksBets: string; totalApesBets: string }) => (
+    //     <div>
+    //       <div>Total Punks Bets: {amounts.totalPunksBets}</div>
+    //       <div>Total Apes Bets: {amounts.totalApesBets}</div>
+    //     </div>
+    //   ),
+    // },
     {
       title: "Own Bets",
       dataIndex: "ownBets",
@@ -85,9 +85,9 @@ const RecentBets = () => {
     {
       key: string;
       communityCards: Card[];
-      punkCards: Card[];
-      apeCards: Card[];
-      amounts: { totalPunksBets: string; totalApesBets: string };
+      punkCards: { cards: Card[], bets: string };
+      apeCards: { cards: Card[], bets: string };
+      // amounts: { totalPunksBets: string; totalApesBets: string };
       ownBets: { amount: string; position: string; isWinner: boolean } | null;
     }[]
   >([]);
@@ -97,9 +97,9 @@ const RecentBets = () => {
     const dataSource: {
       key: string;
       communityCards: Card[];
-      punkCards: Card[];
-      apeCards: Card[];
-      amounts: { totalPunksBets: string; totalApesBets: string };
+      punkCards: { cards: Card[], bets: string };
+      apeCards: { cards: Card[], bets: string };
+      // amounts: { totalPunksBets: string; totalApesBets: string };
       ownBets: { amount: string; position: string; isWinner: boolean } | null;
     }[] = [];
 
@@ -112,13 +112,14 @@ const RecentBets = () => {
           return;
         }
 
-        const communityCards = gameState.communityCards || [];
-        const apeCards = gameState.participantA.cards || [];
-        const punkCards = gameState.participantB.cards || [];
-
         // Define the total bet amounts for both participants
         const totalPunksBets = gameState.participantB.totalBetAmounts || "0.0";
         const totalApesBets = gameState.participantA.totalBetAmounts || "0.0";
+
+        const communityCards = gameState.communityCards || [];
+        const apeCards = { cards: gameState.participantA.cards || [], bets: totalApesBets || "0.0." };
+        const punkCards = { cards: gameState.participantB.cards || [], bets: totalPunksBets || "0.0." };
+
 
         // Extract user's own bet information
         const ownBet =
@@ -131,7 +132,7 @@ const RecentBets = () => {
           communityCards: communityCards,
           punkCards: punkCards,
           apeCards: apeCards,
-          amounts: { totalPunksBets, totalApesBets },
+          // amounts: { totalPunksBets, totalApesBets },
           ownBets: ownBet
             ? {
               amount: ethers.formatEther(ownBet.amount),
