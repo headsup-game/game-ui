@@ -9,6 +9,9 @@ const config: CodegenConfig = {
       preset: "client",
       plugins: [],
       config: {
+        scalars: {
+          BigInt: 'string',
+        },
         withHooks: true, // Enables generating React hooks
         withHOC: false,  // Disables higher-order components (optional)
         withComponent: false, // Disables component wrappers (optional)

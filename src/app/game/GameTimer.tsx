@@ -1,7 +1,7 @@
 "use client";
 
 import { Flex } from "antd";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useTimer } from "react-timer-hook";
 import styles from "./Game.module.scss";
 
@@ -16,25 +16,19 @@ const GameTimer = ({
     expiryTimestamp: timerExpiryDateTime,
     autoStart: true,
   });
-  const [updateTime, setUpdateTime] = useState<Date>(new Date());
 
   useEffect(() => {
-    console.log("Timer Update");
-    setUpdateTime(new Date());
+    console.log("timer restarts")
     restart(timerExpiryDateTime, true); // Restart the timer with the new expiryTimestamp and autoStart
-  }, [timerExpiryDateTime.getTime()]);
+  }, [timerExpiryDateTime.getTime(), timerMessage]);
 
   return (
     <Flex align="center" justify="center" className={styles.GameTimer}>
-      {totalSeconds > 0 ? (
-        <span>
-          {timerMessage}
-          {totalSeconds} seconds
-        </span>
-      ) : (
-        <span>{timerMessage}</span>
-      )}{" "}
-    </Flex>
+      <span>
+        {timerMessage}
+      </span>
+      {totalSeconds > 0 && <span>{'...'}{totalSeconds} seconds</span>}
+    </Flex >
   );
 };
 

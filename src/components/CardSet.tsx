@@ -32,6 +32,7 @@ const CardSet: React.FC<CardSetProps> = ({
   };
 
   useEffect(() => {
+    console.log("cards updated");
     const updatedCards = cards.map((card, index) => ({
       ...card,
       faceDown: getFaceDownVar(card),
@@ -39,7 +40,7 @@ const CardSet: React.FC<CardSetProps> = ({
     }));
 
     setIsLoaded(true); // Set isLoaded to true after initial load
-  }, [cards, initFaceDown]);
+  }, [JSON.stringify(cards), initFaceDown]);
 
   return (
     <Flex align="center" className="card-set" gap={14}>

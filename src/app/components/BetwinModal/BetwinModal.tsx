@@ -3,6 +3,8 @@ import styles from "./BetwinModal.module.scss";
 import CommunityCards from "app/game/CommunityCards";
 import { GameState } from "interfaces/gameState";
 import GameTimer from "app/game/GameTimer";
+import CardSet from "@components/CardSet";
+import { getRankValue } from "interfaces/card";
 
 const BetwinModal = ({
   open,
@@ -43,25 +45,28 @@ const BetwinModal = ({
       </Flex>
       <Divider className={styles.Divider} />
       <Flex vertical gap={24}>
-        {/* Total Amount Pooled */}
         <Flex align="center" justify="space-between">
           <Flex className={styles.ListHeading}>
-            Total Amount Pooled for Blue
+            Total Bet Amount on Apes
           </Flex>
-          <Flex className={styles.ListValue}>123.5 ETH</Flex>
+          <Flex className={styles.ListValue}>{gameState.participantA.totalBetAmounts} ETH</Flex>
+        </Flex>
+        <Flex align="center" justify="space-between">
+          <Flex className={styles.ListHeading}>
+            Total Bet Amount on Punks
+          </Flex>
+          <Flex className={styles.ListValue}>{gameState.participantB.totalBetAmounts} ETH</Flex>
         </Flex>
         {/* Total Bets */}
         <Flex align="center" justify="space-between">
-          <Flex className={styles.ListHeading}>Total Bets on Red</Flex>
-          <Flex className={styles.ListValue}>18</Flex>
+          <Flex className={styles.ListHeading}>Total Bets on Apes</Flex>
+          <Flex className={styles.ListValue}>{Number(gameState.participantA.totalNumberOfBets)}</Flex>
         </Flex>
-        {/* Winnings per Person */}
         <Flex align="center" justify="space-between">
-          <Flex className={styles.ListHeading}>Winnings per Person</Flex>
-          <Flex className={styles.ListValue}>7.23 ETH</Flex>
+          <Flex className={styles.ListHeading}>Total Bets on Punks</Flex>
+          <Flex className={styles.ListValue}>{Number(gameState.participantB.totalNumberOfBets)}</Flex>
         </Flex>
       </Flex>
-
       <Divider className={styles.Divider} />
       <Flex vertical gap={24}>
         {/* Your Win/Loss */}
@@ -71,18 +76,13 @@ const BetwinModal = ({
             123.5 ETH
           </Flex>
         </Flex>
-        {/* Current Balance */}
-        <Flex align="center" justify="space-between">
-          <Flex className={styles.ListHeading}>Current Balance</Flex>
-          <Flex className={styles.ListValue}>91 ETH</Flex>
-        </Flex>
         <Flex
           className={styles.ListHeading}
           align="center"
           gap={8}
           style={{ marginTop: 10 }}
         >
-          <GameTimer timerMessage={gameState.currentMessage} timer={gameState.currentTimerEndDateTime} />
+          <Flex justify="center"><GameTimer timerMessage={gameState.currentMessage} timer={gameState.currentTimerEndDateTime} /></Flex>
         </Flex>
       </Flex>
     </Modal>

@@ -2,7 +2,8 @@
 import styles from "./PlayingCard.module.scss";
 import { Flex } from "antd";
 import Image from "next/image";
-import { Color, getRankValue, Rank, Suit } from "interfaces/card";
+import { Color, getRankValue, getSuitUnicodeSymbol, Rank, Suit } from "interfaces/card";
+import { Span } from "next/dist/trace";
 
 interface PlayingCardProps {
   color: Color;
@@ -51,9 +52,9 @@ const PlayingCard = (props: PlayingCardProps) => {
   }): string => {
     const suitIcons = {
       "Clubs": {
-        0: "/images/card-assets/hearts-red.svg",
-        1: "/images/card-assets/hearts-blue.svg",
-        2: "/images/card-assets/hearts-violet.svg",
+        0: "/images/card-assets/clubs-red.svg",
+        1: "/images/card-assets/clubs-blue.svg",
+        2: "/images/card-assets/clubs-violet.svg",
       },
       "Diamonds": {
         0: "/images/card-assets/diamonds-red.svg",
@@ -61,9 +62,9 @@ const PlayingCard = (props: PlayingCardProps) => {
         2: "/images/card-assets/diamonds-violet.svg",
       },
       "Hearts": {
-        0: "/images/card-assets/clubs-red.svg",
-        1: "/images/card-assets/clubs-blue.svg",
-        2: "/images/card-assets/clubs-violet.svg",
+        0: "/images/card-assets/hearts-red.svg",
+        1: "/images/card-assets/hearts-blue.svg",
+        2: "/images/card-assets/hearts-violet.svg",
       },
       "Spades": {
         0: "/images/card-assets/spades-red.svg",
@@ -100,22 +101,24 @@ const PlayingCard = (props: PlayingCardProps) => {
         {getRankValue(value)}
       </Flex>}
       {suit != Suit.None && (
-        <Image
-          src={getSuitIcon({ suit, color })}
-          alt="hearts"
-          width={40}
-          height={40}
-          className={styles.PlayingCardSuit}
-        />
+        <Flex style={{color: getColor(color)}} className={styles.PlayingCardSuit}>{getSuitUnicodeSymbol(suit)}</Flex>
+        // <Image
+        //   src={getSuitIcon({ suit, color })}
+        //   alt="hearts"
+        //   width={40}
+        //   height={40}
+        //   className={styles.PlayingCardSuit}
+        // />
       )}
       {suit != Suit.None && (
-        <Image
-          src={getSuitIcon({ suit, color })}
-          alt="hearts"
-          width={40}
-          height={40}
-          className={styles.PlayingCardSuitInvert}
-        />
+        <Flex style={{color: getColor(color)}} className={styles.PlayingCardSuitInvert}>{getSuitUnicodeSymbol(suit)}</Flex>
+        // <Image
+        //   src={getSuitIcon({ suit, color })}
+        //   alt="hearts"
+        //   width={40}
+        //   height={40}
+        //   className={styles.PlayingCardSuitInvert}
+        // />
       )}
     </Flex>
   );

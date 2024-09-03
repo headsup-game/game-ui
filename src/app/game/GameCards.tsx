@@ -3,9 +3,10 @@ import { useEffect, useState } from "react";
 import styles from "./Game.module.scss";
 import FlipCard from "@components/FlipCard";
 import Image from "next/image";
-import { Color, Card, Rank, Suit } from "interfaces/card";
+import { Color, Card, Rank, Suit, getRankValue, getSuitShortForm } from "interfaces/card";
 import CardSet from "@components/CardSet";
 import { red } from "colorette";
+import { TexasHoldem } from "poker-odds-calc";
 
 const GameCards = ({
   redCardsInput,
@@ -24,12 +25,40 @@ const GameCards = ({
 }) => {
   const [selectedCard, setSelectedCard] = useState<string>("");
   const [faceDown, setFaceDown] = useState<boolean>(true);
+  const [redWinPercentage, setRedWinPercentage] = useState<number>(50);
+  const [blueWinPercentage, setBlueWinPercentage] = useState<number>(50);
 
   useEffect(() => {
     setTimeout(() => {
       setFaceDown(false);
     }, 1500);
   }, []);
+
+  useEffect(() => {
+    if (redCardsInput.length == 2 && blueCardsInput.length == 2) {
+      const table = new TexasHoldem();
+      if (redCardsInput[0].rank == Rank.None
+        || redCardsInput[1].rank == Rank.None
+        || blueCardsInput[0].rank == Rank.None
+        || blueCardsInput[1].rank == Rank.None) {
+        setRedWinPercentage(50);
+        setBlueWinPercentage(50);
+        return;
+      }
+
+      const redCard1 = `${getRankValue(redCardsInput[0].rank)}${getSuitShortForm(redCardsInput[0].suit)}`;
+      const redCard2 = `${getRankValue(redCardsInput[1].rank)}${getSuitShortForm(redCardsInput[1].suit)}`;
+
+      const blueCard1 = `${getRankValue(blueCardsInput[0].rank)}${getSuitShortForm(blueCardsInput[0].suit)}`;
+      const blueCard2 = `${getRankValue(blueCardsInput[1].rank)}${getSuitShortForm(blueCardsInput[1].suit)}`;
+
+      table.addPlayer([redCard1, redCard2]).addPlayer([blueCard1, blueCard2]);
+      const result = table.calculate();
+      const playerResults = result.getPlayers();
+      setRedWinPercentage(playerResults[0].getWinsPercentage());
+      setBlueWinPercentage(playerResults[1].getWinsPercentage());
+    }
+  }, [JSON.stringify(redCardsInput), JSON.stringify(blueCardsInput)]);
 
   return (
     <Row
@@ -43,15 +72,13 @@ const GameCards = ({
           <Flex
             className={`${styles.WinPercentageStrip} ${styles.WinPercentageStripRed}`}
           >
-            Red Win Percentage: 45%
+            Apes Winning: {redWinPercentage}%
           </Flex>
           {/* Card Container */}
           <Flex
-            className={`${styles.GameCardsContainer} ${
-              styles.WinPercentageStripRed
-            } ${
-              selectedCard === "red" ? styles.GameCardsContainerSelectedRed : ""
-            }`}
+            className={`${styles.GameCardsContainer} ${styles.WinPercentageStripRed
+              } ${selectedCard === "red" ? styles.GameCardsContainerSelectedRed : ""
+              }`}
             onClick={() => setSelectedCard("red")}
           >
             <Row gutter={14} style={{ width: "100%", margin: 0 }}>
@@ -94,17 +121,15 @@ const GameCards = ({
           <Flex
             className={`${styles.WinPercentageStrip} ${styles.WinPercentageStripBlue}`}
           >
-            Blue Win Percentage: 45%
+            Punks Winning: {blueWinPercentage}%
           </Flex>
           {/* Card Container */}
           <Flex
-            className={`${styles.GameCardsContainer} ${
-              styles.WinPercentageStripBlue
-            } ${
-              selectedCard === "blue"
+            className={`${styles.GameCardsContainer} ${styles.WinPercentageStripBlue
+              } ${selectedCard === "blue"
                 ? styles.GameCardsContainerSelectedBlue
                 : ""
-            }`}
+              }`}
             onClick={() => setSelectedCard("blue")}
           >
             <Row gutter={14} style={{ width: "100%", margin: 0 }}>

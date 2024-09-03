@@ -1,6 +1,5 @@
 import { Participant } from "./participant";
-import { Card, Color, Rank, Suit, getCardFromCardDto } from "./card";
-import { GameStateDto } from "./gameStateDto";
+import { Card, Color, Rank, Suit } from "./card";
 import { Position, Round } from "gql/graphql";
 import { ethers } from "ethers";
 
@@ -25,27 +24,39 @@ export enum RoundWinner {
 
 export type GameState = {
   state: RoundState;
-  roundNumber: number;
+  roundNumber: BigInt;
   participantA: Participant;
   participantB: Participant;
   communityCards: Card[];
   roundWinner: RoundWinner;
   roundWinnerMessage: string;
   minimumAllowedBetAmount: number;
-  blindBettingStartTimestamp?: number;
-  blindBettingStopTimestamp?: number;
-  currentRoundEndTimeStamp: number;
-  resultShowTimeStamp: number;
-  nextRoundStartTimeStamp?: number;
   currentTimerEndDateTime: Date;
   currentMessage: string;
 };
 
-export function getGameStateFromRound(round: Round | null): GameState {
+export function getGameStateFromRound(previousRound: Round | null, currentRound: Round | null): GameState {
+  const currentTimestamp = Math.floor(Date.now() / 1000);
+
+  // If current round is null, then return a default game state
+  // If current round start time is in the future, then previous round is still active
+  let round: Round | null;
+  let nextRound: Round | null = null;
+  if (currentRound == null) {
+    round = null;
+  } else {
+    if (previousRound == null) {
+      round = currentRound;
+    } else {
+      round = currentTimestamp < BigInt(currentRound.startTimestamp) ? previousRound : currentRound;
+      nextRound = currentTimestamp < BigInt(currentRound.startTimestamp) ? currentRound : null;
+    }
+  }
+
   if (round == null) {
     return {
       state: RoundState.ResultsDeclaredAndEnded,
-      roundNumber: 0,
+      roundNumber: BigInt(0),
       participantA: {
         id: 0,
         cards: [
@@ -53,7 +64,7 @@ export function getGameStateFromRound(round: Round | null): GameState {
           { suit: Suit.None, rank: Rank.None, color: Color.RED },
         ],
         totalBetAmounts: "0.0",
-        totalNumberOfBets: 0,
+        totalNumberOfBets: BigInt(0),
       },
       participantB: {
         id: 1,
@@ -62,7 +73,7 @@ export function getGameStateFromRound(round: Round | null): GameState {
           { suit: Suit.None, rank: Rank.None, color: Color.BLUE },
         ],
         totalBetAmounts: "0.0",
-        totalNumberOfBets: 0,
+        totalNumberOfBets: BigInt(0),
       },
       communityCards: [
         { suit: Suit.None, rank: Rank.None, color: Color.VIOLET },
@@ -74,9 +85,6 @@ export function getGameStateFromRound(round: Round | null): GameState {
       roundWinner: RoundWinner.NotDecidedYet,
       roundWinnerMessage: getRoundWinnerMessage(RoundWinner.NotDecidedYet),
       minimumAllowedBetAmount: 0.0,
-      currentRoundEndTimeStamp: 0,
-      nextRoundStartTimeStamp: 0,
-      resultShowTimeStamp: 0,
       currentTimerEndDateTime: new Date(),
       currentMessage: "Fetching round data ...",
     };
@@ -104,90 +112,98 @@ export function getGameStateFromRound(round: Round | null): GameState {
       : getRoundWinner(round);
   return {
     state: state,
-    roundNumber: round.epoch,
+    roundNumber: BigInt(round.epoch),
     participantA: {
       id: 0,
       cards:
         round.apesCards != null
           ? [
-              {
-                suit: round.apesCards.card1.suit as Suit,
-                rank: round.apesCards.card1.rank as Rank,
-                color: Color.RED,
-              },
-              {
-                suit: round.apesCards.card2.suit as Suit,
-                rank: round.apesCards.card2.rank as Rank,
-                color: Color.RED,
-              },
-            ]
+            {
+              suit: round.apesCards.card1.suit as Suit,
+              rank: round.apesCards.card1.rank as Rank,
+              color: Color.RED,
+              faceDown: false,
+              animationDelay: 1000
+            },
+            {
+              suit: round.apesCards.card2.suit as Suit,
+              rank: round.apesCards.card2.rank as Rank,
+              color: Color.RED,
+              faceDown: false,
+              animationDelay: 1000
+            },
+          ]
           : defaultPlayerACards,
       totalBetAmounts: ethers.formatEther(round.apesPot),
-      totalNumberOfBets: round.totalApesBets,
+      totalNumberOfBets: BigInt(round.totalApesBets),
     },
     participantB: {
       id: 1,
       cards:
         round.punksCards != null
           ? [
-              {
-                suit: round.punksCards.card1.suit as Suit,
-                rank: round.punksCards.card1.rank as Rank,
-                color: Color.BLUE,
-              },
-              {
-                suit: round.punksCards.card2.suit as Suit,
-                rank: round.punksCards.card2.rank as Rank,
-                color: Color.BLUE,
-              },
-            ]
+            {
+              suit: round.punksCards.card1.suit as Suit,
+              rank: round.punksCards.card1.rank as Rank,
+              color: Color.BLUE,
+              faceDown: false,
+              animationDelay: 1000
+            },
+            {
+              suit: round.punksCards.card2.suit as Suit,
+              rank: round.punksCards.card2.rank as Rank,
+              color: Color.BLUE,
+              faceDown: false,
+              animationDelay: 1000
+            },
+          ]
           : defaultPlayerBCards,
       totalBetAmounts: ethers.formatEther(round.punksPot),
-      totalNumberOfBets: round.totalPunksBets,
+      totalNumberOfBets: BigInt(round.totalPunksBets),
     },
     communityCards:
       round.communityCards == null
         ? defaultCommunityCards
         : [
-            {
-              suit: round.communityCards.card1?.suit as Suit,
-              rank: round.communityCards.card1?.rank as Rank,
-              color: Color.VIOLET,
-              faceDown: !round.communityCardsRevealed,
-            },
-            {
-              suit: round.communityCards.card2?.suit as Suit,
-              rank: round.communityCards.card2?.rank as Rank,
-              color: Color.VIOLET,
-              faceDown: !round.communityCardsRevealed,
-            },
-            {
-              suit: round.communityCards.card3?.suit as Suit,
-              rank: round.communityCards.card3?.rank as Rank,
-              color: Color.VIOLET,
-              faceDown: !round.communityCardsRevealed,
-            },
-            {
-              suit: round.communityCards.card4?.suit as Suit,
-              rank: round.communityCards.card4?.rank as Rank,
-              color: Color.VIOLET,
-              faceDown: !round.communityCardsRevealed,
-            },
-            {
-              suit: round.communityCards.card5?.suit as Suit,
-              rank: round.communityCards.card5?.rank as Rank,
-              color: Color.VIOLET,
-              faceDown: !round.communityCardsRevealed,
-            },
-          ],
+          {
+            suit: round.communityCards.card1?.suit as Suit,
+            rank: round.communityCards.card1?.rank as Rank,
+            color: Color.VIOLET,
+            faceDown: !round.communityCardsRevealed,
+            animationDelay: 1000
+          },
+          {
+            suit: round.communityCards.card2?.suit as Suit,
+            rank: round.communityCards.card2?.rank as Rank,
+            color: Color.VIOLET,
+            faceDown: !round.communityCardsRevealed,
+            animationDelay: 1000
+          },
+          {
+            suit: round.communityCards.card3?.suit as Suit,
+            rank: round.communityCards.card3?.rank as Rank,
+            color: Color.VIOLET,
+            faceDown: !round.communityCardsRevealed,
+            animationDelay: 1000
+          },
+          {
+            suit: round.communityCards.card4?.suit as Suit,
+            rank: round.communityCards.card4?.rank as Rank,
+            color: Color.VIOLET,
+            faceDown: !round.communityCardsRevealed,
+            animationDelay: 1000
+          },
+          {
+            suit: round.communityCards.card5?.suit as Suit,
+            rank: round.communityCards.card5?.rank as Rank,
+            color: Color.VIOLET,
+            faceDown: !round.communityCardsRevealed,
+            animationDelay: 1000
+          },
+        ],
     roundWinner: roundWinner,
     roundWinnerMessage: getRoundWinnerMessage(roundWinner),
     minimumAllowedBetAmount: 0.0,
-    blindBettingStartTimestamp: round.startTimestamp,
-    blindBettingStopTimestamp: round.blindCloseTimestamp,
-    currentRoundEndTimeStamp: round.closeTimestamp,
-    nextRoundStartTimeStamp: round.closeTimestamp,
-    resultShowTimeStamp: round.roundExpiredAfterTimestamp + 10,
     currentTimerEndDateTime: getCurrentTimeEndDateTime(state, round),
     currentMessage: getCurrentMessage(state),
   };
@@ -225,28 +241,35 @@ function getRoundWinnerMessage(roundWinner: RoundWinner) {
 
 function getGameStatusFromRound(round: Round): RoundState {
   const currentTimestamp = Math.floor(Date.now() / 1000);
-  if (currentTimestamp > round.roundExpiredAfterTimestamp) {
+
+  if (currentTimestamp >= BigInt(round.roundExpiredAfterTimestamp)) {
     if (!round.communityCardsRevealed || round.winningHands == null) {
       return RoundState.Cancelled;
     }
   }
-  if (currentTimestamp > round.closeTimestamp) {
-    if (!round.communityCardsRevealed) {
+
+  if (currentTimestamp >= BigInt(round.closeTimestamp)) {
+    if (BigInt(round.resultTrxTimestamp) == BigInt(0)) {
       return RoundState.BettingStoppedCommunityCardsNotRevealed;
+    } else {
+      if (currentTimestamp >= (BigInt(round.resultTrxTimestamp) + BigInt(10))) {
+        return RoundState.ResultsDeclaredAndEnded;
+      }
+
+      return RoundState.BettingStoppedCommunityCardsRevealedAndCalculatingResults;
     }
-    if (round.winningHands != null) {
-      return RoundState.ResultsDeclaredAndEnded;
-    }
-    return RoundState.BettingStoppedCommunityCardsRevealedAndCalculatingResults;
   }
-  if (currentTimestamp > round.blindCloseTimestamp) {
+
+  if (currentTimestamp >= BigInt(round.blindCloseTimestamp)) {
     return round.holeCardsRevealed
       ? RoundState.BlindBettingClosedAndHoleCardsRevealed
       : RoundState.BlindBettingClosedAndHoleCardsNotRevealed;
   }
-  if (currentTimestamp > round.startTimestamp) {
+
+  if (currentTimestamp >= BigInt(round.startTimestamp)) {
     return RoundState.BlindBettingStarted;
   }
+
   return RoundState.Initialized;
 }
 
@@ -255,13 +278,19 @@ function getCurrentTimeEndDateTime(state: RoundState, round: Round) {
   let nextStateTimeStamp = currentTimeStamp;
   switch (state) {
     case RoundState.Initialized:
-      nextStateTimeStamp = round.startTimestamp;
+      nextStateTimeStamp = Number(round.startTimestamp);
       break;
     case RoundState.BlindBettingStarted:
-      nextStateTimeStamp = round.blindCloseTimestamp;
+      nextStateTimeStamp = Number(round.blindCloseTimestamp);
       break;
     case RoundState.BlindBettingClosedAndHoleCardsRevealed:
-      nextStateTimeStamp = round.closeTimestamp;
+      nextStateTimeStamp = Number(round.closeTimestamp);
+      break;
+    case RoundState.BettingStoppedCommunityCardsRevealedAndCalculatingResults:
+      nextStateTimeStamp = Number(BigInt(round.resultTrxTimestamp) + BigInt(10));
+      break;
+    case RoundState.ResultsDeclaredAndEnded:
+      nextStateTimeStamp = Number(BigInt(round.resultTrxTimestamp) + BigInt(15));
       break;
     default:
       break;
@@ -282,57 +311,8 @@ function getCurrentMessage(state: RoundState) {
     case RoundState.BettingStoppedCommunityCardsNotRevealed:
       return "Betting ended, generating community cards";
     case RoundState.BettingStoppedCommunityCardsRevealedAndCalculatingResults:
-      return "Calculating results...";
+      return "Calculating results in ";
     default:
       return "Next round starting in ";
   }
-}
-
-export function getGameStateFromGameStateDto(
-  gameStateDto: GameStateDto
-): GameState | null {
-  if (gameStateDto == null) {
-    return null;
-  }
-
-  let participantA: Participant = {
-    id: 0,
-    cards: gameStateDto.playerACards?.map((cardDto) =>
-      getCardFromCardDto(cardDto)
-    ),
-    totalNumberOfBets: gameStateDto.totalNumberOfBetsOnPlayerA,
-    totalBetAmounts: gameStateDto.totalBetAmountOnPlayerB,
-  };
-
-  let participantB: Participant = {
-    id: 1,
-    cards: gameStateDto.playerBCards?.map((cardDto) =>
-      getCardFromCardDto(cardDto)
-    ),
-    totalNumberOfBets: gameStateDto.totalNumberOfBetsOnPlayerB,
-    totalBetAmounts: gameStateDto.totalBetAmountOnPlayerB,
-  };
-
-  let state: RoundState = gameStateDto.gameState as RoundState;
-  let communityCards: Card[] = gameStateDto.communityCards?.map((cardDto) =>
-    getCardFromCardDto(cardDto)
-  );
-
-  return {
-    state: state,
-    roundNumber: gameStateDto.currentRoundNumber,
-    participantA: participantA,
-    participantB: participantB,
-    communityCards: communityCards,
-    minimumAllowedBetAmount: gameStateDto.minimumAllowedBetAmount,
-    currentRoundEndTimeStamp: Number(gameStateDto.currentRoundBetEndTimestamp),
-    nextRoundStartTimeStamp: gameStateDto?.nextGameStartTimestamp
-      ? Number(gameStateDto.nextGameStartTimestamp)
-      : undefined,
-    roundWinner: RoundWinner.NotDecidedYet,
-    roundWinnerMessage: "",
-    resultShowTimeStamp: 0,
-    currentTimerEndDateTime: new Date(),
-    currentMessage: getCurrentMessage(state),
-  };
 }

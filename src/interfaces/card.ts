@@ -1,5 +1,6 @@
 import { getEnumName } from "utils/enumHelper";
 import { CardDto } from "./cardDto";
+import { deflate } from "zlib";
 
 export enum Color {
   RED,
@@ -32,6 +33,36 @@ export enum Rank {
   None = 'None'
 }
 
+export const getSuitUnicodeSymbol = (suit: Suit) => {
+  switch (suit) {
+    case Suit.Clubs:
+      return '♣';
+    case Suit.Diamonds:
+      return '♦';
+    case Suit.Hearts:
+      return '♥';
+    case Suit.Spades:
+      return '♠';
+    default:
+      return '';
+  }
+}
+
+export const getSuitShortForm = (suit: Suit) => {
+  switch (suit) {
+    case Suit.Clubs:
+      return 'c';
+    case Suit.Diamonds:
+      return 'd';
+    case Suit.Hearts:
+      return 'h';
+    case Suit.Spades:
+      return 's';
+    default:
+      return '';
+  }
+}
+
 export const getRankValue = (rank: Rank) => {
   switch (rank) {
     case Rank.Two:
@@ -51,7 +82,7 @@ export const getRankValue = (rank: Rank) => {
     case Rank.Nine:
       return 9;
     case Rank.Ten:
-      return 10;
+      return "T";
     case Rank.Jack:
       return "J";
     case Rank.Queen:
@@ -82,3 +113,4 @@ export function getCardFromCardDto(cardDto: CardDto): Card {
     animationDelay: cardDto.animationDelay,
   };
 }
+

@@ -49,6 +49,7 @@ export const GET_CURRENT_ROUND_QUERY =
           closeTimestamp
           blindCloseTimestamp
           betCloseTimestamp
+          resultTrxTimestamp
           participants(where: { userId: $participant }) {
             items {
               amount

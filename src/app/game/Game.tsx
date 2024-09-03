@@ -6,26 +6,23 @@ import { Button, Col, Divider, Flex, Row } from "antd";
 import Image from "next/image";
 import BetForm from "app/game/BetForm";
 import RecentBets from "app/game/RecentBets";
-// import dynamic from "next/dynamic";
 import CommunityCards from "app/game/CommunityCards";
 import GameCards from "app/game/GameCards";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import BetwinModal from "app/components/BetwinModal/BetwinModal";
 import {
   GameState,
   RoundState,
   getGameStateFromRound,
 } from "interfaces/gameState";
-// const GameTimer = dynamic(() => import("app/game/GameTimer"), { ssr: false });
 import { GET_CURRENT_ROUND_QUERY } from "graphQueries/getCurrentRound";
 import { useQuery } from "@apollo/client";
-import { Round, RoundPage } from "gql/graphql";
-import { getEnumName } from "utils/enumHelper";
+import { RoundPage } from "gql/graphql";
 import GameTimer from "app/game/GameTimer";
 
 const Game = () => {
   const [gameState, setGameState] = useState<GameState>(
-    getGameStateFromRound(null)
+    getGameStateFromRound(null, null)
   );
   const [showModal, setShowModal] = useState(false);
   const [renderRecentBets, setRenderRecentBets] = useState(false);
@@ -34,56 +31,11 @@ const Game = () => {
     if (data?.rounds?.items != null && data?.rounds.items.length == 2) {
       const currentRound = data.rounds.items[0];
       const previousRound = data.rounds.items[1];
+      const currentRoundState: GameState = getGameStateFromRound(previousRound, currentRound);
 
-      const currentRoundState: GameState = getGameStateFromRound(currentRound);
-      const previousRoundState: GameState =
-        getGameStateFromRound(previousRound);
-
-      const activeRound: Round =
-        currentRoundState.state == RoundState.Initialized
-          ? previousRound
-          : currentRound;
-
-      try {
-        const gameState: GameState = getGameStateFromRound(activeRound);
-
-        if (currentRoundState.state == RoundState.Initialized) {
-          const currentTimeStamp = Math.floor(Date.now() / 1000);
-          const timerEndTimeStamp = currentRound.startTimestamp;
-          let timerEndDate = new Date();
-          timerEndDate.setSeconds(
-            timerEndDate.getSeconds() + (timerEndTimeStamp - currentTimeStamp)
-          );
-          gameState.currentTimerEndDateTime = timerEndDate;
-        }
-
-        if (
-          gameState.state == RoundState.BlindBettingStarted ||
-          gameState.state ==
-          RoundState.BlindBettingClosedAndHoleCardsRevealed ||
-          gameState.state ==
-          RoundState.BlindBettingClosedAndHoleCardsNotRevealed ||
-          gameState.state == RoundState.BettingStoppedCommunityCardsNotRevealed
-        ) {
-          setShowModal(false);
-        }
-
-        setGameState(gameState);
-        const currentTimeStamp = Math.floor(Date.now() / 1000);
-        if (
-          currentTimeStamp > gameState.resultShowTimeStamp &&
-          (gameState.state ==
-            RoundState.BettingStoppedCommunityCardsRevealedAndCalculatingResults ||
-            gameState.state == RoundState.ResultsDeclaredAndEnded ||
-            gameState.state == RoundState.Cancelled)
-        ) {
-          setShowModal(true);
-          setRenderRecentBets(true);
-          // TODO: Update the RecentBets component here.
-        } else {
-          setShowModal(false);
-        }
-      } catch (error) { }
+      setGameState(currentRoundState);
+      setShowModal(currentRoundState.state == RoundState.ResultsDeclaredAndEnded);
+      setRenderRecentBets(true);
     }
   };
 
@@ -107,8 +59,8 @@ const Game = () => {
             redCardsInput={gameState.participantA.cards}
             blueCardsInput={gameState.participantB.cards}
             redCardsTotalAmount={gameState.participantA.totalBetAmounts}
-            redCardsNumberOfBets={gameState.participantA.totalNumberOfBets}
-            blueCardsNumberOfBets={gameState.participantB.totalNumberOfBets}
+            redCardsNumberOfBets={Number(gameState.participantA.totalNumberOfBets)}
+            blueCardsNumberOfBets={Number(gameState.participantB.totalNumberOfBets)}
             blueCardsTotalAmout={gameState.participantB.totalBetAmounts}
           />
           <Divider />
