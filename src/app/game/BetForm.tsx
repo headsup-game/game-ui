@@ -3,16 +3,24 @@
 import { Button, Col, Flex, Form, InputNumber, Radio, Row } from "antd";
 import styles from "./Game.module.scss";
 import { FaEthereum } from "react-icons/fa";
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Bet } from "@components/bet";
 import { useAccount, useBalance } from "wagmi";
+import { Players } from "interfaces/players";
 
-enum PlayerName {
-  Apes, // Apes
-  Punks, // Punks
+interface BetFormProps {
+  roundId: number;
+  minimumAllowedBetAmount: number;
+  selectedPlayer: Players;
+  handlePlayerSelection: (player: Players) => void;
 }
 
-const BetForm = ({ roundId, minimumAllowedBetAmount }) => {
+const BetForm: React.FC<BetFormProps> = React.memo(({
+  roundId,
+  minimumAllowedBetAmount,
+  selectedPlayer,
+  handlePlayerSelection
+}) => {
   const { isConnected, address } = useAccount();
   const [BetForm] = Form.useForm();
   const [betAmount, setBetAmount] = useState(0);
@@ -24,8 +32,9 @@ const BetForm = ({ roundId, minimumAllowedBetAmount }) => {
   const [logMessages, setLogMessages] = useState<string[]>([]);
 
   const handlePlayerChange = (e) => {
-    const id = e.target.value;
-    setPlayerId(id);
+    const selectedPlayer = e.target.value;
+    console.log("selected player", selectedPlayer);
+    handlePlayerSelection(selectedPlayer);
   };
 
   const handleLogs = useCallback(
@@ -34,6 +43,10 @@ const BetForm = ({ roundId, minimumAllowedBetAmount }) => {
     },
     [setLogMessages]
   );
+
+  useEffect(() => {
+    console.log("Selected player bedt form: ", selectedPlayer);
+  }, [selectedPlayer]);
 
   return (
     <Form
@@ -62,16 +75,18 @@ const BetForm = ({ roundId, minimumAllowedBetAmount }) => {
         <Radio.Group
           className={styles.BetFormRadio}
           onChange={handlePlayerChange}
+          value={selectedPlayer}
+          buttonStyle="outline"
         >
           <Radio.Button
-            value={PlayerName.Apes}
-            style={{ background: "red", borderColor: "red" }}
+            value={Players.Apes}
+            style={{ background: "red", borderColor: selectedPlayer === Players.Apes ? "white" : "red" }}
           >
             Apes
           </Radio.Button>
           <Radio.Button
-            value={PlayerName.Punks}
-            style={{ background: "blue", borderColor: "blue" }}
+            value={Players.Punks}
+            style={{ background: "blue", borderColor: selectedPlayer == Players.Punks ? "white" : "blue" }}
           >
             Punks
           </Radio.Button>
@@ -159,10 +174,10 @@ const BetForm = ({ roundId, minimumAllowedBetAmount }) => {
         </Col>
         <Col span={11}>
           <Bet
-            playerId={playerId}
+            playerId={selectedPlayer}
             betAmount={betAmount}
             roundNumber={roundId}
-            playerName={playerId !== null ? PlayerName[playerId] : ""}
+            playerName={selectedPlayer === Players.Apes ? "Apes" : "Punks"}
             onBettingStateChange={handleLogs}
             minimumAllowedBetAmount={minimumAllowedBetAmount}
           />
@@ -175,6 +190,8 @@ const BetForm = ({ roundId, minimumAllowedBetAmount }) => {
       </Row>
     </Form>
   );
-};
+});
+
+BetForm.displayName = "BetForm";
 
 export default BetForm;

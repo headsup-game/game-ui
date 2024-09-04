@@ -1,10 +1,20 @@
 import { Col, Row } from "antd";
 import styles from "./Game.module.scss";
-import { Color, Card, Rank, Suit } from "interfaces/card";
+import { Card } from "interfaces/card";
 import CardSet from "@components/CardSet";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
+import { isEqual } from "lodash";
 
-const CommunityCards = ({ cards }: { cards: Card[] }) => {
+
+interface CommunityCardsProps {
+  cards: Card[];
+}
+
+const isCommunityCardsEqual = (prevProps: CommunityCardsProps, nextProps: CommunityCardsProps): boolean => {
+  return isEqual(prevProps.cards, nextProps.cards);
+}
+
+const CommunityCards: React.FC<CommunityCardsProps> = React.memo(({ cards }) => {
   const [showCards, setShowCards] = useState<Card[]>(cards);
   const [faceDown, setFaceDown] = useState<boolean>(true);
 
@@ -37,6 +47,8 @@ const CommunityCards = ({ cards }: { cards: Card[] }) => {
       </Col>
     </Row>
   );
-};
+}, (prevProps, nextProps) => isCommunityCardsEqual(prevProps, nextProps));
+
+CommunityCards.displayName = "CommunityCards";
 
 export default CommunityCards;

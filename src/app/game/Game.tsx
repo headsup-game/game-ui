@@ -8,7 +8,7 @@ import BetForm from "app/game/BetForm";
 import RecentBets from "app/game/RecentBets";
 import CommunityCards from "app/game/CommunityCards";
 import GameCards from "app/game/GameCards";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import BetwinModal from "app/components/BetwinModal/BetwinModal";
 import {
   GameState,
@@ -19,6 +19,7 @@ import { GET_CURRENT_ROUND_QUERY } from "graphQueries/getCurrentRound";
 import { useQuery } from "@apollo/client";
 import { RoundPage } from "gql/graphql";
 import GameTimer from "app/game/GameTimer";
+import { Players } from "interfaces/players";
 
 const Game = () => {
   const [gameState, setGameState] = useState<GameState>(
@@ -26,6 +27,7 @@ const Game = () => {
   );
   const [showModal, setShowModal] = useState(false);
   const [renderRecentBets, setRenderRecentBets] = useState(false);
+  const [selectedPlayer, setSelectedPlayer] = useState<Players>(Players.None);
 
   const handleRoundData = (data: { rounds: RoundPage }) => {
     if (data?.rounds?.items != null && data?.rounds.items.length == 2) {
@@ -34,10 +36,17 @@ const Game = () => {
       const currentRoundState: GameState = getGameStateFromRound(previousRound, currentRound);
 
       setGameState(currentRoundState);
+
       setShowModal(currentRoundState.state == RoundState.ResultsDeclaredAndEnded);
+      setSelectedPlayer(currentRoundState.state == RoundState.ResultsDeclaredAndEnded ? Players.None : selectedPlayer)
+
       setRenderRecentBets(true);
     }
   };
+
+  const handlePlayerSelection = useCallback((player: Players) => {
+    setSelectedPlayer(player);
+  }, []);
 
   const { } = useQuery<{ rounds: RoundPage }>(GET_CURRENT_ROUND_QUERY, {
     variables: { limit: 2, participant: "" },
@@ -62,6 +71,8 @@ const Game = () => {
             redCardsNumberOfBets={Number(gameState.participantA.totalNumberOfBets)}
             blueCardsNumberOfBets={Number(gameState.participantB.totalNumberOfBets)}
             blueCardsTotalAmout={gameState.participantB.totalBetAmounts}
+            selectedPlayer={selectedPlayer}
+            handlePlayerSelection={handlePlayerSelection}
           />
           <Divider />
         </Col>
@@ -78,8 +89,10 @@ const Game = () => {
               <Flex className={styles.GameCardHeading}>Realm of Aces</Flex>
             </div>
             <BetForm
-              roundId={gameState?.roundNumber ?? 0}
+              roundId={Number(gameState?.roundNumber ?? 0)}
               minimumAllowedBetAmount={gameState?.minimumAllowedBetAmount}
+              selectedPlayer={selectedPlayer}
+              handlePlayerSelection={handlePlayerSelection}
             />
           </Flex>
         </Col>

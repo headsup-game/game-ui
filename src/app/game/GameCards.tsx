@@ -1,5 +1,5 @@
 import { Col, Flex, Row } from "antd";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import styles from "./Game.module.scss";
 import FlipCard from "@components/FlipCard";
 import Image from "next/image";
@@ -7,21 +7,39 @@ import { Color, Card, Rank, Suit, getRankValue, getSuitShortForm } from "interfa
 import CardSet from "@components/CardSet";
 import { red } from "colorette";
 import { TexasHoldem } from "poker-odds-calc";
+import { Players } from "interfaces/players";
+import { isEqual } from "lodash";
 
-const GameCards = ({
-  redCardsInput,
-  blueCardsInput,
-  redCardsNumberOfBets,
-  redCardsTotalAmount,
-  blueCardsNumberOfBets,
-  blueCardsTotalAmout,
-}: {
+interface GameCardsProps {
   redCardsInput: Card[];
   blueCardsInput: Card[];
   redCardsNumberOfBets: number;
   redCardsTotalAmount: string;
   blueCardsNumberOfBets: number;
   blueCardsTotalAmout: string;
+  selectedPlayer: Players;
+  handlePlayerSelection: (player: Players) => void;
+}
+
+const isGameCardsEqual = (prevProps: GameCardsProps, nextProps: GameCardsProps): boolean => {
+  return prevProps.selectedPlayer == nextProps.selectedPlayer
+    && isEqual(prevProps.redCardsInput, nextProps.redCardsInput)
+    && isEqual(prevProps.blueCardsInput, nextProps.blueCardsInput)
+    && prevProps.redCardsNumberOfBets == nextProps.redCardsNumberOfBets
+    && prevProps.redCardsTotalAmount == nextProps.redCardsTotalAmount
+    && prevProps.blueCardsNumberOfBets == nextProps.blueCardsNumberOfBets
+    && prevProps.blueCardsTotalAmout == nextProps.blueCardsTotalAmout;
+}
+
+const GameCards: React.FC<GameCardsProps> = React.memo(({
+  redCardsInput,
+  blueCardsInput,
+  redCardsNumberOfBets,
+  redCardsTotalAmount,
+  blueCardsNumberOfBets,
+  blueCardsTotalAmout,
+  selectedPlayer,
+  handlePlayerSelection,
 }) => {
   const [selectedCard, setSelectedCard] = useState<string>("");
   const [faceDown, setFaceDown] = useState<boolean>(true);
@@ -77,9 +95,9 @@ const GameCards = ({
           {/* Card Container */}
           <Flex
             className={`${styles.GameCardsContainer} ${styles.WinPercentageStripRed
-              } ${selectedCard === "red" ? styles.GameCardsContainerSelectedRed : ""
+              } ${selectedPlayer === Players.Apes ? styles.GameCardsContainerSelectedRed : ""
               }`}
-            onClick={() => setSelectedCard("red")}
+            onClick={() => handlePlayerSelection(Players.Apes)}
           >
             <Row gutter={14} style={{ width: "100%", margin: 0 }}>
               <Col span={24}>
@@ -126,11 +144,11 @@ const GameCards = ({
           {/* Card Container */}
           <Flex
             className={`${styles.GameCardsContainer} ${styles.WinPercentageStripBlue
-              } ${selectedCard === "blue"
+              } ${selectedPlayer === Players.Punks
                 ? styles.GameCardsContainerSelectedBlue
                 : ""
               }`}
-            onClick={() => setSelectedCard("blue")}
+            onClick={() => handlePlayerSelection(Players.Punks)}
           >
             <Row gutter={14} style={{ width: "100%", margin: 0 }}>
               <Col span={24}>
@@ -167,6 +185,8 @@ const GameCards = ({
       </Col>
     </Row>
   );
-};
+}, (prevProps, nextProps) => isGameCardsEqual(prevProps, nextProps));
+
+GameCards.displayName = "GameCards";
 
 export default GameCards;

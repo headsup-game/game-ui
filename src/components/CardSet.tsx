@@ -3,6 +3,7 @@ import FlipCard from "./FlipCard";
 import { Card } from "interfaces/card";
 import PlayingCard from "app/components/PlayingCard/PlayingCard";
 import { Flex } from "antd";
+import { isEqual } from "lodash";
 
 interface CardSetProps {
   numberOfCards: number;
@@ -10,7 +11,15 @@ interface CardSetProps {
   initFaceDown?: boolean;
 }
 
-const CardSet: React.FC<CardSetProps> = ({
+const isCardSetEqual = (prevProps: CardSetProps, nextProps: CardSetProps): boolean => {
+  return (
+    prevProps.numberOfCards === nextProps.numberOfCards &&
+    prevProps.initFaceDown === nextProps.initFaceDown &&
+    isEqual(prevProps.cards, nextProps.cards)
+  );
+}
+
+const CardSet: React.FC<CardSetProps> = React.memo(({
   numberOfCards,
   initFaceDown,
   cards,
@@ -66,6 +75,8 @@ const CardSet: React.FC<CardSetProps> = ({
       ))}
     </Flex>
   );
-};
+}, (prevProps, nextProps) => isCardSetEqual(prevProps, nextProps));
+
+CardSet.displayName = "CardSet";
 
 export default CardSet;
