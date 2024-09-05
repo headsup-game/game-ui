@@ -37,7 +37,6 @@ const Navigation = () => {
       <Image
         src="/images/assets/logo.svg"
         alt="Poker Web3 Game"
-        width={84}
         height={66}
         preview={false}
       />

@@ -90,7 +90,7 @@ const GameCards: React.FC<GameCardsProps> = React.memo(({
           <Flex
             className={`${styles.WinPercentageStrip} ${styles.WinPercentageStripRed}`}
           >
-            Apes Winning: {redWinPercentage}%
+            Apes Winning% - {redWinPercentage}%
           </Flex>
           {/* Card Container */}
           <Flex
@@ -139,7 +139,7 @@ const GameCards: React.FC<GameCardsProps> = React.memo(({
           <Flex
             className={`${styles.WinPercentageStrip} ${styles.WinPercentageStripBlue}`}
           >
-            Punks Winning: {blueWinPercentage}%
+            Punks Winning% - {blueWinPercentage}%
           </Flex>
           {/* Card Container */}
           <Flex

@@ -1,6 +1,6 @@
 "use client";
 
-import { Button, Col, Flex, Form, InputNumber, Radio, Row } from "antd";
+import { Button, Col, Flex, Form, InputNumber, Radio } from "antd";
 import styles from "./Game.module.scss";
 import { FaEthereum } from "react-icons/fa";
 import React, { useCallback, useEffect, useState } from "react";
@@ -11,6 +11,8 @@ import { Players } from "interfaces/players";
 interface BetFormProps {
   roundId: number;
   minimumAllowedBetAmount: number;
+  blindBetCloseTimestamp: number;
+  bettingEndTimestamp: number;
   selectedPlayer: Players;
   handlePlayerSelection: (player: Players) => void;
 }
@@ -18,24 +20,50 @@ interface BetFormProps {
 const BetForm: React.FC<BetFormProps> = React.memo(({
   roundId,
   minimumAllowedBetAmount,
+  blindBetCloseTimestamp,
+  bettingEndTimestamp,
   selectedPlayer,
   handlePlayerSelection
 }) => {
   const { isConnected, address } = useAccount();
   const [BetForm] = Form.useForm();
-  const [betAmount, setBetAmount] = useState(0);
+  const [betAmount, setBetAmount] = useState(0.001);
   const [rounds, setRounds] = useState(1);
-  const [playerId, setPlayerId] = useState<number | null>(null);
-  const { data: walletBalance } = useBalance({
-    address,
-  });
   const [logMessages, setLogMessages] = useState<string[]>([]);
+  const [multiplier, setMultiplier] = useState(0);
 
-  const handlePlayerChange = (e) => {
+  // Calculate the multiplier on component mount and then every second
+  useEffect(() => {
+    const calculateMultiplier = (): number => {
+      if (blindBetCloseTimestamp == 0 || bettingEndTimestamp == 0) {
+        return 0;
+      }
+
+      const currentTimestamp = Math.floor(Date.now() / 1000); // Get the current timestamp in milliseconds
+      if (currentTimestamp <= blindBetCloseTimestamp) {
+        return 8;
+      } else if (currentTimestamp > bettingEndTimestamp) {
+        return 1;
+      } else {
+        return (4 - (3 / (bettingEndTimestamp - blindBetCloseTimestamp)) * (currentTimestamp - blindBetCloseTimestamp));
+      }
+    };
+
+    setMultiplier(calculateMultiplier());
+
+    // Set up an interval to run the calculateMultiplier function every second
+    const intervalId = setInterval(() => {
+      setMultiplier(calculateMultiplier());
+    }, 1000);
+
+    // Clean up the interval on component unmount
+    return () => clearInterval(intervalId);
+  }, [blindBetCloseTimestamp, bettingEndTimestamp]);
+
+  const handlePlayerChange = useCallback((e) => {
     const selectedPlayer = e.target.value;
-    console.log("selected player", selectedPlayer);
     handlePlayerSelection(selectedPlayer);
-  };
+  }, []);
 
   const handleLogs = useCallback(
     (state: string) => {
@@ -43,10 +71,6 @@ const BetForm: React.FC<BetFormProps> = React.memo(({
     },
     [setLogMessages]
   );
-
-  useEffect(() => {
-    console.log("Selected player bedt form: ", selectedPlayer);
-  }, [selectedPlayer]);
 
   return (
     <Form
@@ -61,6 +85,13 @@ const BetForm: React.FC<BetFormProps> = React.memo(({
       }}
     >
       {/* Side */}
+      <Flex
+        align="center"
+        justify="center"
+        style={{ lineHeight: "14px", marginBottom: "20px", fontSize: "16px" }}
+      >
+        {`Rewards multiplier: ${multiplier.toFixed(2)}`}
+      </Flex>
       <Form.Item
         name="side"
         label="Pick A Side"
@@ -75,16 +106,18 @@ const BetForm: React.FC<BetFormProps> = React.memo(({
         <Radio.Group
           className={styles.BetFormRadio}
           onChange={handlePlayerChange}
-          value={selectedPlayer}
+          value={selectedPlayer == Players.None ? null : selectedPlayer}
           buttonStyle="outline"
         >
           <Radio.Button
+            key={Players.Apes}
             value={Players.Apes}
             style={{ background: "red", borderColor: selectedPlayer === Players.Apes ? "white" : "red" }}
           >
             Apes
           </Radio.Button>
           <Radio.Button
+            key={Players.Punks}
             value={Players.Punks}
             style={{ background: "blue", borderColor: selectedPlayer == Players.Punks ? "white" : "blue" }}
           >
@@ -92,11 +125,6 @@ const BetForm: React.FC<BetFormProps> = React.memo(({
           </Radio.Button>
         </Radio.Group>
       </Form.Item>
-
-      {/* Current balance */}
-      {/* <Flex className={styles.BetFormBalance}> */}
-      {/*   Current Balance: Formatted: {walletBalance?.formatted} */}
-      {/* </Flex> */}
 
       {/* Bet Amount */}
       <Form.Item
@@ -151,43 +179,28 @@ const BetForm: React.FC<BetFormProps> = React.memo(({
         name="rounds"
         className={styles.BetFormItem}
       >
-        <Flex align="center" gap={6}>
+        <Radio.Group
+          className={styles.BetFormRoundsRadio}
+          value={rounds}
+          buttonStyle="solid"
+          onChange={(e) => setRounds(e.target.value)}
+        >
           {[1, 2, 5, 10, 15]?.map((item) => (
-            <Button
-              key={item}
-              className={`${styles.BetFormButton} ${item === rounds && styles.BetFormButtonActive
-                }`}
-              onClick={() => setRounds(item)}
-            >
-              {item}
-            </Button>
+            <Radio.Button key={item} value={item}>{item}</Radio.Button>
           ))}
-        </Flex>
+        </Radio.Group>
       </Form.Item>
-      <Row gutter={12}>
-        <Col span={13} className={styles.BetFormTotal}>
-          TOTAL AMOUNT:{" "}
-          {BetForm?.getFieldValue("amount") > 0
-            ? BetForm?.getFieldValue("amount") * rounds
-            : 0}
-          ETH
-        </Col>
-        <Col span={11}>
-          <Bet
-            playerId={selectedPlayer}
-            betAmount={betAmount}
-            roundNumber={roundId}
-            playerName={selectedPlayer === Players.Apes ? "Apes" : "Punks"}
-            onBettingStateChange={handleLogs}
-            minimumAllowedBetAmount={minimumAllowedBetAmount}
-          />
-        </Col>
-      </Row>
-      <Row gutter={12}>
-        {logMessages.map((msg, index) => (
-          <div key={index}>{msg}</div>
-        ))}
-      </Row>
+      <Form.Item label={`Total Amount: ${betAmount * rounds}ETH`}
+        className={styles.BetFormItem}>
+        <Bet
+          playerId={selectedPlayer}
+          betAmount={betAmount}
+          roundNumber={roundId}
+          playerName={selectedPlayer === Players.Apes ? "Apes" : "Punks"}
+          onBettingStateChange={handleLogs}
+          minimumAllowedBetAmount={minimumAllowedBetAmount}
+        />
+      </Form.Item>
     </Form>
   );
 });

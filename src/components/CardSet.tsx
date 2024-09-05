@@ -41,7 +41,6 @@ const CardSet: React.FC<CardSetProps> = React.memo(({
   };
 
   useEffect(() => {
-    console.log("cards updated");
     const updatedCards = cards.map((card, index) => ({
       ...card,
       faceDown: getFaceDownVar(card),

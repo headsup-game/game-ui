@@ -33,6 +33,8 @@ export type GameState = {
   minimumAllowedBetAmount: number;
   currentTimerEndDateTime: Date;
   currentMessage: string;
+  blindBetingCloseTimestamp: number;
+  bettingEndTimestamp: number;
 };
 
 export function getGameStateFromRound(previousRound: Round | null, currentRound: Round | null): GameState {
@@ -87,6 +89,8 @@ export function getGameStateFromRound(previousRound: Round | null, currentRound:
       minimumAllowedBetAmount: 0.0,
       currentTimerEndDateTime: new Date(),
       currentMessage: "Fetching round data ...",
+      blindBetingCloseTimestamp: 0,
+      bettingEndTimestamp: 0,
     };
   }
   const defaultPlayerACards: Card[] = [
@@ -206,6 +210,8 @@ export function getGameStateFromRound(previousRound: Round | null, currentRound:
     minimumAllowedBetAmount: 0.0,
     currentTimerEndDateTime: getCurrentTimeEndDateTime(state, round),
     currentMessage: getCurrentMessage(state),
+    blindBetingCloseTimestamp: Number(round.blindCloseTimestamp),
+    bettingEndTimestamp: Number(round.closeTimestamp),
   };
 }
 

@@ -86,11 +86,16 @@ const Game = () => {
                 height={170}
                 className={styles.GameCard}
               />
-              <Flex className={styles.GameCardHeading}>Realm of Aces</Flex>
+              <Flex vertical align="center" className={styles.GameCardHeading}>
+                <Flex align="center">Realm of Aces</Flex>
+                <Flex style={{ fontSize: "20px" }} align="center">Round:{Number(gameState.roundNumber)}</Flex>
+              </Flex>
             </div>
             <BetForm
               roundId={Number(gameState?.roundNumber ?? 0)}
               minimumAllowedBetAmount={gameState?.minimumAllowedBetAmount}
+              blindBetCloseTimestamp={gameState?.blindBetingCloseTimestamp ?? 0}
+              bettingEndTimestamp={gameState?.bettingEndTimestamp ?? 0}
               selectedPlayer={selectedPlayer}
               handlePlayerSelection={handlePlayerSelection}
             />

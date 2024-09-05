@@ -25,7 +25,6 @@ const GameTimer: React.FC<GameTimerProps> = React.memo(({
   });
 
   useEffect(() => {
-    console.log("timer restarts")
     restart(timerExpiryDateTime, true); // Restart the timer with the new expiryTimestamp and autoStart
   }, [timerExpiryDateTime.getTime(), timerMessage]);
 

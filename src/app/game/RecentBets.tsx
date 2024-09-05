@@ -105,7 +105,7 @@ const RecentBets = () => {
 
     for (const round of data.rounds.items.slice(1)) {
       try {
-        const gameState: GameState = getGameStateFromRound(round);
+        const gameState: GameState = getGameStateFromRound(null, round);
 
         if (!gameState) {
           console.error("Failed to parse game state");
@@ -128,7 +128,7 @@ const RecentBets = () => {
           ) || null;
 
         dataSource.push({
-          key: round.id,
+          key: round.epoch,
           communityCards: communityCards,
           punkCards: punkCards,
           apeCards: apeCards,
