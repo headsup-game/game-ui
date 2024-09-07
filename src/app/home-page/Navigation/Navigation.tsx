@@ -19,7 +19,7 @@ const Navigation = () => {
     },
     {
       key: "3",
-      label: "Leaderboard",
+      label: <Link href="/leaderboard">Leaderboard</Link>,
       className: styles.NavItem,
     },
     {
