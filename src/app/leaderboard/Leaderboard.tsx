@@ -9,30 +9,48 @@ import { GET_POINTS_QUERY } from "graphQueries/getPoints";
 import { useQuery } from "@apollo/client";
 import { User } from "gql/graphql";
 
+interface GetPointsQueryResult {
+    users: {
+        items: User[];
+    };
+}
+
 const Leaderboard = () => {
     const [columns, setColumns] = useState([
         {
-            title: "Community Cards",
-            dataIndex: "communityCards",
-            key: "communityCards",
-            render: <span>No Cards</span>,
+            title: "Account ID",
+            dataIndex: "accountId",
+            key: "accountId",
+        },
+        {
+            title: "Total Points",
+            dataIndex: "totalPoints",
+            key: "totalPoints",
         }
     ]);
-    const handleRoundData = (data: User) => {
-        console.log(data);
-    }
-    const { } = useQuery<{ users: User }>(GET_POINTS_QUERY, {
-        variables: { limit: 2, participant: "" },
-        onCompleted: handleRoundData,
+
+    const [dataSource, setDataSource] = useState<Array<{ key: string; accountId: string; totalPoints: number }>>([]);
+
+    const { loading, error, data } = useQuery<GetPointsQueryResult>(GET_POINTS_QUERY, {
+        variables: { limit: 10, participant: "" },
         notifyOnNetworkStatusChange: true,
     });
 
 
-    const [dataSource, setDataSource] = useState<
-        {
-            key: string;
-        }[]
-    >([]);
+    useEffect(() => {
+        if (data && data.users.items) {
+            const tableData = data.users.items.map(user => ({
+                key: user.id,
+                accountId: user.account,
+                totalPoints: user.totalPoints
+            }));
+            setDataSource(tableData);
+        }
+    }, [data]);
+
+
+    if (loading) return <p>Loading...</p>;
+    if (error) return <p>Error: {error.message}</p>;
 
     return (
         <Container>
