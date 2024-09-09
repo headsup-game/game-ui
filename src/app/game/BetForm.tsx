@@ -196,7 +196,7 @@ const BetForm: React.FC<BetFormProps> = React.memo(({
           playerId={selectedPlayer}
           betAmount={betAmount}
           roundNumber={roundId}
-          playerName={selectedPlayer === Players.Apes ? "Apes" : "Punks"}
+          playerName={selectedPlayer === Players.None ? '' : selectedPlayer == Players.Apes ? "Apes" : "Punks"}
           onBettingStateChange={handleLogs}
           minimumAllowedBetAmount={minimumAllowedBetAmount}
         />

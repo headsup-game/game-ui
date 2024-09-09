@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { ReactNode, useCallback, useEffect, useState } from "react";
 import {
   useAccount,
   useSimulateContract,
@@ -7,9 +7,19 @@ import {
 } from "wagmi";
 import * as constants from "utils/constants";
 import { contractABI } from "utils/abi";
-import { parseEther } from "viem";
-import { Button } from "antd";
+import { BaseError, ContractFunctionRevertedError, parseEther } from "viem";
+import { Button, Typography, message } from "antd";
 import styles from "../app/game/Game.module.scss";
+import { Players } from "interfaces/players";
+import { NoticeType } from "antd/es/message/interface";
+
+const { Text } = Typography;
+
+type BetStatusMessage = {
+  content: ReactNode,
+  duration: number
+  type: NoticeType
+}
 
 type BetProps = {
   playerId: number | null;
@@ -32,6 +42,9 @@ export const Bet: React.FC<BetProps> = ({
   const [hash, setHash] = useState<string | null>(null);
   const [requestInProgress, setRequestInProgress] = useState(false);
   const [disabled, setDisabled] = useState(true);
+  const [messageApi, contextHolder] = message.useMessage();
+  const betMessageKey = "betMessageKey";
+  const [betStatusMessage, setBetStatusMessage] = useState<BetStatusMessage | null>(null);
 
   // Call simulation hook with disabled state
   const { refetch: simulateContract } = useSimulateContract({
@@ -44,7 +57,7 @@ export const Bet: React.FC<BetProps> = ({
     args: [roundNumber ?? 0],
     value: parseEther(betAmount.toString()),
     account: address,
-    query: { enabled: false },
+    query: { enabled: false }
   });
 
   // call write contract hook to get writeContractAsync action to be called after simulation
@@ -58,7 +71,18 @@ export const Bet: React.FC<BetProps> = ({
   });
 
   useEffect(() => {
-    if (playerId === null || betAmount === 0) {
+    if (betStatusMessage != null) {
+      messageApi.open({
+        key: betMessageKey,
+        type: betStatusMessage.type,
+        content: betStatusMessage.content,
+        duration: betStatusMessage.duration,
+      });
+    }
+  }, [betStatusMessage]);
+
+  useEffect(() => {
+    if (playerId === Players.None || betAmount === 0) {
       setDisabled(true);
     } else if (betAmount < minimumAllowedBetAmount) {
       setDisabled(true);
@@ -70,76 +94,95 @@ export const Bet: React.FC<BetProps> = ({
   // wait for transaction status changes
   useEffect(() => {
     if (transactionStatus === "success") {
-      onBettingStateChange(
-        `Player Bet on ${playerName} successful with gas:${transactionData?.gasUsed}`
-      );
+      setBetStatusMessage({
+        type: 'success',
+        content:
+          <>Bet on {playerName} success with hash:
+            <Text copyable={{ text: transactionData?.transactionHash }}>{transactionData?.transactionHash.slice(0, 6)}</Text>
+          </>,
+        duration: 3,
+      });
     } else if (transactionStatus === "error") {
-      onBettingStateChange(
-        `Player Bet on ${playerName} failed with error:${transactionError?.message}`
-      );
+      setBetStatusMessage({
+        type: 'error',
+        content: `Error while placing bet on ${playerName}`,
+        duration: 3
+      });
     }
   }, [
     onBettingStateChange,
     transactionStatus,
     transactionData,
-    playerName,
     transactionError,
   ]);
 
   // handler called when bet button is clicked
-  const handleBetOnPlayer = async () => {
+  const handleBetOnPlayer = useCallback(async () => {
     setRequestInProgress(true);
     try {
-      onBettingStateChange(`Placed Bet on ${playerName} called`);
+      setBetStatusMessage({
+        type: 'loading',
+        content: `Placing bet on ${playerName} called`,
+        duration: 0
+      });
 
       // Simulate contract
       const { data: localSimulateData, error: simulateError } =
         await simulateContract();
-      if (simulateError || !localSimulateData?.request) {
-        onBettingStateChange(
-          `Player Bet on ${playerName} failed with error:${simulateError?.message}`
-        );
+
+      setBetStatusMessage({
+        type: simulateError != null ? 'error' : 'loading',
+        content: `Place bet on ${playerName} ${simulateError != null ? 'failed' : 'started'}`,
+        duration: simulateError != null ? 3 : 0
+      });
+
+      if (simulateError != null || !localSimulateData?.request) {
         return;
-      } else {
-        onBettingStateChange(`Placed Bet on ${playerName} started`);
       }
 
       // Write contract
       const writeResult = await writeContractAsync(localSimulateData.request);
-      if (!writeResult) {
-        onBettingStateChange(
-          `Player Bet on ${playerName} failed with error:${writeError}`
-        );
-      } else {
+
+      const content: ReactNode = writeResult == null ? `Error placing bet on ${playerName}`
+        : `Placed bet on ${playerName}, waiting for transaction confirmation`;
+
+      setBetStatusMessage({
+        type: writeResult != null ? 'loading' : 'error',
+        content: content,
+        duration: writeResult != null ? 0 : 3
+      })
+      if (writeResult) {
         setHash(writeResult);
-        onBettingStateChange(
-          `Player Bet on ${playerName} success with hash:${writeResult}`
-        );
       }
     } catch (error) {
-      onBettingStateChange(
-        `Placed Bet on ${playerName} failed with error:${error}`
-      );
+      setBetStatusMessage({
+        type: 'error',
+        content: `Place bet on ${playerName} failed`,
+        duration: 3
+      })
     } finally {
       setRequestInProgress(false);
     }
-  };
+  }, [playerName, roundNumber, betAmount, playerId, address]);
 
   if (!isConnected) {
     return null;
   } else {
     return (
-      <Button
-        type="primary"
-        htmlType="submit"
-        block
-        className={styles.BetFormCTA}
-        loading={requestInProgress}
-        disabled={disabled}
-        onClick={handleBetOnPlayer}
-      >
-        Bet on {playerName}
-      </Button>
+      <>
+        {contextHolder}
+        <Button
+          type="primary"
+          htmlType="submit"
+          block
+          className={styles.BetFormCTA}
+          loading={requestInProgress}
+          disabled={disabled}
+          onClick={handleBetOnPlayer}
+        >
+          Bet on {playerName}
+        </Button>
+      </>
     );
   }
 };
