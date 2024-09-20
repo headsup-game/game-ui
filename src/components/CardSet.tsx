@@ -77,6 +77,7 @@ const CardSet: React.FC<CardSetProps> = React.memo(({
         />
       ) : (
         <PlayingCard
+          key={index}
           isSmall={isSmall}
           color={card?.color}
           value={card?.rank}

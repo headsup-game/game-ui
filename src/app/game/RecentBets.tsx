@@ -17,7 +17,7 @@ import { AlignType } from "rc-table/lib/interface";
 
 const { Title, Text } = Typography;
 
-const RecentBets = React.memo(() => {
+const RecentBets: React.FC = React.memo(() => {
   // State for table columns and data source
   const [columns, setColumns] = useState([
     {
