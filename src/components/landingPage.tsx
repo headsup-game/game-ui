@@ -102,7 +102,7 @@ export default function LandingPageComponent() {
                   </li>
                 </ul>
               </div>
-              <img
+              <Image
                 alt="Poker Web3 Game"
                 className="mx-auto aspect-video overflow-hidden rounded-xl object-cover object-center sm:w-full lg:order-last"
                 height="310"

@@ -114,6 +114,7 @@ export const Bet: React.FC<BetProps> = ({
     transactionStatus,
     transactionData,
     transactionError,
+    playerName
   ]);
 
   // handler called when bet button is clicked
