@@ -1,3 +1,5 @@
+'use client'
+
 /* eslint-disable @next/next/no-page-custom-font */
 import styles from "./PlayingCard.module.scss";
 import { Flex, Typography } from "antd";
@@ -83,7 +85,7 @@ const PlayingCard = (props: PlayingCardProps) => {
           )}
         </Flex>
       ) : (
-        <Flex justify="center" align="center" style={{padding: "0px"}}>
+        <Flex justify="center" align="center" style={{ padding: "0px" }}>
           {value != Rank.None &&
             <Text className={styles.PlayingCardSmallText} style={{ opacity: '1', color: getColor(color), fontSize: '20px' }}>
               {getRankValue(value)}
