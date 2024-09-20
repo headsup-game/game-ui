@@ -5,4 +5,6 @@ export type Participant = {
   cards: Card[]
   totalNumberOfBets: BigInt
   totalBetAmounts: string
+  payoutMultiplier: number
+  totalSelfBetAmount: string
 }

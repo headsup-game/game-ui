@@ -5,77 +5,129 @@ import { ConfigProvider, Table, Typography } from "antd";
 import Container from "app/components/Container/Container";
 import styles from "./Game.module.scss";
 import { useQuery } from "@apollo/client";
-import { RoundPage } from "gql/graphql";
+import { Position, RoundPage } from "gql/graphql";
 import { GET_CURRENT_ROUND_QUERY } from "graphQueries/getCurrentRound";
-import { GameState, getGameStateFromRound } from "interfaces/gameState";
+import { GameState, RoundWinner, getGameStateFromRound } from "interfaces/gameState";
 import CardSet from "@components/CardSet";
 import { Card } from "interfaces/card";
 import { Pagination } from "antd";
 import { useAccount } from "wagmi";
 import { ethers } from 'ethers'
+import { AlignType } from "rc-table/lib/interface";
 
-const { Title } = Typography;
+const { Title, Text } = Typography;
 
-const RecentBets = () => {
+const RecentBets = React.memo(() => {
   // State for table columns and data source
   const [columns, setColumns] = useState([
     {
-      title: "Community Cards",
-      dataIndex: "communityCards",
-      key: "communityCards",
-      render: (cards: Card[]) =>
-        Array.isArray(cards) ? (
-          <CardSet numberOfCards={cards.length} cards={cards} />
+      title: "Round No.",
+      width: "10%",
+      align: 'center' as AlignType,
+      dataIndex: "roundNumber",
+      key: "roundNumber",
+      render: (roundNumber?: string) =>
+        roundNumber ? (
+          <span>{roundNumber}</span>
         ) : (
-          <span>No Cards</span>
+          <span>0</span>
         ),
-    },
-    {
-      title: "Ape Cards",
+    }, {
+      title: "Apes",
+      align: 'center' as AlignType,
+      width: "5%",
       dataIndex: "apeCards",
       key: "apeCards",
       render: (data: { cards: Card[], bets: string }) =>
         Array.isArray(data.cards) ? (
-          <><CardSet numberOfCards={data.cards.length} cards={data.cards} /><span>Total Bet: {data.bets}</span></>
+          <><CardSet isSmall={true} numberOfCards={data.cards.length} cards={data.cards} /></>
         ) : (
           <span>No Cards</span>
         ),
     },
     {
-      title: "Punks Cards",
+      title: "Apes Pool",
+      align: 'center' as AlignType,
+      width: "10%",
+      dataIndex: "totalApesBets",
+      key: "totalApesBets",
+      render: (totalBets?: string) =>
+        totalBets ? (
+          <span style={{ textAlign: 'right' }}>{totalBets}</span>
+        ) : (
+          <span style={{ textAlign: 'right' }}>0.0</span>
+        ),
+    }, {
+      title: "Punks",
       dataIndex: "punkCards",
+      align: 'center' as AlignType,
+      width: "5%",
       key: "punkCards",
       render: (data: { cards: Card[], bets: string }) =>
         Array.isArray(data.cards) ? (
-          <><CardSet numberOfCards={data.cards.length} cards={data.cards} /><span>Total Bet: {data.bets}</span></>
+          <><CardSet isSmall={true} numberOfCards={data.cards.length} cards={data.cards} /></>
         ) : (
           <span>No Cards</span>
         ),
     },
-    // {
-    //   title: "Amounts",
-    //   dataIndex: "amounts",
-    //   key: "amounts",
-    //   render: (amounts: { totalPunksBets: string; totalApesBets: string }) => (
-    //     <div>
-    //       <div>Total Punks Bets: {amounts.totalPunksBets}</div>
-    //       <div>Total Apes Bets: {amounts.totalApesBets}</div>
-    //     </div>
-    //   ),
-    // },
     {
-      title: "Own Bets",
+      title: "Punk Pool",
+      align: 'center' as AlignType,
+      width: "10%",
+      dataIndex: "totalPunkBets",
+      key: "totalPunkBets",
+      render: (totalBets?: string) =>
+        totalBets ? (
+          <span>{totalBets}</span>
+        ) : (
+          <span>0.0</span>
+        ),
+    },
+    {
+      title: "Community Cards",
+      width: "12.5%",
+      align: 'center' as AlignType,
+      dataIndex: "communityCards",
+      key: "communityCards",
+      render: (cards: Card[]) =>
+        Array.isArray(cards) ? (
+          <CardSet isSmall={true} numberOfCards={cards.length} cards={cards} />
+        ) : (
+          <span>No Cards</span>
+        ),
+    },
+    {
+      title: "Winner",
+      width: "10%",
+      align: 'center' as AlignType,
+      dataIndex: "winner",
+      key: "winner",
+      render: (winner: string) => (<span>{winner}</span>)
+    }, {
+      title: "Own Bet",
       dataIndex: "ownBets",
+      align: 'center' as AlignType,
+      width: "15%",
       key: "ownBets",
       render: (bet: { amount: string; position: string; isWinner: boolean }) =>
         bet ? (
           <span>
-            {bet.amount} ({bet.position}){" "}
-            {bet.isWinner ? <strong>Won</strong> : <strong>Lost</strong>}
+            {bet.amount} on {bet.position}
+            {/* {bet.isWinner ? <strong>Won</strong> : <strong>Lost</strong>} */}
           </span>
         ) : (
           <span>No Bets</span>
         ),
+    }, {
+      title: "Own P/L",
+      dataIndex: "ownWonAmount",
+      align: 'center' as AlignType,
+      width: "10%",
+      key: "ownWonAmount",
+      render: (ownWonAmount: string) =>
+      (
+        <span>{ownWonAmount}</span>
+      )
     },
   ]);
 
@@ -83,63 +135,73 @@ const RecentBets = () => {
 
   const [dataSource, setDataSource] = useState<
     {
+      roundNumber: string;
       key: string;
       communityCards: Card[];
       punkCards: { cards: Card[], bets: string };
       apeCards: { cards: Card[], bets: string };
       // amounts: { totalPunksBets: string; totalApesBets: string };
       ownBets: { amount: string; position: string; isWinner: boolean } | null;
+      totalPunkBets: string;
+      totalApesBets: string;
+      winner: string;
+      ownWonAmount: string;
     }[]
   >([]);
 
   // Function to handle data from the query
   const handleRoundData = (data: { rounds: RoundPage }) => {
     const dataSource: {
+      roundNumber: string;
       key: string;
       communityCards: Card[];
       punkCards: { cards: Card[], bets: string };
       apeCards: { cards: Card[], bets: string };
-      // amounts: { totalPunksBets: string; totalApesBets: string };
       ownBets: { amount: string; position: string; isWinner: boolean } | null;
+      totalPunkBets: string,
+      totalApesBets: string
+      winner: string;
+      ownWonAmount: string;
     }[] = [];
 
     for (const round of data.rounds.items.slice(1)) {
       try {
-        const gameState: GameState = getGameStateFromRound(null, round);
+        const gameState: GameState = getGameStateFromRound(null, round, address);
 
         if (!gameState) {
-          console.error("Failed to parse game state");
           return;
         }
 
         // Define the total bet amounts for both participants
-        const totalPunksBets = gameState.participantB.totalBetAmounts || "0.0";
-        const totalApesBets = gameState.participantA.totalBetAmounts || "0.0";
+        const totalPunksBets = gameState.punksData.totalBetAmounts || "0.0";
+        const totalApesBets = gameState.apesData.totalBetAmounts || "0.0";
 
         const communityCards = gameState.communityCards || [];
-        const apeCards = { cards: gameState.participantA.cards || [], bets: totalApesBets || "0.0." };
-        const punkCards = { cards: gameState.participantB.cards || [], bets: totalPunksBets || "0.0." };
+        const apeCards = { cards: gameState.apesData.cards || [], bets: totalApesBets || "0.0." };
+        const punkCards = { cards: gameState.punksData.cards || [], bets: totalPunksBets || "0.0." };
 
 
         // Extract user's own bet information
-        const ownBet =
-          round.participants?.items.find(
-            (bet) => bet.position === "PUNKS" || bet.position === "APES"
-          ) || null;
+        const ownBet = round.participants?.items.find((bet) => bet.userId == address) || null;
 
         dataSource.push({
+          winner: gameState.roundWinnerMessageShort,
+          roundNumber: round.epoch,
           key: round.epoch,
           communityCards: communityCards,
           punkCards: punkCards,
           apeCards: apeCards,
+          totalApesBets: totalApesBets,
+          totalPunkBets: totalPunksBets,
           // amounts: { totalPunksBets, totalApesBets },
           ownBets: ownBet
             ? {
               amount: ethers.formatEther(ownBet.amount),
               position: ownBet.position,
-              isWinner: ownBet.isWinner,
+              isWinner: ownBet.position == round.winner,
             }
             : null,
+          ownWonAmount: "0.0"
         });
       } catch (error) {
         console.error("Error handling round data:", error);
@@ -160,8 +222,8 @@ const RecentBets = () => {
 
   return (
     <Container>
-      <Title level={2} className={styles.RecentBetsTitle}>
-        Recent Bets
+      <Title level={5} className={styles.RecentBetsTitle}>
+        Recent Rounds
       </Title>
       <ConfigProvider
         theme={{
@@ -183,6 +245,6 @@ const RecentBets = () => {
       </ConfigProvider>
     </Container>
   );
-};
+});
 
 export default RecentBets;

@@ -9,6 +9,8 @@ interface CardSetProps {
   numberOfCards: number;
   cards: Card[];
   initFaceDown?: boolean;
+  width?: number
+  isSmall: boolean
 }
 
 const isCardSetEqual = (prevProps: CardSetProps, nextProps: CardSetProps): boolean => {
@@ -21,6 +23,7 @@ const isCardSetEqual = (prevProps: CardSetProps, nextProps: CardSetProps): boole
 
 const CardSet: React.FC<CardSetProps> = React.memo(({
   numberOfCards,
+  isSmall,
   initFaceDown,
   cards,
 }) => {
@@ -51,8 +54,8 @@ const CardSet: React.FC<CardSetProps> = React.memo(({
   }, [JSON.stringify(cards), initFaceDown]);
 
   return (
-    <Flex align="center" className="card-set" gap={14}>
-      {cards.slice(0, numberOfCards).map((card, index) => (
+    <Flex align="center" justify="space-evenly" gap={'1em'}>
+      {cards.slice(0, numberOfCards).map((card, index) => !isSmall ? (
         <FlipCard
           key={index}
           style={{
@@ -62,6 +65,7 @@ const CardSet: React.FC<CardSetProps> = React.memo(({
           animationDelay={card?.animationDelay} // Pass animation delay to FlipCard component
           frontContent={
             <PlayingCard
+              isSmall={isSmall}
               color={card?.color}
               value={card?.rank}
               suit={card?.suit}
@@ -70,6 +74,16 @@ const CardSet: React.FC<CardSetProps> = React.memo(({
               }}
             />
           }
+        />
+      ) : (
+        <PlayingCard
+          isSmall={isSmall}
+          color={card?.color}
+          value={card?.rank}
+          suit={card?.suit}
+          styles={{
+            width: "100%",
+          }}
         />
       ))}
     </Flex>

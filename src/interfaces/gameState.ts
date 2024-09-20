@@ -1,7 +1,9 @@
 import { Participant } from "./participant";
-import { Card, Color, Rank, Suit } from "./card";
+import { Card, Color, Rank, Suit, getCardNamesForPokerHandRank } from "./card";
 import { Position, Round } from "gql/graphql";
 import { ethers } from "ethers";
+import { Address } from "viem";
+import Ranker from 'handranker';
 
 export enum RoundState {
   Initialized,
@@ -25,19 +27,24 @@ export enum RoundWinner {
 export type GameState = {
   state: RoundState;
   roundNumber: BigInt;
-  participantA: Participant;
-  participantB: Participant;
+  apesData: Participant;
+  punksData: Participant;
   communityCards: Card[];
+  winningCards: Card[];
+  winningHandRank: string;
   roundWinner: RoundWinner;
   roundWinnerMessage: string;
+  roundWinnerMessageShort: string;
   minimumAllowedBetAmount: number;
   currentTimerEndDateTime: Date;
   currentMessage: string;
   blindBetingCloseTimestamp: number;
   bettingEndTimestamp: number;
+  selfRoundWinningAmount: string;
+  totalAmountPool: string;
 };
 
-export function getGameStateFromRound(previousRound: Round | null, currentRound: Round | null): GameState {
+export function getGameStateFromRound(previousRound: Round | null, currentRound: Round | null, address: Address | undefined): GameState {
   const currentTimestamp = Math.floor(Date.now() / 1000);
 
   // If current round is null, then return a default game state
@@ -59,23 +66,27 @@ export function getGameStateFromRound(previousRound: Round | null, currentRound:
     return {
       state: RoundState.ResultsDeclaredAndEnded,
       roundNumber: BigInt(0),
-      participantA: {
+      apesData: {
         id: 0,
         cards: [
           { suit: Suit.None, rank: Rank.None, color: Color.RED },
           { suit: Suit.None, rank: Rank.None, color: Color.RED },
         ],
         totalBetAmounts: "0.0",
+        totalSelfBetAmount: "0.0",
         totalNumberOfBets: BigInt(0),
+        payoutMultiplier: 0
       },
-      participantB: {
+      punksData: {
         id: 1,
         cards: [
           { suit: Suit.None, rank: Rank.None, color: Color.BLUE },
           { suit: Suit.None, rank: Rank.None, color: Color.BLUE },
         ],
         totalBetAmounts: "0.0",
+        totalSelfBetAmount: "0.0",
         totalNumberOfBets: BigInt(0),
+        payoutMultiplier: 0
       },
       communityCards: [
         { suit: Suit.None, rank: Rank.None, color: Color.VIOLET },
@@ -84,13 +95,24 @@ export function getGameStateFromRound(previousRound: Round | null, currentRound:
         { suit: Suit.None, rank: Rank.None, color: Color.VIOLET },
         { suit: Suit.None, rank: Rank.None, color: Color.VIOLET },
       ],
+      winningCards: [
+        { suit: Suit.None, rank: Rank.None, color: Color.VIOLET },
+        { suit: Suit.None, rank: Rank.None, color: Color.VIOLET },
+        { suit: Suit.None, rank: Rank.None, color: Color.VIOLET },
+        { suit: Suit.None, rank: Rank.None, color: Color.VIOLET },
+        { suit: Suit.None, rank: Rank.None, color: Color.VIOLET },
+      ],
+      winningHandRank: '',
+      selfRoundWinningAmount: '0.0',
       roundWinner: RoundWinner.NotDecidedYet,
-      roundWinnerMessage: getRoundWinnerMessage(RoundWinner.NotDecidedYet),
+      roundWinnerMessage: getRoundWinnerMessage(RoundWinner.NotDecidedYet, false),
+      roundWinnerMessageShort: getRoundWinnerMessage(RoundWinner.NotDecidedYet, true),
       minimumAllowedBetAmount: 0.0,
       currentTimerEndDateTime: new Date(),
       currentMessage: "Fetching round data ...",
       blindBetingCloseTimestamp: 0,
       bettingEndTimestamp: 0,
+      totalAmountPool: '0.0'
     };
   }
   const defaultPlayerACards: Card[] = [
@@ -109,6 +131,48 @@ export function getGameStateFromRound(previousRound: Round | null, currentRound:
     { suit: Suit.None, rank: Rank.None, color: Color.VIOLET },
   ];
 
+  const totalSelfApesAmount = round.participants?.items.find((bet) => bet.position === Position.Apes && bet.userId === address)?.amount
+  const totalSelfPunksAmount = round.participants?.items.find((bet) => bet.position === Position.Punks && bet.userId === address)?.amount
+
+  const winningCards = round.winningHands == null
+    ? defaultCommunityCards
+    : [
+      {
+        suit: round.winningHands.bestCard1?.suit as Suit,
+        rank: round.winningHands.bestCard1?.rank as Rank,
+        color: Color.VIOLET,
+        faceDown: !round.communityCardsRevealed,
+        animationDelay: 1000
+      },
+      {
+        suit: round.winningHands.bestCard2?.suit as Suit,
+        rank: round.winningHands.bestCard2?.rank as Rank,
+        color: Color.VIOLET,
+        faceDown: !round.communityCardsRevealed,
+        animationDelay: 1000
+      },
+      {
+        suit: round.winningHands.bestCard3?.suit as Suit,
+        rank: round.winningHands.bestCard3?.rank as Rank,
+        color: Color.VIOLET,
+        faceDown: !round.communityCardsRevealed,
+        animationDelay: 1000
+      },
+      {
+        suit: round.winningHands.bestCard4?.suit as Suit,
+        rank: round.winningHands.bestCard4?.rank as Rank,
+        color: Color.VIOLET,
+        faceDown: !round.communityCardsRevealed,
+        animationDelay: 1000
+      },
+      {
+        suit: round.winningHands.bestCard5?.suit as Suit,
+        rank: round.winningHands.bestCard5?.rank as Rank,
+        color: Color.VIOLET,
+        faceDown: !round.communityCardsRevealed,
+        animationDelay: 1000
+      },
+    ];
   const state = getGameStatusFromRound(round);
   const roundWinner =
     state == RoundState.Cancelled
@@ -117,7 +181,7 @@ export function getGameStateFromRound(previousRound: Round | null, currentRound:
   return {
     state: state,
     roundNumber: BigInt(round.epoch),
-    participantA: {
+    apesData: {
       id: 0,
       cards:
         round.apesCards != null
@@ -140,8 +204,10 @@ export function getGameStateFromRound(previousRound: Round | null, currentRound:
           : defaultPlayerACards,
       totalBetAmounts: ethers.formatEther(round.apesPot),
       totalNumberOfBets: BigInt(round.totalApesBets),
+      payoutMultiplier: Number(round.totalAmount) == (0 | NaN) ? 0 : Number(round.totalAmount) / Number(round.apesPot),
+      totalSelfBetAmount: totalSelfApesAmount ? ethers.formatEther(totalSelfApesAmount) : "0.0",
     },
-    participantB: {
+    punksData: {
       id: 1,
       cards:
         round.punksCards != null
@@ -164,6 +230,8 @@ export function getGameStateFromRound(previousRound: Round | null, currentRound:
           : defaultPlayerBCards,
       totalBetAmounts: ethers.formatEther(round.punksPot),
       totalNumberOfBets: BigInt(round.totalPunksBets),
+      payoutMultiplier: Number(round.totalAmount) == (0 | NaN) ? 0 : Number(round.totalAmount) / Number(round.punksPot),
+      totalSelfBetAmount: totalSelfPunksAmount ? ethers.formatEther(totalSelfPunksAmount) : "0.0",
     },
     communityCards:
       round.communityCards == null
@@ -205,13 +273,18 @@ export function getGameStateFromRound(previousRound: Round | null, currentRound:
             animationDelay: 1000
           },
         ],
+    winningCards: winningCards,
+    winningHandRank: round.winningHands == null ? '' : Ranker.getHand(getCardNamesForPokerHandRank(winningCards)).ranking.toUpperCase(),
+    selfRoundWinningAmount: '0.0',
     roundWinner: roundWinner,
-    roundWinnerMessage: getRoundWinnerMessage(roundWinner),
+    roundWinnerMessage: getRoundWinnerMessage(roundWinner, false),
+    roundWinnerMessageShort: getRoundWinnerMessage(roundWinner, true),
     minimumAllowedBetAmount: 0.0,
     currentTimerEndDateTime: getCurrentTimeEndDateTime(state, round),
     currentMessage: getCurrentMessage(state),
     blindBetingCloseTimestamp: Number(round.blindCloseTimestamp),
     bettingEndTimestamp: Number(round.closeTimestamp),
+    totalAmountPool: ethers.formatEther(round.totalAmount)
   };
 }
 
@@ -230,18 +303,18 @@ function getRoundWinner(round: Round): RoundWinner {
   }
 }
 
-function getRoundWinnerMessage(roundWinner: RoundWinner) {
+function getRoundWinnerMessage(roundWinner: RoundWinner, short: boolean) {
   switch (roundWinner) {
     case RoundWinner.Apes:
-      return "Apes won";
+      return short ? "Apes" : "Apes won";
     case RoundWinner.Punks:
-      return "Punks won";
+      return short ? "Punks" : "Punks won";
     case RoundWinner.Draw:
-      return "Its a Draw!!";
+      return short ? "Draw" : "Its a Draw!!";
     case RoundWinner.Cancelled:
       return "Cancelled";
     default:
-      return "Not decided yet";
+      return short ? "Undecided" : "Not decided yet";
   }
 }
 

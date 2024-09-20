@@ -165,24 +165,20 @@ export const Bet: React.FC<BetProps> = ({
     }
   }, [playerName, roundNumber, betAmount, playerId, address]);
 
-  if (!isConnected) {
-    return null;
-  } else {
-    return (
-      <>
-        {contextHolder}
-        <Button
-          type="primary"
-          htmlType="submit"
-          block
-          className={styles.BetFormCTA}
-          loading={requestInProgress}
-          disabled={disabled}
-          onClick={handleBetOnPlayer}
-        >
-          Bet on {playerName}
-        </Button>
-      </>
-    );
-  }
+  return (
+    <>
+      {contextHolder}
+      <Button
+        type="primary"
+        htmlType="submit"
+        block
+        className={styles.BetFormCTA}
+        loading={requestInProgress}
+        disabled={disabled || !isConnected}
+        onClick={handleBetOnPlayer}
+      >
+        Bet on {playerName}
+      </Button>
+    </>
+  );
 };

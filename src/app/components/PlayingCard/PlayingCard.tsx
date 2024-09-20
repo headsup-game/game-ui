@@ -1,9 +1,10 @@
 /* eslint-disable @next/next/no-page-custom-font */
 import styles from "./PlayingCard.module.scss";
-import { Flex } from "antd";
-import Image from "next/image";
+import { Flex, Typography } from "antd";
 import { Color, getRankValue, getSuitUnicodeSymbol, Rank, Suit } from "interfaces/card";
-import { Span } from "next/dist/trace";
+import { useEffect, useRef, useState } from "react";
+
+const { Text } = Typography;
 
 interface PlayingCardProps {
   color: Color;
@@ -12,10 +13,23 @@ interface PlayingCardProps {
   className?: string;
   onClick?: () => void;
   styles?: React.CSSProperties;
+  isSmall: boolean
 }
 
 const PlayingCard = (props: PlayingCardProps) => {
   const { className, color, value, suit, onClick } = props;
+  const playingCardRef = useRef<HTMLElement>(null);
+  const [suitFontSize, setSuitFontSize] = useState('0px');
+  const [valueFontSize, setValueFontSize] = useState('0px');
+
+  useEffect(() => {
+    if (playingCardRef?.current != null) {
+      const cardWidth = playingCardRef.current.offsetWidth;
+      setValueFontSize(`${props.isSmall ? 10 : cardWidth / 2}px`);
+      setSuitFontSize(`${props.isSmall ? 10 : cardWidth / 3}px`);
+      console.log('cardWidth', cardWidth);
+    }
+  })
 
   const getBGColor = (color: Color) => {
     switch (color) {
@@ -43,84 +57,43 @@ const PlayingCard = (props: PlayingCardProps) => {
     }
   };
 
-  const getSuitIcon = ({
-    suit = Suit.Clubs,
-    color = Color.RED,
-  }: {
-    suit: Suit;
-    color: Color;
-  }): string => {
-    const suitIcons = {
-      "Clubs": {
-        0: "/images/card-assets/clubs-red.svg",
-        1: "/images/card-assets/clubs-blue.svg",
-        2: "/images/card-assets/clubs-violet.svg",
-      },
-      "Diamonds": {
-        0: "/images/card-assets/diamonds-red.svg",
-        1: "/images/card-assets/diamonds-blue.svg",
-        2: "/images/card-assets/diamonds-violet.svg",
-      },
-      "Hearts": {
-        0: "/images/card-assets/hearts-red.svg",
-        1: "/images/card-assets/hearts-blue.svg",
-        2: "/images/card-assets/hearts-violet.svg",
-      },
-      "Spades": {
-        0: "/images/card-assets/spades-red.svg",
-        1: "/images/card-assets/spades-blue.svg",
-        2: "/images/card-assets/spades-violet.svg",
-      },
-      "None": {
-        0: "",
-        1: "",
-        2: "",
-      }
-    };
-
-    return suitIcons[suit]?.[color] || "";
-  };
-
   return (
-    <Flex
-      className={`${className} ${styles.PlayingCard}`}
-      align="center"
-      justify="center"
-      onClick={onClick}
-      style={{
-        ...props.styles,
-        backgroundColor: getBGColor(color),
-      }}
-    >
-      {value != Rank.None && <Flex
-        className={styles.PlayingCardText}
-        style={{
-          color: getColor(color),
-        }}
-      >
-        {getRankValue(value)}
-      </Flex>}
-      {suit != Suit.None && (
-        <Flex style={{color: getColor(color)}} className={styles.PlayingCardSuit}>{getSuitUnicodeSymbol(suit)}</Flex>
-        // <Image
-        //   src={getSuitIcon({ suit, color })}
-        //   alt="hearts"
-        //   width={40}
-        //   height={40}
-        //   className={styles.PlayingCardSuit}
-        // />
+    <>
+      {!props.isSmall ? (
+        <Flex
+          ref={playingCardRef}
+          className={`${className} ${styles.PlayingCard}`}
+          align="center"
+          justify="center"
+          onClick={onClick}
+          style={{
+            ...props.styles,
+            backgroundColor: getBGColor(color),
+          }}
+        >
+          {value != Rank.None &&
+            <Flex className={styles.PlayingCardText} style={{ color: getColor(color), fontSize: valueFontSize }}>
+              {getRankValue(value)}
+            </Flex>}
+          {suit != Suit.None && (
+            <Flex style={{ color: getColor(color), fontSize: suitFontSize }} className={styles.PlayingCardSuit}>{getSuitUnicodeSymbol(suit)}</Flex>
+          )}
+          {suit != Suit.None && (
+            <Flex style={{ color: getColor(color), fontSize: suitFontSize }} className={styles.PlayingCardSuitInvert}>{getSuitUnicodeSymbol(suit)}</Flex>
+          )}
+        </Flex>
+      ) : (
+        <Flex justify="center" align="center" style={{padding: "0px"}}>
+          {value != Rank.None &&
+            <Text className={styles.PlayingCardSmallText} style={{ opacity: '1', color: getColor(color), fontSize: '20px' }}>
+              {getRankValue(value)}
+            </Text>}
+          {suit != Suit.None && (
+            <Text style={{ color: getColor(color), fontSize: '20px', opacity: '1' }} className={styles.PlayingCardSmallSuit}>{getSuitUnicodeSymbol(suit)}</Text>
+          )}
+        </Flex>
       )}
-      {suit != Suit.None && (
-        <Flex style={{color: getColor(color)}} className={styles.PlayingCardSuitInvert}>{getSuitUnicodeSymbol(suit)}</Flex>
-        // <Image
-        //   src={getSuitIcon({ suit, color })}
-        //   alt="hearts"
-        //   width={40}
-        //   height={40}
-        //   className={styles.PlayingCardSuitInvert}
-        // />
-      )}
-    </Flex>
+    </>
   );
 };
 

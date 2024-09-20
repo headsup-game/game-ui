@@ -1,4 +1,4 @@
-import { Col, Flex, Row } from "antd";
+import { Col, Flex, Row, Typography } from "antd";
 import React, { useEffect, useState } from "react";
 import styles from "./Game.module.scss";
 import FlipCard from "@components/FlipCard";
@@ -9,6 +9,7 @@ import { red } from "colorette";
 import { TexasHoldem } from "poker-odds-calc";
 import { Players } from "interfaces/players";
 import { isEqual } from "lodash";
+const { Text } = Typography;
 
 interface GameCardsProps {
   redCardsInput: Card[];
@@ -19,6 +20,10 @@ interface GameCardsProps {
   blueCardsTotalAmout: string;
   selectedPlayer: Players;
   handlePlayerSelection: (player: Players) => void;
+  apesPayout: number;
+  punksPayout: number;
+  apesSelfBet: string;
+  punksSelfBet: string;
 }
 
 const isGameCardsEqual = (prevProps: GameCardsProps, nextProps: GameCardsProps): boolean => {
@@ -34,12 +39,14 @@ const isGameCardsEqual = (prevProps: GameCardsProps, nextProps: GameCardsProps):
 const GameCards: React.FC<GameCardsProps> = React.memo(({
   redCardsInput,
   blueCardsInput,
-  redCardsNumberOfBets,
   redCardsTotalAmount,
-  blueCardsNumberOfBets,
   blueCardsTotalAmout,
   selectedPlayer,
   handlePlayerSelection,
+  apesPayout,
+  punksPayout,
+  apesSelfBet,
+  punksSelfBet
 }) => {
   const [selectedCard, setSelectedCard] = useState<string>("");
   const [faceDown, setFaceDown] = useState<boolean>(true);
@@ -85,12 +92,15 @@ const GameCards: React.FC<GameCardsProps> = React.memo(({
       className={styles.GameCards}
     >
       {/* Red Card */}
-      <Col span={10}>
-        <Flex vertical align="center" gap={14}>
+      <Col span={12}>
+        <Flex vertical align="center" gap={10}>
+          <Flex>
+            <Text style={{ fontSize: '20px', fontWeight: '700', marginBottom: '0px', color: '#FEBEBE' }}>APES</Text>
+          </Flex>
           <Flex
             className={`${styles.WinPercentageStrip} ${styles.WinPercentageStripRed}`}
           >
-            Apes Winning% - {redWinPercentage}%
+            Win% - {redWinPercentage.toFixed(2)} | Payout - {apesPayout == Infinity ? '∞' : apesPayout}x
           </Flex>
           {/* Card Container */}
           <Flex
@@ -102,6 +112,7 @@ const GameCards: React.FC<GameCardsProps> = React.memo(({
             <Row gutter={14} style={{ width: "100%", margin: 0 }}>
               <Col span={24}>
                 <CardSet
+                  isSmall={false}
                   numberOfCards={2}
                   cards={redCardsInput}
                   initFaceDown={faceDown}
@@ -109,39 +120,25 @@ const GameCards: React.FC<GameCardsProps> = React.memo(({
               </Col>
             </Row>
           </Flex>
-          {/* Pool and Bets */}
-          <Flex
-            gap={50}
-            align="center"
-            justify="space-between"
-            className={styles.GameCardsPool}
-          >
-            <Flex vertical>
-              <Flex className={styles.GameCardsPoolAmount}>
-                {redCardsTotalAmount} ETH
-              </Flex>
-              <Flex className={styles.GameCardsAmountTitle}>Amount Pool</Flex>
-            </Flex>
-            <Flex style={{ border: "0.5px solid #fff", height: 40 }}> </Flex>
-            <Flex vertical>
-              <Flex className={styles.GameCardsPoolAmount}>
-                {redCardsNumberOfBets}
-              </Flex>
-              <Flex className={styles.GameCardsAmountTitle}>Bets Placed</Flex>
-            </Flex>
-          </Flex>
-        </Flex>
-      </Col>
-
-      {/* Blue Card */}
-      <Col span={10}>
-        <Flex vertical align="center" gap={14}>
           <Flex
             className={`${styles.WinPercentageStrip} ${styles.WinPercentageStripBlue}`}
           >
-            Punks Winning% - {blueWinPercentage}%
+            Bets - {redCardsTotalAmount}ETH | My Bet - {apesSelfBet}ETH
           </Flex>
-          {/* Card Container */}
+        </Flex>
+      </Col>
+      <Col span={12}>
+        <Flex vertical align="center" gap={10}>
+          <Flex>
+            <Text style={{ fontSize: '20px', fontWeight: '700', marginBottom: '0px', color: '#C7BEFE' }}>PUNKS</Text>
+          </Flex>
+          <Flex
+            align="center"
+            vertical
+            className={`${styles.WinPercentageStrip} ${styles.WinPercentageStripBlue}`}
+          >
+            <Flex>Win% - {blueWinPercentage.toFixed(2)} | Payout - {punksPayout}x</Flex>
+          </Flex>
           <Flex
             className={`${styles.GameCardsContainer} ${styles.WinPercentageStripBlue
               } ${selectedPlayer === Players.Punks
@@ -153,6 +150,7 @@ const GameCards: React.FC<GameCardsProps> = React.memo(({
             <Row gutter={14} style={{ width: "100%", margin: 0 }}>
               <Col span={24}>
                 <CardSet
+                  isSmall={false}
                   numberOfCards={2}
                   cards={blueCardsInput}
                   initFaceDown={faceDown}
@@ -160,26 +158,10 @@ const GameCards: React.FC<GameCardsProps> = React.memo(({
               </Col>
             </Row>
           </Flex>
-          {/* Pool and Bets */}
           <Flex
-            gap={50}
-            align="center"
-            justify="space-between"
-            className={styles.GameCardsPool}
+            className={`${styles.WinPercentageStrip} ${styles.WinPercentageStripBlue}`}
           >
-            <Flex vertical>
-              <Flex className={styles.GameCardsPoolAmount}>
-                {blueCardsTotalAmout} ETH
-              </Flex>
-              <Flex className={styles.GameCardsAmountTitle}>Amount Pool</Flex>
-            </Flex>
-            <Flex style={{ border: "0.5px solid #fff", height: 40 }}> </Flex>
-            <Flex vertical>
-              <Flex className={styles.GameCardsPoolAmount}>
-                {blueCardsNumberOfBets}
-              </Flex>
-              <Flex className={styles.GameCardsAmountTitle}>Bets Placed</Flex>
-            </Flex>
+            Bets - {blueCardsTotalAmout}ETH | My Bet - {punksSelfBet}ETH
           </Flex>
         </Flex>
       </Col>

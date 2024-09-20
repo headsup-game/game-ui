@@ -43,7 +43,7 @@ const CommunityCards: React.FC<CommunityCardsProps> = React.memo(({ cards }) => 
   return (
     <Row className={styles.FlopCardsContainer} align={"middle"}>
       <Col span={20} offset={2}>
-        <CardSet numberOfCards={5} cards={cards} initFaceDown={faceDown} />
+        <CardSet isSmall={false} numberOfCards={5} cards={cards} initFaceDown={faceDown} />
       </Col>
     </Row>
   );

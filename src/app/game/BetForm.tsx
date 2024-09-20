@@ -53,6 +53,7 @@ const BetForm: React.FC<BetFormProps> = React.memo(({
 
     // Set up an interval to run the calculateMultiplier function every second
     const intervalId = setInterval(() => {
+      console.log(selectedPlayer);
       setMultiplier(calculateMultiplier());
     }, 1000);
 
@@ -61,6 +62,7 @@ const BetForm: React.FC<BetFormProps> = React.memo(({
   }, [blindBetCloseTimestamp, bettingEndTimestamp]);
 
   const handlePlayerChange = useCallback((e) => {
+    console.log("changed");
     const selectedPlayer = e.target.value;
     handlePlayerSelection(selectedPlayer);
   }, []);
@@ -190,7 +192,7 @@ const BetForm: React.FC<BetFormProps> = React.memo(({
           ))}
         </Radio.Group>
       </Form.Item>
-      <Form.Item label={`Total Amount: ${betAmount * rounds}ETH`}
+      <Form.Item help="test" label={`Total Amount: ${betAmount * rounds}ETH`}
         className={styles.BetFormItem}>
         <Bet
           playerId={selectedPlayer}

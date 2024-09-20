@@ -1,11 +1,4 @@
 import { getDefaultConfig, Chain} from '@rainbow-me/rainbowkit';
-import {
-  mainnet,
-  polygon,
-  optimism,
-  arbitrum,
-  base,
-} from 'wagmi/chains';
 
 const blast_sepolia = {
   id: 168_587_773,
@@ -35,7 +28,7 @@ const blast_sepolia = {
 export const config = getDefaultConfig({
   appName: 'My RainbowKit App',
   projectId: 'YOUR_PROJECT_ID',
-  chains: [mainnet, polygon, optimism, arbitrum, base, blast_sepolia],
+  chains: [blast_sepolia],
   ssr: true, // If your dApp uses server side rendering (SSR)
 });
 

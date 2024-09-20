@@ -2,7 +2,7 @@
 
 import Container from "app/components/Container/Container";
 import styles from "./Game.module.scss";
-import { Button, Col, Divider, Flex, Row } from "antd";
+import { Button, Col, Divider, Flex, Row, Typography } from "antd";
 import Image from "next/image";
 import BetForm from "app/game/BetForm";
 import RecentBets from "app/game/RecentBets";
@@ -20,27 +20,29 @@ import { useQuery } from "@apollo/client";
 import { RoundPage } from "gql/graphql";
 import GameTimer from "app/game/GameTimer";
 import { Players } from "interfaces/players";
+import { useAccount } from "wagmi";
+
+const { Title, Text } = Typography;
 
 const Game = () => {
   const [gameState, setGameState] = useState<GameState>(
-    getGameStateFromRound(null, null)
+    getGameStateFromRound(null, null, undefined)
   );
   const [showModal, setShowModal] = useState(false);
-  const [renderRecentBets, setRenderRecentBets] = useState(false);
   const [selectedPlayer, setSelectedPlayer] = useState<Players>(Players.None);
+  const { isConnected, address } = useAccount();
 
   const handleRoundData = (data: { rounds: RoundPage }) => {
     if (data?.rounds?.items != null && data?.rounds.items.length == 2) {
       const currentRound = data.rounds.items[0];
       const previousRound = data.rounds.items[1];
-      const currentRoundState: GameState = getGameStateFromRound(previousRound, currentRound);
+      const currentRoundState: GameState = getGameStateFromRound(previousRound, currentRound, address);
 
       setGameState(currentRoundState);
 
       setShowModal(currentRoundState.state == RoundState.ResultsDeclaredAndEnded);
       setSelectedPlayer(currentRoundState.state == RoundState.ResultsDeclaredAndEnded ? Players.None : selectedPlayer)
 
-      setRenderRecentBets(true);
     }
   };
 
@@ -49,7 +51,7 @@ const Game = () => {
   }, []);
 
   const { } = useQuery<{ rounds: RoundPage }>(GET_CURRENT_ROUND_QUERY, {
-    variables: { limit: 2, participant: "" },
+    variables: { limit: 2, participant: address != undefined ? { userId: address } : undefined },
     pollInterval: 500, // Refetch data every 5000 milliseconds (5 seconds)
     onCompleted: handleRoundData,
     notifyOnNetworkStatusChange: true,
@@ -57,24 +59,39 @@ const Game = () => {
 
   return (
     <Container>
-      <Row className={styles.GameContainer} gutter={20}>
-        <Col span={18}>
+      <Flex style={{ marginTop: '0px' }} justify="space-between" align="center" className={styles.GameHeader}>
+        <span className={styles.GameName}>
+          Prize Pool: {gameState.totalAmountPool}ETH
+        </span>
+        <span className={styles.GameName}>
+          Realm of Aces
+        </span>
+        <span className={styles.GameName}>
+          Round No.: {Number(gameState.roundNumber)}
+        </span>
+      </Flex>
+      <Row className={styles.GameContainer} gutter={20} >
+        <Col span={18} style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
           <CommunityCards cards={gameState.communityCards} />
           <GameTimer
             timerMessage={gameState.currentMessage}
             timer={gameState.currentTimerEndDateTime}
           />
           <GameCards
-            redCardsInput={gameState.participantA.cards}
-            blueCardsInput={gameState.participantB.cards}
-            redCardsTotalAmount={gameState.participantA.totalBetAmounts}
-            redCardsNumberOfBets={Number(gameState.participantA.totalNumberOfBets)}
-            blueCardsNumberOfBets={Number(gameState.participantB.totalNumberOfBets)}
-            blueCardsTotalAmout={gameState.participantB.totalBetAmounts}
+            redCardsInput={gameState.apesData.cards}
+            blueCardsInput={gameState.punksData.cards}
+            redCardsTotalAmount={gameState.apesData.totalBetAmounts}
+            redCardsNumberOfBets={Number(gameState.apesData.totalNumberOfBets)}
+            blueCardsNumberOfBets={Number(gameState.punksData.totalNumberOfBets)}
+            blueCardsTotalAmout={gameState.punksData.totalBetAmounts}
             selectedPlayer={selectedPlayer}
             handlePlayerSelection={handlePlayerSelection}
+            apesPayout={gameState.apesData.payoutMultiplier}
+            punksPayout={gameState.punksData.payoutMultiplier}
+            apesSelfBet={gameState.apesData.totalSelfBetAmount}
+            punksSelfBet={gameState.punksData.totalSelfBetAmount}
           />
-          <Divider />
+          {/* <Divider /> */}
         </Col>
         <Col span={6}>
           <Flex className={styles.GameActionsContainer} vertical>
@@ -86,10 +103,6 @@ const Game = () => {
                 height={170}
                 className={styles.GameCard}
               />
-              <Flex vertical align="center" className={styles.GameCardHeading}>
-                <Flex align="center">Realm of Aces</Flex>
-                <Flex style={{ fontSize: "20px" }} align="center">Round:{Number(gameState.roundNumber)}</Flex>
-              </Flex>
             </div>
             <BetForm
               roundId={Number(gameState?.roundNumber ?? 0)}
@@ -102,12 +115,8 @@ const Game = () => {
           </Flex>
         </Col>
       </Row>
-
       <RecentBets />
-
       <Divider />
-      <Button onClick={() => setShowModal(true)}>Open Success Modal</Button>
-
       {showModal && (
         <BetwinModal
           gameState={gameState}

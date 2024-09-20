@@ -48,7 +48,7 @@ const Navigation = () => {
         style={{ flex: 1, minWidth: 0 }}
         className={styles.Menu}
       />
-      <ConnectButton chainStatus="name" showBalance={true} />
+      <ConnectButton chainStatus="full" showBalance={true} accountStatus="avatar" />
     </Header>
   );
 };

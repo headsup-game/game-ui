@@ -22,6 +22,7 @@
     "ethers": "^6.12.1",
     "framer-motion": "^11.3.8",
     "graphql-request": "^6.1.0",
+    "handranker": "^1.0.5",
     "lodash": "^4.17.21",
     "next": "14.2.5",
     "pino-pretty": "^11.1.0",
