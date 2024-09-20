@@ -29,6 +29,7 @@ const CardCombinationsPage = () => {
             <div key={suit}>
               {values.map((value) => (
                 <PlayingCard
+                  isSmall={false}
                   key={`${value}-${suit}`}
                   value={value}
                   suit={suit}

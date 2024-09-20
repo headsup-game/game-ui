@@ -17,7 +17,7 @@ import { AlignType } from "rc-table/lib/interface";
 
 const { Title, Text } = Typography;
 
-const RecentBets: React.FC = React.memo(() => {
+const RecentBets = React.memo(React.forwardRef((props, ref) => {
   // State for table columns and data source
   const [columns, setColumns] = useState([
     {
@@ -245,6 +245,8 @@ const RecentBets: React.FC = React.memo(() => {
       </ConfigProvider>
     </Container>
   );
-});
+}));
+
+RecentBets.displayName = 'RecentBets';
 
 export default RecentBets;
