@@ -36,15 +36,32 @@ const PlayingCard = (props: PlayingCardProps) => {
   const getBGColor = (color: Color) => {
     switch (color) {
       case Color.RED:
-        return "#FEBEBE";
+        return "#FAF9F6";
       case Color.BLUE:
-        return "#C7BEFE";
+        return "#FAF9F6";
       case Color.VIOLET:
-        return "#E6BEFE";
+        return "#FAF9F6";
+      case Color.BLACK:
+        return "#000000";
       default:
         return "#FEBEBE";
     }
   };
+
+  const getSuitColor = (suit: Suit): Color => {
+    switch (suit) {
+      case Suit.Hearts:
+        return Color.RED;
+      case Suit.Diamonds:
+        return Color.BLUE;
+      case Suit.Spades:
+        return Color.BLACK
+      case Suit.Clubs:
+        return Color.GREEN;
+      default:
+        return Color.BLACK;
+    }
+  }
 
   const getColor = (color: Color) => {
     switch (color) {
@@ -54,6 +71,10 @@ const PlayingCard = (props: PlayingCardProps) => {
         return "#4865FF";
       case Color.VIOLET:
         return "#8E48FF";
+      case Color.BLACK:
+        return "#000000";
+      case Color.GREEN:
+        return "#5F8575";
       default:
         return "#FF4848";
     }
@@ -74,14 +95,14 @@ const PlayingCard = (props: PlayingCardProps) => {
           }}
         >
           {value != Rank.None &&
-            <Flex className={styles.PlayingCardText} style={{ color: getColor(color), fontSize: valueFontSize }}>
+            <Flex className={styles.PlayingCardText} style={{ color: getColor(getSuitColor(suit)), fontSize: valueFontSize }}>
               {getRankValue(value)}
             </Flex>}
           {suit != Suit.None && (
-            <Flex style={{ color: getColor(color), fontSize: suitFontSize }} className={styles.PlayingCardSuit}>{getSuitUnicodeSymbol(suit)}</Flex>
+            <Flex style={{ color: getColor(getSuitColor(suit)), fontSize: suitFontSize }} className={styles.PlayingCardSuit}>{getSuitUnicodeSymbol(suit)}</Flex>
           )}
           {suit != Suit.None && (
-            <Flex style={{ color: getColor(color), fontSize: suitFontSize }} className={styles.PlayingCardSuitInvert}>{getSuitUnicodeSymbol(suit)}</Flex>
+            <Flex style={{ color: getColor(getSuitColor(suit)), fontSize: suitFontSize }} className={styles.PlayingCardSuitInvert}>{getSuitUnicodeSymbol(suit)}</Flex>
           )}
         </Flex>
       ) : (

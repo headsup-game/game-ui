@@ -100,7 +100,7 @@ const GameCards: React.FC<GameCardsProps> = React.memo(({
           <Flex
             className={`${styles.WinPercentageStrip} ${styles.WinPercentageStripRed}`}
           >
-            Win% - {redWinPercentage.toFixed(2)} | Payout - {apesPayout == Infinity ? '∞' : apesPayout}x
+            Bets - {redCardsTotalAmount}ETH | Payout - {apesPayout == Infinity ? '∞' : apesPayout.toFixed(2)}x
           </Flex>
           {/* Card Container */}
           <Flex
@@ -121,9 +121,9 @@ const GameCards: React.FC<GameCardsProps> = React.memo(({
             </Row>
           </Flex>
           <Flex
-            className={`${styles.WinPercentageStrip} ${styles.WinPercentageStripBlue}`}
+            className={`${styles.WinPercentageStrip} ${styles.WinPercentageStripRed}`}
           >
-            Bets - {redCardsTotalAmount}ETH | My Bet - {apesSelfBet}ETH
+            Win% - {redWinPercentage.toFixed(2)}
           </Flex>
         </Flex>
       </Col>
@@ -137,7 +137,7 @@ const GameCards: React.FC<GameCardsProps> = React.memo(({
             vertical
             className={`${styles.WinPercentageStrip} ${styles.WinPercentageStripBlue}`}
           >
-            <Flex>Win% - {blueWinPercentage.toFixed(2)} | Payout - {punksPayout}x</Flex>
+            Bets - {blueCardsTotalAmout}ETH | Payout - {punksPayout == Infinity ? '∞' : punksPayout.toFixed(2)}x
           </Flex>
           <Flex
             className={`${styles.GameCardsContainer} ${styles.WinPercentageStripBlue
@@ -161,7 +161,7 @@ const GameCards: React.FC<GameCardsProps> = React.memo(({
           <Flex
             className={`${styles.WinPercentageStrip} ${styles.WinPercentageStripBlue}`}
           >
-            Bets - {blueCardsTotalAmout}ETH | My Bet - {punksSelfBet}ETH
+            Win% - {blueWinPercentage.toFixed(2)}
           </Flex>
         </Flex>
       </Col>

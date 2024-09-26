@@ -59,24 +59,25 @@ const Game = () => {
 
   return (
     <Container>
-      <Flex style={{ marginTop: '0px' }} justify="space-between" align="center" className={styles.GameHeader}>
-        <span className={styles.GameName}>
-          Prize Pool: {gameState.totalAmountPool}ETH
-        </span>
-        <span className={styles.GameName}>
-          Realm of Aces
-        </span>
-        <span className={styles.GameName}>
-          Round No.: {Number(gameState.roundNumber)}
-        </span>
+      <Flex style={{ marginTop: '0px' }} justify="center" align="center" className={styles.GameHeader}>
+        {/* <span className={styles.GameName}> */}
+        {/*   Prize Pool: {gameState.totalAmountPool}ETH */}
+        {/* </span> */}
+        <GameTimer
+          timerMessage={gameState.currentMessage}
+          timer={gameState.currentTimerEndDateTime}
+        />
+        {/* <span className={styles.GameName}> */}
+        {/*   Round No.: {Number(gameState.roundNumber)} */}
+        {/* </span> */}
       </Flex>
       <Row className={styles.GameContainer} gutter={20} >
         <Col span={18} style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
           <CommunityCards cards={gameState.communityCards} />
-          <GameTimer
-            timerMessage={gameState.currentMessage}
-            timer={gameState.currentTimerEndDateTime}
-          />
+          {/* <GameTimer */}
+          {/*   timerMessage={gameState.currentMessage} */}
+          {/*   timer={gameState.currentTimerEndDateTime} */}
+          {/* /> */}
           <GameCards
             redCardsInput={gameState.apesData.cards}
             blueCardsInput={gameState.punksData.cards}

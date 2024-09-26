@@ -92,7 +92,7 @@ const BetForm: React.FC<BetFormProps> = React.memo(({
         justify="center"
         style={{ lineHeight: "14px", marginBottom: "20px", fontSize: "16px" }}
       >
-        {`Rewards multiplier: ${multiplier.toFixed(2)}`}
+        {`Points multiplier: ${multiplier.toFixed(2)}`}
       </Flex>
       <Form.Item
         name="side"

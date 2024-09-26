@@ -6,6 +6,8 @@ export enum Color {
   RED,
   BLUE,
   VIOLET,
+  BLACK,
+  GREEN
 }
 
 export enum Suit {
