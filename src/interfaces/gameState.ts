@@ -174,7 +174,7 @@ export function getGameStateFromRound(previousRound: Round | null, currentRound:
       },
     ];
 
-  const winningHandRank = round.winningHands == null ? '' : Ranker.getHand(getCardNamesForPokerHandRank(winningCards)).ranking.toUpperCase();
+  const winningHandRank = round.winningHands == null ? '' : Ranker.getHand(getCardNamesForPokerHandRank(winningCards)).ranking;
   const state = getGameStatusFromRound(round);
   const roundWinner =
     state == RoundState.Cancelled
