@@ -21,8 +21,8 @@ const RecentBets = React.memo(React.forwardRef((props, ref) => {
   // State for table columns and data source
   const [columns, setColumns] = useState([
     {
-      title: "Round No.",
-      width: "10%",
+      title: "Round#",
+      width: "5",
       align: 'center' as AlignType,
       dataIndex: "roundNumber",
       key: "roundNumber",
@@ -35,12 +35,11 @@ const RecentBets = React.memo(React.forwardRef((props, ref) => {
     }, {
       title: "Apes",
       align: 'center' as AlignType,
-      width: "5%",
       dataIndex: "apeCards",
       key: "apeCards",
       render: (data: { cards: Card[], bets: string }) =>
         Array.isArray(data.cards) ? (
-          <><CardSet isSmall={true} numberOfCards={data.cards.length} cards={data.cards} /></>
+          <><CardSet isSmall={true} numberOfCards={data.cards.length} cards={data.cards} cardWidth={50} /></>
         ) : (
           <span>No Cards</span>
         ),
@@ -48,7 +47,6 @@ const RecentBets = React.memo(React.forwardRef((props, ref) => {
     {
       title: "Apes Pool",
       align: 'center' as AlignType,
-      width: "10%",
       dataIndex: "totalApesBets",
       key: "totalApesBets",
       render: (totalBets?: string) =>
@@ -61,11 +59,10 @@ const RecentBets = React.memo(React.forwardRef((props, ref) => {
       title: "Punks",
       dataIndex: "punkCards",
       align: 'center' as AlignType,
-      width: "5%",
       key: "punkCards",
       render: (data: { cards: Card[], bets: string }) =>
         Array.isArray(data.cards) ? (
-          <><CardSet isSmall={true} numberOfCards={data.cards.length} cards={data.cards} /></>
+          <><CardSet isSmall={true} numberOfCards={data.cards.length} cards={data.cards} cardWidth={50} /></>
         ) : (
           <span>No Cards</span>
         ),
@@ -73,7 +70,6 @@ const RecentBets = React.memo(React.forwardRef((props, ref) => {
     {
       title: "Punk Pool",
       align: 'center' as AlignType,
-      width: "10%",
       dataIndex: "totalPunkBets",
       key: "totalPunkBets",
       render: (totalBets?: string) =>
@@ -85,20 +81,18 @@ const RecentBets = React.memo(React.forwardRef((props, ref) => {
     },
     {
       title: "Community Cards",
-      width: "12.5%",
       align: 'center' as AlignType,
       dataIndex: "communityCards",
       key: "communityCards",
       render: (cards: Card[]) =>
         Array.isArray(cards) ? (
-          <CardSet isSmall={true} numberOfCards={cards.length} cards={cards} />
+          <CardSet isSmall={true} numberOfCards={cards.length} cards={cards} cardWidth={50} />
         ) : (
           <span>No Cards</span>
         ),
     },
     {
       title: "Winner",
-      width: "10%",
       align: 'center' as AlignType,
       dataIndex: "winner",
       key: "winner",
@@ -107,7 +101,6 @@ const RecentBets = React.memo(React.forwardRef((props, ref) => {
       title: "Own Bet",
       dataIndex: "ownBets",
       align: 'center' as AlignType,
-      width: "15%",
       key: "ownBets",
       render: (bet: { amount: string; position: string; isWinner: boolean }) =>
         bet ? (

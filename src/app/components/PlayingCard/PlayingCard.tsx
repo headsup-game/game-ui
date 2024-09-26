@@ -1,5 +1,3 @@
-'use client'
-
 /* eslint-disable @next/next/no-page-custom-font */
 import styles from "./PlayingCard.module.scss";
 import { Flex, Typography } from "antd";
@@ -16,6 +14,7 @@ interface PlayingCardProps {
   onClick?: () => void;
   styles?: React.CSSProperties;
   isSmall: boolean
+  cardWidth?: number
 }
 
 const PlayingCard = (props: PlayingCardProps) => {
@@ -26,10 +25,12 @@ const PlayingCard = (props: PlayingCardProps) => {
 
   useEffect(() => {
     if (playingCardRef?.current != null) {
-      const cardWidth = playingCardRef.current.offsetWidth;
-      setValueFontSize(`${props.isSmall ? 10 : cardWidth / 2}px`);
-      setSuitFontSize(`${props.isSmall ? 10 : cardWidth / 3}px`);
-      console.log('cardWidth', cardWidth);
+      const cardWidth = props.cardWidth == null ? playingCardRef.current.offsetWidth : props.cardWidth;
+      setValueFontSize(`${cardWidth / 2}px`);
+      setSuitFontSize(`${cardWidth / 3}px`);
+      if (!props.isSmall) {
+        console.log('cardWidth', cardWidth);
+      }
     }
   })
 
@@ -82,7 +83,6 @@ const PlayingCard = (props: PlayingCardProps) => {
 
   return (
     <>
-      {!props.isSmall ? (
         <Flex
           ref={playingCardRef}
           className={`${className} ${styles.PlayingCard}`}
@@ -105,17 +105,6 @@ const PlayingCard = (props: PlayingCardProps) => {
             <Flex style={{ color: getColor(getSuitColor(suit)), fontSize: suitFontSize }} className={styles.PlayingCardSuitInvert}>{getSuitUnicodeSymbol(suit)}</Flex>
           )}
         </Flex>
-      ) : (
-        <Flex justify="center" align="center" style={{ padding: "0px" }}>
-          {value != Rank.None &&
-            <Text className={styles.PlayingCardSmallText} style={{ opacity: '1', color: getColor(color), fontSize: '20px' }}>
-              {getRankValue(value)}
-            </Text>}
-          {suit != Suit.None && (
-            <Text style={{ color: getColor(color), fontSize: '20px', opacity: '1' }} className={styles.PlayingCardSmallSuit}>{getSuitUnicodeSymbol(suit)}</Text>
-          )}
-        </Flex>
-      )}
     </>
   );
 };

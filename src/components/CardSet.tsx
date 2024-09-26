@@ -11,6 +11,7 @@ interface CardSetProps {
   initFaceDown?: boolean;
   width?: number
   isSmall: boolean
+  cardWidth?: number
 }
 
 const isCardSetEqual = (prevProps: CardSetProps, nextProps: CardSetProps): boolean => {
@@ -26,6 +27,7 @@ const CardSet: React.FC<CardSetProps> = React.memo(({
   isSmall,
   initFaceDown,
   cards,
+  cardWidth
 }) => {
   const [isLoaded, setIsLoaded] = useState(false);
 
@@ -69,8 +71,9 @@ const CardSet: React.FC<CardSetProps> = React.memo(({
               color={card?.color}
               value={card?.rank}
               suit={card?.suit}
+              cardWidth={cardWidth}
               styles={{
-                width: "100%",
+                width: cardWidth == null ? "100%" : `${cardWidth}px`,
               }}
             />
           }
@@ -83,7 +86,7 @@ const CardSet: React.FC<CardSetProps> = React.memo(({
           value={card?.rank}
           suit={card?.suit}
           styles={{
-            width: "100%",
+            width: cardWidth == null ? "100%" : `${cardWidth}px`,
           }}
         />
       ))}

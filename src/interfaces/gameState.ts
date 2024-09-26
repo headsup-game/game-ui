@@ -173,6 +173,8 @@ export function getGameStateFromRound(previousRound: Round | null, currentRound:
         animationDelay: 1000
       },
     ];
+
+  const winningHandRank = round.winningHands == null ? '' : Ranker.getHand(getCardNamesForPokerHandRank(winningCards)).ranking.toUpperCase();
   const state = getGameStatusFromRound(round);
   const roundWinner =
     state == RoundState.Cancelled
@@ -274,11 +276,11 @@ export function getGameStateFromRound(previousRound: Round | null, currentRound:
           },
         ],
     winningCards: winningCards,
-    winningHandRank: round.winningHands == null ? '' : Ranker.getHand(getCardNamesForPokerHandRank(winningCards)).ranking.toUpperCase(),
+    winningHandRank: winningHandRank,
     selfRoundWinningAmount: '0.0',
     roundWinner: roundWinner,
-    roundWinnerMessage: getRoundWinnerMessage(roundWinner, false),
-    roundWinnerMessageShort: getRoundWinnerMessage(roundWinner, true),
+    roundWinnerMessage: getRoundWinnerMessage(roundWinner, false, winningHandRank),
+    roundWinnerMessageShort: getRoundWinnerMessage(roundWinner, true, winningHandRank),
     minimumAllowedBetAmount: 0.0,
     currentTimerEndDateTime: getCurrentTimeEndDateTime(state, round),
     currentMessage: getCurrentMessage(state),
@@ -303,12 +305,12 @@ function getRoundWinner(round: Round): RoundWinner {
   }
 }
 
-function getRoundWinnerMessage(roundWinner: RoundWinner, short: boolean) {
+function getRoundWinnerMessage(roundWinner: RoundWinner, short: boolean, winningRank?: string) {
   switch (roundWinner) {
     case RoundWinner.Apes:
-      return short ? "Apes" : "Apes won";
+      return short ? "Apes" : `Apes won with ${winningRank}`;
     case RoundWinner.Punks:
-      return short ? "Punks" : "Punks won";
+      return short ? "Punks" : `Punks won with ${winningRank}`;
     case RoundWinner.Draw:
       return short ? "Draw" : "Its a Draw!!";
     case RoundWinner.Cancelled:
