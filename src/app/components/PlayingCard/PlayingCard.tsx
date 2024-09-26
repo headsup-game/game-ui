@@ -1,4 +1,5 @@
 /* eslint-disable @next/next/no-page-custom-font */
+"use client"
 import styles from "./PlayingCard.module.scss";
 import { Flex, Typography } from "antd";
 import { Color, getRankValue, getSuitUnicodeSymbol, Rank, Suit } from "interfaces/card";
