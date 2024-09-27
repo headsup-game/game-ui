@@ -44,7 +44,7 @@ const BetwinModal = ({
         {/*   {gameState.winningHandRank} */}
         {/* </Flex> */}
         <Flex justify="center" className={styles.SubTitle}>
-          <CardSet isSmall={true} numberOfCards={gameState.winningCards.length} cards={getSortedCardsByRank(gameState.winningCards)} cardWidth={50} />
+          <CardSet isSmall={true} numberOfCards={gameState.winningCards.length} cards={getSortedCardsByRank(gameState.winningCards)} cardWidth={60} />
         </Flex>
       </Flex>
       <Divider className={styles.Divider} />
