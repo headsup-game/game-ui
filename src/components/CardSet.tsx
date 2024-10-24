@@ -63,7 +63,7 @@ const CardSet: React.FC<CardSetProps> = React.memo(({
           style={{
             width: `calc(100% / ${numberOfCards})`,
           }}
-          initFaceDown={card?.faceDown || false}
+          initFaceDown={card?.faceDown}
           animationDelay={card?.animationDelay} // Pass animation delay to FlipCard component
           frontContent={
             <PlayingCard

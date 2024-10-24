@@ -92,78 +92,55 @@ const FlipCard: React.FC<FlipCardProps> = ({
     setIsFlipped(initFaceDown);
   }, [initFaceDown]);
 
+  console.log('initFaceDown', initFaceDown);
+
   return (
-    <motion.div
-      onClick={handleClick}
-      transition={spring}
-      style={{
-        perspective: "400px",
-        transformStyle: "preserve-3d",
-        width: width,
-        display: "flex",
-        aspectRatio: "63/88",
-        ...style,
-      }}
-    >
-      <motion.div
-        ref={ref}
-        whileHover={{ scale: 1.1 }} //Change the scale of zooming in when hovering
-        onMouseMove={handleMouseMove}
-        onMouseLeave={handleMouseEnd}
-        transition={spring}
-        style={{
-          width: "100%",
-          height: "100%",
-          rotateX: dx,
-          rotateY: dy,
-        }}
-      >
-        <div
-          style={{
-            perspective: "400px",
-            transformStyle: "preserve-3d",
-            width: "100%",
-            height: "100%",
-          }}
-        >
-          <motion.div
-            animate={{ rotateY: isFlipped ? -180 : 0 }}
-            transition={{
-              delay: animationDelay,
-              ...spring,
-            }}
-            style={{
-              width: "100%",
-              height: "100%",
-              zIndex: isFlipped ? 0 : 1,
-              // backfaceVisibility: "hidden",
-              position: "absolute",
-              aspectRatio: "63/88",
-            }}
-          >
-            {frontContent}
-          </motion.div>
-          <motion.div
-            initial={{ rotateY: 0 }}
-            animate={{ rotateY: isFlipped ? 0 : 0 }}
-            transition={{
-              delay: animationDelay,
-              ...spring,
-            }}
-            style={{
-              width: "100%",
-              height: "100%",
-              zIndex: isFlipped ? 1 : 0,
-              // backfaceVisibility: "hidden",
-              position: "absolute",
-              aspectRatio: "63/88",
-            }}
-          >
-            {backContent}
-          </motion.div>
-        </div>
-      </motion.div>
-    </motion.div>
+		<motion.div
+			onClick={handleClick}
+			transition={spring}
+			style={{
+				perspective: "400px",
+				transformStyle: "preserve-3d",
+				width: width,
+				display: "flex",
+				aspectRatio: "63/88",
+				...style,
+			}}
+		>
+			<motion.div
+				ref={ref}
+				whileHover={{ scale: 1.1 }} //Change the scale of zooming in when hovering
+				onMouseMove={handleMouseMove}
+				onMouseLeave={handleMouseEnd}
+				transition={spring}
+				style={{
+					width: "100%",
+					height: "100%",
+					rotateX: dx,
+					rotateY: dy,
+				}}
+        className="group [perspective:2000px]"
+			>
+				<div className="relative transition-all duration-300 [transform-style:preserve-3d] cursor-pointer">
+					<motion.div
+						animate={{
+							rotateY: isFlipped ? 0 : 180,
+						}}
+						className="w-full h-full [backface-visibility:hidden]"
+					>
+						{backContent}
+					</motion.div>
+					<motion.div
+						animate={{
+							rotateY: isFlipped ? 180 : 0,
+						}}
+						className="absolute inset-0 w-full h-full [backface-visibility:hidden]"
+					>
+						{frontContent}
+					</motion.div>
+				</div>
+			</motion.div>
+		</motion.div>
   );
 };
 
