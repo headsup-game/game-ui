@@ -66,11 +66,13 @@
 
 .BetFormRadio {
   display: flex !important;
+  flex-wrap: wrap;
   align-items: center;
   gap: var(--spacing-2, 8px);
 
   &>label {
-    width: 100%;
+    flex: 1 1 auto;
+    width: fit-content;
     color: #fff !important;
     border: 1px solid #fff;
     background: transparent;
@@ -94,17 +96,20 @@
 
 .BetFormRoundsRadio {
   display: flex !important;
+  flex-wrap: wrap;
+  flex-grow: 1;
+  flex-shrink: 1;
   align-items: center;
   gap: var(--spacing-2, 6px);
   border-inline-start: 0px !important;
 
   &>label {
-    width: 100%;
+    flex: 1 1 auto;
     border-color: rgba(141, 108, 239, 0.14);
     border-inline-start: 0px !important;
     background: rgba(141, 108, 239, 0.14);
     height: auto;
-    /* width: 40px; */
+    min-width: fit-content;
     font-size: 14px;
     border-start-end-radius: 8px !important;
     border-end-end-radius: 8px !important;

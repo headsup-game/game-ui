@@ -159,7 +159,7 @@ const BetForm: React.FC<BetFormProps> = React.memo(({
           marginBottom: 24,
         }}
       >
-        <Flex align="center" gap={6}>
+        <Flex align="center" gap={6} className="flex-wrap">
           {[0.01, 0.05, 0.1].map((item) => (
             <Button
               key={item}
