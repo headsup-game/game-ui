@@ -21,17 +21,24 @@ interface PlayingCardProps {
 const PlayingCard = (props: PlayingCardProps) => {
   const { className, color, value, suit, onClick } = props;
   const playingCardRef = useRef<HTMLElement>(null);
-  const [suitFontSize, setSuitFontSize] = useState('0px');
-  const [valueFontSize, setValueFontSize] = useState('0px');
+  const [suitFontSize, setSuitFontSize] = useState<`${number}px`>('0px');
+  const [valueFontSize, setValueFontSize] = useState<`${number}px`>('0px');
 
   useEffect(() => {
-    if (playingCardRef?.current != null) {
-      const cardWidth = props.cardWidth == null ? playingCardRef.current.offsetWidth : props.cardWidth;
-      setValueFontSize(`${cardWidth / 2}px`);
-      setSuitFontSize(`${cardWidth / 3}px`);
-      if (!props.isSmall) {
-        console.log('cardWidth', cardWidth);
+    const resize_ob = new ResizeObserver(() => {
+      if (playingCardRef?.current != null) {
+        const cardWidth = props.cardWidth == null ? playingCardRef.current.offsetWidth : props.cardWidth;
+        setValueFontSize(`${cardWidth / 2}px`);
+        setSuitFontSize(`${cardWidth / 3}px`);
+        if (!props.isSmall) {
+          console.log('cardWidth', cardWidth);
+        }
       }
+    });
+    resize_ob.observe(playingCardRef.current as HTMLElement);
+    
+    return () => {
+      resize_ob.disconnect();
     }
   })
 
@@ -93,17 +100,18 @@ const PlayingCard = (props: PlayingCardProps) => {
           style={{
             ...props.styles,
             backgroundColor: getBGColor(color),
+            userSelect: "none",
           }}
         >
           {value != Rank.None &&
-            <Flex className={styles.PlayingCardText} style={{ color: getColor(getSuitColor(suit)), fontSize: valueFontSize }}>
+            <Flex className={styles.PlayingCardText} style={{ color: getColor(getSuitColor(suit)), fontSize: valueFontSize, userSelect: "none" }}>
               {getRankValue(value)}
             </Flex>}
           {suit != Suit.None && (
-            <Flex style={{ color: getColor(getSuitColor(suit)), fontSize: suitFontSize }} className={styles.PlayingCardSuit}>{getSuitUnicodeSymbol(suit)}</Flex>
+            <Flex style={{ color: getColor(getSuitColor(suit)), fontSize: suitFontSize, userSelect: "none" }} className={styles.PlayingCardSuit}>{getSuitUnicodeSymbol(suit)}</Flex>
           )}
           {suit != Suit.None && (
-            <Flex style={{ color: getColor(getSuitColor(suit)), fontSize: suitFontSize }} className={styles.PlayingCardSuitInvert}>{getSuitUnicodeSymbol(suit)}</Flex>
+            <Flex style={{ color: getColor(getSuitColor(suit)), fontSize: suitFontSize, userSelect: "none" }} className={styles.PlayingCardSuitInvert}>{getSuitUnicodeSymbol(suit)}</Flex>
           )}
         </Flex>
     </>
