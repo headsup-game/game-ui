@@ -21,6 +21,7 @@ import { RoundPage } from "gql/graphql";
 import GameTimer from "app/game/GameTimer";
 import { Players } from "interfaces/players";
 import { useAccount } from "wagmi";
+import UserWinModal from "app/components/UserWinModal/UserWinModal";
 
 const { Title, Text } = Typography;
 
@@ -29,6 +30,7 @@ const Game = () => {
     getGameStateFromRound(null, null, undefined)
   );
   const [showModal, setShowModal] = useState(false);
+  const [showUserWinModal, setShowUserWinModal] = useState(true);
   const [selectedPlayer, setSelectedPlayer] = useState<Players>(Players.None);
   const { isConnected, address } = useAccount();
 
@@ -123,6 +125,12 @@ const Game = () => {
           gameState={gameState}
           open={showModal}
           setOpen={setShowModal}
+        />
+      )}
+      {showUserWinModal && (
+        <UserWinModal
+          open={showUserWinModal}
+          setOpen={setShowUserWinModal}
         />
       )}
     </Container>
