@@ -1,10 +1,10 @@
 "use client";
 
 import React, { useState } from "react";
-import { ConfigProvider, Table, Typography } from "antd";
+import { Button, ConfigProvider, Flex, Table, Typography } from "antd";
 import Container from "app/components/Container/Container";
 import styles from "./Game.module.scss";
-import { useQuery } from "@apollo/client";
+import { DocumentNode, useQuery } from "@apollo/client";
 import { Position, RoundPage } from "gql/graphql";
 import { GET_CURRENT_ROUND_QUERY } from "graphQueries/getCurrentRound";
 import { GameState, RoundWinner, getGameStateFromRound } from "interfaces/gameState";
@@ -205,19 +205,34 @@ const RecentBets = React.memo(React.forwardRef((props, ref) => {
     setDataSource(dataSource);
   };
 
+  const [ROUND_QUERY, setROUND_QUERY] = useState<DocumentNode>(GET_CURRENT_ROUND_QUERY);
+  const [activeQueryIsUserWinnings, setActiveQueryIsUserWinnings] = useState(false); // to track if the active query is for user's own winnings
+
   // Apollo query to fetch round data
-  useQuery<{ rounds: RoundPage }>(GET_CURRENT_ROUND_QUERY, {
+  useQuery<{ rounds: RoundPage }>(ROUND_QUERY, {
     variables: { limit: 10, participant: address },
     pollInterval: 12000, // Refetch data every 12000 milliseconds (12 seconds)
     onCompleted: handleRoundData,
     notifyOnNetworkStatusChange: true,
   });
 
+  const handleRoundDataQuery = () => {
+    if (activeQueryIsUserWinnings) {
+      setROUND_QUERY(GET_CURRENT_ROUND_QUERY); // Replace the query to fetch all rounds
+    } else {
+      setROUND_QUERY(GET_CURRENT_ROUND_QUERY); // Replace the query to fetch user's own winnings
+    }
+    setActiveQueryIsUserWinnings(!activeQueryIsUserWinnings);
+  };
+
   return (
     <Container>
-      <Title level={5} className={styles.RecentBetsTitle}>
-        Recent Rounds
-      </Title>
+      <Flex justify="space-between" align="flex-start">
+        <Title level={5} className={styles.RecentBetsTitle}>
+          Recent Rounds
+        </Title>
+        <Button type={activeQueryIsUserWinnings ? "primary" : "default"} size="small" onClick={handleRoundDataQuery}>My Winnigs</Button>
+      </Flex>
       <ConfigProvider
         theme={{
           components: {
