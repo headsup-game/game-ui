@@ -194,7 +194,7 @@ const RecentBets = React.memo(React.forwardRef((props, ref) => {
               isWinner: ownBet.position == round.winner,
             }
             : null,
-          ownWonAmount: "0.0" 
+          ownWonAmount: "0.0"
         });
       } catch (error) {
         console.error("Error handling round data:", error);
