@@ -31,6 +31,13 @@ const Leaderboard = React.memo(
 	React.forwardRef((props, ref) => {
 		const [columns, setColumns] = useState([
 			{
+				title: "Rank",
+				align: "center" as AlignType,
+				dataIndex: "rank",
+				key: "rank",
+				render: (rank?: number) => <span>{rank}</span>,
+			},
+			{
 				title: "Address",
 				width: "5",
 				align: "center" as AlignType,
@@ -79,7 +86,13 @@ const Leaderboard = React.memo(
 				totalBets: `${i * 1000}`,
 			}));
 
-			setDataSource(data.leaderboard.length ? data.leaderboard : dummyData);
+			const sortedData = (
+				data.leaderboard.length ? data.leaderboard : dummyData
+			)
+				.sort((a, b) => parseInt(b.points) - parseInt(a.points))
+				.map((item, index) => ({ ...item, rank: index + 1 }));
+
+			setDataSource(sortedData);
 		};
 
 		useEffect(() => {
@@ -98,14 +111,17 @@ const Leaderboard = React.memo(
 
 		useQuery<{ leaderboard: LeaderboardProps[] }>(GET_LEADERBOARD_QUERY, {
 			variables: { limit: 10 },
-			pollInterval: 500, // Refetch data every 5000 milliseconds (5 seconds)
+			pollInterval: 500, // Refetch data every 500 milliseconds (0.5 seconds)
 			onCompleted: handleLeaderboardData,
 			notifyOnNetworkStatusChange: true,
 		});
 
 		return (
 			<Container className="min-h-screen">
-				<Title level={5} className="text-[white_!important] text-center">
+				<Title
+					level={5}
+					className="text-[white_!important] text-center"
+				>
 					Leaderboard
 				</Title>
 				<ConfigProvider
@@ -128,7 +144,7 @@ const Leaderboard = React.memo(
 						columns={columns}
 						pagination={false}
 					/>
-					<Pagination align="center" defaultCurrent={1} total={50}  />
+					<Pagination align="center" defaultCurrent={1} total={50} />
 				</ConfigProvider>
 			</Container>
 		);
