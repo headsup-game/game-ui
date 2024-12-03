@@ -30,7 +30,7 @@ const Game = () => {
     getGameStateFromRound(null, null, undefined)
   );
   const [showModal, setShowModal] = useState(false);
-  const [showUserWinModal, setShowUserWinModal] = useState(true);
+  const [showUserWinModal, setShowUserWinModal] = useState(false);
   const [selectedPlayer, setSelectedPlayer] = useState<Players>(Players.None);
   const { isConnected, address } = useAccount();
 
@@ -61,7 +61,7 @@ const Game = () => {
 
   return (
     <Container>
-      <Flex style={{ marginTop: '0px' }} justify="center" align="center" className={styles.GameHeader}>
+      <Flex style={{ margin: '16px 0' }} justify="center" align="center" className={styles.GameHeader}>
         {/* <span className={styles.GameName}> */}
         {/*   Prize Pool: {gameState.totalAmountPool}ETH */}
         {/* </span> */}
@@ -73,8 +73,8 @@ const Game = () => {
         {/*   Round No.: {Number(gameState.roundNumber)} */}
         {/* </span> */}
       </Flex>
-      <Row className={styles.GameContainer} gutter={20} >
-        <Col span={18} style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+      <div className="grid lg:grid-flow-col place-items-center" >
+        <div className="flex flex-col gap-8">
           <CommunityCards cards={gameState.communityCards} />
           {/* <GameTimer */}
           {/*   timerMessage={gameState.currentMessage} */}
@@ -95,8 +95,8 @@ const Game = () => {
             punksSelfBet={gameState.punksData.totalSelfBetAmount}
           />
           {/* <Divider /> */}
-        </Col>
-        <Col span={6}>
+        </div>
+        <Col span={6} className={styles.GameUserBetContainer}>
           <Flex className={styles.GameActionsContainer} vertical>
             <div style={{ position: "relative" }}>
               <Image
@@ -117,7 +117,7 @@ const Game = () => {
             />
           </Flex>
         </Col>
-      </Row>
+      </div>
       <RecentBets />
       <Divider />
       {showModal && (

@@ -8,6 +8,7 @@ import { AlignType } from "rc-table/lib/interface";
 import { useAccount, useEnsName } from "wagmi";
 import { gql, useQuery } from "@apollo/client";
 import { ethers } from "ethers";
+import { client } from "apolloClient";
 
 const { Title, Text } = Typography;
 
@@ -71,56 +72,151 @@ const Leaderboard = React.memo(
 					),
 			},
 		]);
+		const [mobileColumns] = useState([
+			{
+				title: "Rank",
+				align: "center" as AlignType,
+				dataIndex: "rank",
+				key: "rank",
+				render: (rank?: number) => <span>{rank}</span>,
+			},
+			{
+				title: "Address",
+				align: "center" as AlignType,
+				dataIndex: "address",
+				key: "address",
+				render: (address?: string) => (
+					<div>
+						{address ? (
+							<>
+								<ENSName address={address as `0x${string}`} />
+								<div
+									style={{
+										fontSize: "12px",
+										color: "#6C6C89",
+									}}
+								>
+									Points:{" "}
+									{dataSource.find(
+										(item) => item.address === address
+									)?.points || "0"}
+								</div>
+							</>
+						) : (
+							<span>0x000...0000</span>
+						)}
+					</div>
+				),
+			},
+			{
+				title: "Total Bets",
+				align: "center" as AlignType,
+				dataIndex: "totalBets",
+				key: "totalBets",
+				render: (totalBets?: string) => (
+					<span style={{ textAlign: "right" }}>
+						{totalBets || "0.0"}
+					</span>
+				),
+			},
+		]);
 
 		const { isConnected, address } = useAccount();
 
 		const [dataSource, setDataSource] = useState<LeaderboardProps[]>([]);
+		const [currentPage, setCurrentPage] = useState(1);
+		const [pageSize, setPageSize] = useState(10);
+		const [totalItems, setTotalItems] = useState(2);
 
 		const handleLeaderboardData = (data: {
-			leaderboard: LeaderboardProps[];
+			users: {
+				items: {
+					totalPoints: LeaderboardProps["points"];
+					account: LeaderboardProps["address"];
+					totalBetAmount: LeaderboardProps["totalBets"];
+				}[];
+			};
 		}) => {
-			const dummyData = Array.from({ length: 10 }, (_, i) => ({
-				key: `${i}`,
-				address: ethers.Wallet.createRandom().address,
-				points: `${i * 100}`,
-				totalBets: `${i * 1000}`,
-			}));
+			const sortedData = data.users.items
+				.map((item, index) => ({
+					...item,
+					rank: (currentPage - 1) * pageSize + index + 1,
+				}))
+				.map((item) => ({
+					...item,
+					address: item.account,
+				}))
+				.map((item) => ({
+					...item,
+					totalBets: item.totalBetAmount,
+				}))
+				.map((item) => ({
+					...item,
+					points: item.totalPoints,
+				}));
 
-			const sortedData = (
-				data.leaderboard.length ? data.leaderboard : dummyData
-			)
-				.sort((a, b) => parseInt(b.points) - parseInt(a.points))
-				.map((item, index) => ({ ...item, rank: index + 1 }));
-
-			setDataSource(sortedData);
+			setDataSource(
+				sortedData.map((item) => ({
+					...item,
+					key: item.rank.toString(),
+				}))
+			);
 		};
 
-		useEffect(() => {
-			handleLeaderboardData({ leaderboard: [] });
-		}, []);
-
 		const GET_LEADERBOARD_QUERY = gql`
-			query GetLeaderboard($limit: Int) {
-				leaderboard(limit: $limit) {
-					address
-					points
-					totalBets
+			query MyQuery($limit: Int!, $where: UserFilter) {
+				users(
+					orderBy: "totalPoints"
+					orderDirection: "desc"
+					limit: $limit
+					where: $where
+				) {
+					items {
+						totalPoints
+						account
+						totalBetAmount
+					}
 				}
 			}
 		`;
 
-		useQuery<{ leaderboard: LeaderboardProps[] }>(GET_LEADERBOARD_QUERY, {
-			variables: { limit: 10 },
-			pollInterval: 500, // Refetch data every 500 milliseconds (0.5 seconds)
-			onCompleted: handleLeaderboardData,
-			notifyOnNetworkStatusChange: true,
-		});
+		const fetchData = async (query = {}) => {
+			const { data } = await client.query({
+				query: GET_LEADERBOARD_QUERY,
+				variables: {
+					limit: pageSize,
+					where: query,
+				},
+			});
+			handleLeaderboardData(data);
+		};
+
+		useEffect(() => {
+			fetchData();
+		}, []);
+
+		const handlePageChange = (page: number, pageSize?: number) => {
+			setCurrentPage(page);
+			if (pageSize) {
+				setPageSize(pageSize);
+				if (currentPage > page) {
+					fetchData({
+						totalPoints_gt: dataSource[0].points,
+					});
+				} else {
+					fetchData({
+						totalPoints_lt:
+							dataSource[dataSource.length - 1].points,
+					});
+				}
+			}
+		};
 
 		return (
 			<Container className="min-h-screen">
 				<Title
 					level={5}
-					className="text-[white_!important] text-center"
+					className="text-[white_!important] text-center my-4"
 				>
 					Leaderboard
 				</Title>
@@ -136,15 +232,36 @@ const Leaderboard = React.memo(
 								colorBgContainer: "#141127",
 								colorText: "#F9FAFB",
 							},
+							Pagination: {
+								itemBg: "#141127",
+								colorIcon: "#F9FAFB",
+								colorText: "#F9FAFB",
+							},
 						},
 					}}
 				>
-					<Table
-						dataSource={dataSource}
-						columns={columns}
-						pagination={false}
+					<div className="hidden md:block">
+						<Table
+							dataSource={dataSource}
+							columns={columns}
+							pagination={false}
+						/>
+					</div>
+					<div className="block md:hidden">
+						<Table
+							dataSource={dataSource}
+							columns={mobileColumns}
+							pagination={false}
+						/>
+					</div>
+					<Pagination
+						align="center"
+						current={currentPage}
+						pageSize={pageSize}
+						total={totalItems}
+						onChange={handlePageChange}
+						style={{ margin: "16px" }}
 					/>
-					<Pagination align="center" defaultCurrent={1} total={50} />
 				</ConfigProvider>
 			</Container>
 		);

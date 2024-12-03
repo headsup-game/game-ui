@@ -92,7 +92,6 @@ const FlipCard: React.FC<FlipCardProps> = ({
     setIsFlipped(initFaceDown);
   }, [initFaceDown]);
 
-  console.log('initFaceDown', initFaceDown);
 
   return (
 		<motion.div

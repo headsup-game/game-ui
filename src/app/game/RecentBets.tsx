@@ -1,13 +1,13 @@
 "use client";
 
 import React, { useState } from "react";
-import { Button, ConfigProvider, Flex, Table, Typography } from "antd";
+import { ConfigProvider, Flex, Table, Typography } from "antd";
 import Container from "app/components/Container/Container";
 import styles from "./Game.module.scss";
-import { DocumentNode, useQuery } from "@apollo/client";
-import { Position, RoundPage } from "gql/graphql";
+import { gql, useQuery } from "@apollo/client";
+import { RoundPage } from "gql/graphql";
 import { GET_CURRENT_ROUND_QUERY } from "graphQueries/getCurrentRound";
-import { GameState, RoundWinner, getGameStateFromRound } from "interfaces/gameState";
+import { GameState, getGameStateFromRound } from "interfaces/gameState";
 import CardSet from "@components/CardSet";
 import { Card } from "interfaces/card";
 import { Pagination } from "antd";
@@ -15,9 +15,9 @@ import { useAccount } from "wagmi";
 import { ethers } from 'ethers'
 import { AlignType } from "rc-table/lib/interface";
 
-const { Title, Text } = Typography;
+const { Title } = Typography;
 
-const RecentBets = React.memo(React.forwardRef((props, ref) => {
+const RecentBets = React.memo(() => {
   // State for table columns and data source
   const [columns, setColumns] = useState([
     {
@@ -106,7 +106,6 @@ const RecentBets = React.memo(React.forwardRef((props, ref) => {
         bet ? (
           <span>
             {bet.amount} on {bet.position}
-            {/* {bet.isWinner ? <strong>Won</strong> : <strong>Lost</strong>} */}
           </span>
         ) : (
           <span>No Bets</span>
@@ -117,10 +116,55 @@ const RecentBets = React.memo(React.forwardRef((props, ref) => {
       align: 'center' as AlignType,
       width: "10%",
       key: "ownWonAmount",
-      render: (ownWonAmount: string) =>
-      (
+      render: (ownWonAmount: string) => (
         <span>{ownWonAmount}</span>
       )
+    },
+  ]);
+
+  const [mobileColumns] = useState([
+    {
+      title: "#",
+      width: "15%",
+      align: 'center' as AlignType,
+      dataIndex: "roundNumber",
+      key: "roundNumber",
+      render: (roundNumber?: string) => roundNumber || "0",
+    },
+    {
+      title: "Game",
+      align: 'center' as AlignType,
+      width: "55%",
+      key: "gameInfo",
+      render: (_: any, record: any) => (
+        <Flex vertical gap={16}>
+          <Flex justify="space-between">
+            <small>Apes: {record.totalApesBets}</small>
+            <small>Punks: {record.totalPunkBets}</small>
+          </Flex>
+          <CardSet isSmall={true} numberOfCards={record.communityCards.length} cards={record.communityCards} cardWidth={30} />
+          <small>Winner: {record.winner}</small>
+        </Flex>
+      ),
+    },
+    {
+      title: "Your Bet",
+      align: 'center' as AlignType,
+      width: "30%",
+      key: "betInfo",
+      render: (_: any, record: any) => (
+        <Flex vertical>
+          {record.ownBets ? (
+            <>
+              <small>{record.ownBets.amount}</small>
+              <small>on {record.ownBets.position}</small>
+              <small>{record.ownWonAmount}</small>
+            </>
+          ) : (
+            <small>No Bet</small>
+          )}
+        </Flex>
+      ),
     },
   ]);
 
@@ -141,6 +185,16 @@ const RecentBets = React.memo(React.forwardRef((props, ref) => {
       ownWonAmount: string;
     }[]
   >([]);
+  const [mobileDataSource, setMobileDataSource] = useState<{
+    roundNumber: string;
+    key: string;
+    communityCards: Card[];
+    totalApesBets: string;
+    totalPunkBets: string;
+    winner: string;
+    ownBets: { amount: string; position: string } | null;
+    ownWonAmount: string;
+  }[]>([]);
 
   // Function to handle data from the query
   const handleRoundData = (data: { rounds: RoundPage }) => {
@@ -157,7 +211,7 @@ const RecentBets = React.memo(React.forwardRef((props, ref) => {
       ownWonAmount: string;
     }[] = [];
 
-    for (const round of data.rounds.items.slice(1)) {
+    for (const round of data.rounds.items) {
       try {
         const gameState: GameState = getGameStateFromRound(null, round, address);
 
@@ -200,50 +254,84 @@ const RecentBets = React.memo(React.forwardRef((props, ref) => {
         console.error("Error handling round data:", error);
       }
     }
-
     // Ensure data matches expected structure
     setDataSource(dataSource);
+
+    const mobileDataSource: {
+      roundNumber: string;
+      key: string;
+      communityCards: Card[];
+      totalApesBets: string;
+      totalPunkBets: string;
+      winner: string;
+      ownBets: { amount: string; position: string } | null;
+      ownWonAmount: string;
+    }[] = [];
+
+    for (const round of data.rounds.items) {
+      try {
+        const gameState: GameState = getGameStateFromRound(null, round, address);
+        if (!gameState) continue;
+
+        // Get user's bet information
+        const ownBet = round.participants?.items.find((bet) => bet.userId == address) || null;
+
+        // Add mobile data
+        mobileDataSource.push({
+          roundNumber: round.epoch,
+          key: round.epoch,
+          communityCards: gameState.communityCards || [],
+          totalApesBets: gameState.apesData.totalBetAmounts || "0.0",
+          totalPunkBets: gameState.punksData.totalBetAmounts || "0.0",
+          winner: gameState.roundWinnerMessageShort,
+          ownBets: ownBet ? {
+            amount: ethers.formatEther(ownBet.amount),
+            position: ownBet.position
+          } : null,
+          ownWonAmount: "0.0"
+        });
+      } catch (error) {
+        console.error("Error handling round data:", error);
+      }
+    }
+    
+    setMobileDataSource(mobileDataSource);
   };
 
-  const [ROUND_QUERY, setROUND_QUERY] = useState<DocumentNode>(GET_CURRENT_ROUND_QUERY);
-  const [activeQueryIsUserWinnings, setActiveQueryIsUserWinnings] = useState(false); // to track if the active query is for user's own winnings
-  const [activeQueryIsUnclaimed, setActiveQueryIsUnclaimed] = useState(false); // to track if the active query is for unclaimed winnings
+  const [whereQuery, setWhereQuery] = useState<{ [key: string]: string }>({});
+
 
   // Apollo query to fetch round data
-  const {
-    startPolling,
-    stopPolling,
-  } = useQuery<{ rounds: RoundPage }>(ROUND_QUERY, {
-    variables: { limit: 10, participant: address },
+  useQuery<{ rounds: RoundPage }>(GET_CURRENT_ROUND_QUERY, {
+    variables: { limit: 10, participant: address, where: whereQuery },
     pollInterval: 12000, // Refetch data every 12000 milliseconds (12 seconds)
     onCompleted: handleRoundData,
     notifyOnNetworkStatusChange: true,
   });
 
-  const handleRoundDataQuery = (
-    state: "userWinnings" | "unclaimed" | "all"
-  ) => {
-    stopPolling(); // Stop polling
-    switch (state) {
-      case "userWinnings":
-        setROUND_QUERY(GET_CURRENT_ROUND_QUERY); // Change query to fetch user's own winnings
-        setActiveQueryIsUserWinnings(true);
-        break;
-      case "unclaimed":
-        setROUND_QUERY(GET_CURRENT_ROUND_QUERY); // Change query to fetch unclaimed winnings
-        setActiveQueryIsUnclaimed(true);
-        break;
-      case "all":
-        setROUND_QUERY(GET_CURRENT_ROUND_QUERY);
-        setActiveQueryIsUserWinnings(false);
-        setActiveQueryIsUnclaimed(false);
-        break;
-      default:
-        setROUND_QUERY(GET_CURRENT_ROUND_QUERY);
-        break;
-    }
-    startPolling(12000); // Restart polling
-  };
+  const totalItems = useQuery<{ rounds: RoundPage }>
+                        (gql`query GetTotalRounds {
+                                rounds(orderBy: "epoch", orderDirection: "desc", limit: 1) {
+                                  items {
+                                    epoch
+                                  }
+                                }
+                              }`, { pollInterval: 12000 }).data?.rounds.items[0].epoch || 0;
+                    console.log('totalItems', totalItems);
+  const [currentPage, setCurrentPage] = useState(1);
+
+  function handlePageChange(page: number) {
+    const itemsPerPage = 10;
+    const startEpoch = totalItems - ((page - 1) * itemsPerPage);
+    const endEpoch = Math.max(startEpoch - itemsPerPage, 1);
+
+    setWhereQuery({
+      epoch_lte: String(startEpoch + 1),
+      epoch_gte: String(endEpoch)
+    });
+
+    setCurrentPage(page);
+  }
 
   return (
     <Container>
@@ -252,7 +340,8 @@ const RecentBets = React.memo(React.forwardRef((props, ref) => {
           Recent Rounds
         </Title>
         <Flex gap={8}>
-          <Button 
+          <></>
+          {/* <Button 
             type={activeQueryIsUserWinnings ? "primary" : "default"} 
             size="small" 
             onClick={() => handleRoundDataQuery(activeQueryIsUserWinnings ? "userWinnings" : "all")}
@@ -265,7 +354,7 @@ const RecentBets = React.memo(React.forwardRef((props, ref) => {
             onClick={ () => handleRoundDataQuery(activeQueryIsUnclaimed ? "unclaimed" : "all") }
           >
             Unclaimed
-          </Button>
+          </Button> */}
         </Flex>
       </Flex>
       <ConfigProvider
@@ -280,15 +369,25 @@ const RecentBets = React.memo(React.forwardRef((props, ref) => {
               colorBgContainer: "#141127",
               colorText: "#F9FAFB",
             },
+            Pagination: {
+              itemBg: "#141127",
+              colorIcon: "#F9FAFB",
+              colorText: "#F9FAFB",
+            },
           },
         }}
       >
-        <Table dataSource={dataSource} columns={columns} pagination={false} />
-        <Pagination align="center" defaultCurrent={1} total={50} />
+        <div className="hidden lg:block">
+          <Table dataSource={dataSource} columns={columns} pagination={false} />
+        </div>
+        <div className="lg:hidden">
+          <Table dataSource={mobileDataSource} columns={mobileColumns} pagination={false} />
+        </div>
+        <Pagination align="center" defaultCurrent={1} current={currentPage} total={totalItems} onChange={handlePageChange} style={{margin: "16px 0"}} />
       </ConfigProvider>
     </Container>
   );
-}));
+});
 
 RecentBets.displayName = 'RecentBets';
 
