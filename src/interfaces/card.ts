@@ -157,6 +157,5 @@ export function getSortedCardsByRank(cards: Card[]) {
 
 export function getCardNamesForPokerHandRank(cards: Card[]): string[] {
   const convertedCards : string[] = cards.map(card => `${getRankValue(card.rank)}${getSuitShortForm(card.suit)}`);
-  console.log(convertedCards)
   return convertedCards;
 }

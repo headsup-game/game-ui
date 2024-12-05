@@ -7,7 +7,7 @@ import {
 } from "wagmi";
 import * as constants from "utils/constants";
 import { contractABI } from "utils/abi";
-import { BaseError, ContractFunctionRevertedError, parseEther } from "viem";
+import { parseEther } from "viem";
 import { Button, Typography, message } from "antd";
 import styles from "../app/game/Game.module.scss";
 import { Players } from "interfaces/players";
@@ -61,7 +61,7 @@ export const Bet: React.FC<BetProps> = ({
   });
 
   // call write contract hook to get writeContractAsync action to be called after simulation
-  const { writeContractAsync, error: writeError } = useWriteContract();
+  const { writeContractAsync } = useWriteContract();
   const {
     status: transactionStatus,
     error: transactionError,
@@ -79,7 +79,7 @@ export const Bet: React.FC<BetProps> = ({
         duration: betStatusMessage.duration,
       });
     }
-  }, [betStatusMessage]);
+  }, [betStatusMessage, messageApi]);
 
   useEffect(() => {
     if (playerId === Players.None || betAmount === 0) {
@@ -89,7 +89,7 @@ export const Bet: React.FC<BetProps> = ({
     } else {
       setDisabled(false);
     }
-  }, [playerId, betAmount]);
+  }, [playerId, betAmount, minimumAllowedBetAmount]);
 
   // wait for transaction status changes
   useEffect(() => {
@@ -156,6 +156,7 @@ export const Bet: React.FC<BetProps> = ({
         setHash(writeResult);
       }
     } catch (error) {
+      console.log('Error placing bet on player', error);
       setBetStatusMessage({
         type: 'error',
         content: `Place bet on ${playerName} failed`,
@@ -164,7 +165,7 @@ export const Bet: React.FC<BetProps> = ({
     } finally {
       setRequestInProgress(false);
     }
-  }, [playerName, roundNumber, betAmount, playerId, address]);
+  }, [playerName, roundNumber, betAmount, playerId, address, simulateContract, writeContractAsync]);
 
   return (
     <>

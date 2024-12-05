@@ -317,7 +317,6 @@ const RecentBets = React.memo(() => {
                                   }
                                 }
                               }`, { pollInterval: 12000 }).data?.rounds.items[0].epoch || 0;
-                    console.log('totalItems', totalItems);
   const [currentPage, setCurrentPage] = useState(1);
 
   function handlePageChange(page: number) {

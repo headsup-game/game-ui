@@ -30,9 +30,6 @@ const PlayingCard = (props: PlayingCardProps) => {
         const cardWidth = props.cardWidth == null ? playingCardRef.current.offsetWidth : props.cardWidth;
         setValueFontSize(`${cardWidth / 2}px`);
         setSuitFontSize(`${cardWidth / 3}px`);
-        if (!props.isSmall) {
-          console.log('cardWidth', cardWidth);
-        }
       }
     });
     resize_ob.observe(playingCardRef.current as HTMLElement);
