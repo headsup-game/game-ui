@@ -52,7 +52,7 @@ const Leaderboard = React.memo(
 					),
 			},
 			{
-				title: "Points",
+				title: "Total Points",
 				align: "center" as AlignType,
 				dataIndex: "points",
 				key: "points",
@@ -66,9 +66,9 @@ const Leaderboard = React.memo(
 				key: "totalBets",
 				render: (totalBets?: string) =>
 					totalBets ? (
-						<span style={{ textAlign: "right" }}>{totalBets}</span>
+						<span style={{ textAlign: "right" }}>{totalBets} ETH</span>
 					) : (
-						<span style={{ textAlign: "right" }}>0.0</span>
+						<span style={{ textAlign: "right" }}>0.0 ETH</span>
 					),
 			},
 		]);
@@ -161,11 +161,11 @@ const Leaderboard = React.memo(
 				}))
 				.map((item) => ({
 					...item,
-					totalBets: item.totalBetAmount,
+					totalBets: ethers.formatEther(item.totalBetAmount),
 				}))
 				.map((item) => ({
 					...item,
-					points: item.totalPoints,
+					points: ethers.formatEther(item.totalPoints),
 				}));
 
 			setDataSource(
