@@ -30,6 +30,7 @@ type LeaderboardProps = {
 
 const Leaderboard = React.memo(
 	React.forwardRef((props, ref) => {
+		const [dataSource, setDataSource] = useState<LeaderboardProps[]>([]);
 		const [columns, setColumns] = useState([
 			{
 				title: "Rank",
@@ -66,7 +67,9 @@ const Leaderboard = React.memo(
 				key: "totalBets",
 				render: (totalBets?: string) =>
 					totalBets ? (
-						<span style={{ textAlign: "right" }}>{totalBets} ETH</span>
+						<span style={{ textAlign: "right" }}>
+							{totalBets} ETH
+						</span>
 					) : (
 						<span style={{ textAlign: "right" }}>0.0 ETH</span>
 					),
@@ -85,7 +88,7 @@ const Leaderboard = React.memo(
 				align: "center" as AlignType,
 				dataIndex: "address",
 				key: "address",
-				render: (address?: string) => (
+				render: (address?: string, data?: any) => (
 					<div>
 						{address ? (
 							<>
@@ -96,10 +99,7 @@ const Leaderboard = React.memo(
 										color: "#6C6C89",
 									}}
 								>
-									Points:{" "}
-									{dataSource.find(
-										(item) => item.address === address
-									)?.points || "0"}
+									Points: {data?.points || "0"}
 								</div>
 							</>
 						) : (
@@ -123,7 +123,6 @@ const Leaderboard = React.memo(
 
 		const { isConnected, address } = useAccount();
 
-		const [dataSource, setDataSource] = useState<LeaderboardProps[]>([]);
 		const [currentPage, setCurrentPage] = useState(1);
 		const [pageSize, setPageSize] = useState(10);
 		const totalItems = useQuery(
@@ -140,6 +139,8 @@ const Leaderboard = React.memo(
 				fetchPolicy: "cache-and-network",
 			}
 		).data?.headsUps.items[0].totalUsers;
+
+		console.log("dataSource", dataSource);
 
 		const handleLeaderboardData = (data: {
 			users: {
