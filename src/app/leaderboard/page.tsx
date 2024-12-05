@@ -115,7 +115,7 @@ const Leaderboard = React.memo(
 				key: "totalBets",
 				render: (totalBets?: string) => (
 					<span style={{ textAlign: "right" }}>
-						{totalBets || "0.0"}
+						{totalBets || "0.0"} ETH
 					</span>
 				),
 			},
