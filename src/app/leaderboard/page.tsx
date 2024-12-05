@@ -126,7 +126,20 @@ const Leaderboard = React.memo(
 		const [dataSource, setDataSource] = useState<LeaderboardProps[]>([]);
 		const [currentPage, setCurrentPage] = useState(1);
 		const [pageSize, setPageSize] = useState(10);
-		const [totalItems, setTotalItems] = useState(2);
+		const totalItems = useQuery(
+			gql`
+				query MyQuery {
+					headsUps(limit: 1) {
+						items {
+							totalUsers
+						}
+					}
+				}
+			`,
+			{
+				fetchPolicy: "cache-and-network",
+			}
+		).data?.headsUps.items[0].totalUsers;
 
 		const handleLeaderboardData = (data: {
 			users: {
