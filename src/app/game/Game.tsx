@@ -30,7 +30,7 @@ const Game = () => {
     getGameStateFromRound(null, null, undefined)
   );
   const [showModal, setShowModal] = useState(false);
-  const [showUserBetModal, setShowUserBetModal] = useState(true);
+  const [showUserBetModal, setShowUserBetModal] = useState(false);
   const [selectedPlayer, setSelectedPlayer] = useState<Players>(Players.None);
   const { isConnected, address } = useAccount();
 
