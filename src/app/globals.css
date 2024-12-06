@@ -40,3 +40,8 @@ body {
     text-wrap: balance;
   }
 }
+
+
+.ant-dropdown-menu-item-selected{
+  background: transparent !important;
+}
