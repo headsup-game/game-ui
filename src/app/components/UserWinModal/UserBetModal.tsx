@@ -153,11 +153,12 @@ export default function UserBetModal({
       key: "claim",
       width: "10%",
       filters: [
-        { text: "Claimed", value: true },
-        { text: "Not Claimed", value: false },
+        { text: "Claimed", value: "claimed" },
+        { text: "Claim", value: "claim" },
+        { text: "Unclaimable", value: "unclaimable" },
       ],
-      onFilter: (value: boolean, record: DataType) =>
-        record.hasClaimed === value,
+      onFilter: (value: string, record: DataType) =>
+        value === "claimed" ? record.hasClaimed : value === "claim" ? record.isWinner : !record.isWinner,
       render: (roundNumber: string, round: DataType) => (
         <Button
           type="primary"
@@ -167,9 +168,15 @@ export default function UserBetModal({
               onClaimWinningsStateChange: (state) => console.log(state),
             });
           }}
-          disabled={round.hasClaimed}
+          disabled={round.hasClaimed || !round.isWinner}
         >
-          Claim
+          {
+            round.hasClaimed
+              ? "Claimed"
+              : round.isWinner
+              ? "Claim"
+              : "Unclaimable"
+          }
         </Button>
       ),
     },
@@ -376,38 +383,6 @@ export default function UserBetModal({
       }}
     >
       <ConfigProvider
-        theme={{
-          components: {
-            Dropdown: {
-              colorText: "#F9FAFB",
-              colorIcon: "#F9FAFB",
-              colorIconHover: "#F9FAFB",
-              colorBgContainer: "#141127",
-              colorBgTextActive: "#141127",
-            },
-            Table: {
-              borderColor: "#a8a7af33",
-              headerBg: "#141127",
-              headerColor: "#6C6C89",
-              borderRadius: 8,
-              bodySortBg: "#141127",
-              colorBgContainer: "#141127",
-              colorText: "#F9FAFB",
-              filterDropdownBg: "#141127",
-              colorIcon: "#F9FAFB",
-              colorIconHover: "#F9FAFB",
-              rowSelectedBg: "#141127",
-              filterDropdownMenuBg: "#141127",
-              fixedHeaderSortActiveBg: "#141127",
-              headerFilterHoverBg: "#141100",
-            },
-            Pagination: {
-              itemBg: "#141127",
-              colorIcon: "#F9FAFB",
-              colorText: "#F9FAFB",
-            },
-          },
-        }}
       >
         <Flex justify="center" className={styles.Title}>
           <Text
