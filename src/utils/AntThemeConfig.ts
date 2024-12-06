@@ -22,12 +22,43 @@ export const ANT_CUSTOM_THEME: ThemeConfig = {
   components: {
     Button: {
       colorBorder: "rgba(255, 255, 255, 0.20)",
+      colorTextDisabled: "#F9FAFB",
     },
     Input: {
       colorBorder: "rgba(255, 255, 255, 0.20)",
     },
     Menu: {
       horizontalItemBorderRadius: 12,
+    },
+    Dropdown: {
+      colorText: "#F9FAFB",
+      colorIcon: "#F9FAFB",
+      colorIconHover: "#F9FAFB",
+      colorBgContainer: "#141127",
+      colorBgTextActive: "#141127",
+    },
+    Table: {
+      borderColor: "#a8a7af33",
+      headerBg: "#141127",
+      headerColor: "#6C6C89",
+      borderRadius: 8,
+      bodySortBg: "#141127",
+      colorBgContainer: "#141127",
+      colorText: "#F9FAFB",
+      filterDropdownBg: "#141127",
+      colorIcon: "#F9FAFB",
+      colorIconHover: "#F9FAFB",
+      rowSelectedBg: "#141127",
+      filterDropdownMenuBg: "#141127",
+      fixedHeaderSortActiveBg: "#141127",
+      headerFilterHoverBg: "#141100",
+    },
+    Pagination: {
+      itemBg: "#141127",
+      colorIcon: "#F9FAFB",
+      colorText: "#F9FAFB",
+      colorIconHover: "#141127",
+      colorInfoTextHover: "#141127",
     },
   },
 };
