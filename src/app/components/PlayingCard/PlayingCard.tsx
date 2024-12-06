@@ -1,8 +1,15 @@
 /* eslint-disable @next/next/no-page-custom-font */
-"use client"
+"use client";
 import styles from "./PlayingCard.module.scss";
 import { Flex, Typography } from "antd";
-import { Color, getRankValue, getSuitUnicodeSymbol, Rank, Suit } from "interfaces/card";
+import {
+  Color,
+  getRankValue,
+  getSuitUnicodeSymbol,
+  Rank,
+  Suit,
+} from "interfaces/card";
+import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 
 const { Text } = Typography;
@@ -14,30 +21,33 @@ interface PlayingCardProps {
   className?: string;
   onClick?: () => void;
   styles?: React.CSSProperties;
-  isSmall: boolean
-  cardWidth?: number
+  isSmall: boolean;
+  cardWidth?: number;
 }
 
 const PlayingCard = (props: PlayingCardProps) => {
   const { className, color, value, suit, onClick } = props;
-  const playingCardRef = useRef<HTMLElement>(null);
-  const [suitFontSize, setSuitFontSize] = useState<`${number}px`>('0px');
-  const [valueFontSize, setValueFontSize] = useState<`${number}px`>('0px');
+  const playingCardRef = useRef<HTMLDivElement>(null);
+  const [suitFontSize, setSuitFontSize] = useState<`${number}px`>("0px");
+  const [valueFontSize, setValueFontSize] = useState<`${number}px`>("0px");
 
   useEffect(() => {
     const resize_ob = new ResizeObserver(() => {
       if (playingCardRef?.current != null) {
-        const cardWidth = props.cardWidth == null ? playingCardRef.current.offsetWidth : props.cardWidth;
+        const cardWidth =
+          props.cardWidth == null
+            ? playingCardRef.current.offsetWidth
+            : props.cardWidth;
         setValueFontSize(`${cardWidth / 2}px`);
         setSuitFontSize(`${cardWidth / 3}px`);
       }
     });
     resize_ob.observe(playingCardRef.current as HTMLElement);
-    
+
     return () => {
       resize_ob.disconnect();
-    }
-  })
+    };
+  });
 
   const getBGColor = (color: Color) => {
     switch (color) {
@@ -61,13 +71,13 @@ const PlayingCard = (props: PlayingCardProps) => {
       case Suit.Diamonds:
         return Color.BLUE;
       case Suit.Spades:
-        return Color.BLACK
+        return Color.BLACK;
       case Suit.Clubs:
         return Color.GREEN;
       default:
         return Color.BLACK;
     }
-  }
+  };
 
   const getColor = (color: Color) => {
     switch (color) {
@@ -88,6 +98,7 @@ const PlayingCard = (props: PlayingCardProps) => {
 
   return (
     <>
+      {value != Rank.None || suit != Suit.None || suit != Suit.None ? (
         <Flex
           ref={playingCardRef}
           className={`${className} ${styles.PlayingCard}`}
@@ -100,17 +111,55 @@ const PlayingCard = (props: PlayingCardProps) => {
             userSelect: "none",
           }}
         >
-          {value != Rank.None &&
-            <Flex className={styles.PlayingCardText} style={{ color: getColor(getSuitColor(suit)), fontSize: valueFontSize, userSelect: "none" }}>
-              {getRankValue(value)}
-            </Flex>}
-          {suit != Suit.None && (
-            <Flex style={{ color: getColor(getSuitColor(suit)), fontSize: suitFontSize, userSelect: "none" }} className={styles.PlayingCardSuit}>{getSuitUnicodeSymbol(suit)}</Flex>
-          )}
-          {suit != Suit.None && (
-            <Flex style={{ color: getColor(getSuitColor(suit)), fontSize: suitFontSize, userSelect: "none" }} className={styles.PlayingCardSuitInvert}>{getSuitUnicodeSymbol(suit)}</Flex>
-          )}
+          <Flex
+            className={styles.PlayingCardText}
+            style={{
+              color: getColor(getSuitColor(suit)),
+              fontSize: valueFontSize,
+              userSelect: "none",
+            }}
+          >
+            {getRankValue(value)}
+          </Flex>
+
+          <Flex
+            style={{
+              color: getColor(getSuitColor(suit)),
+              fontSize: suitFontSize,
+              userSelect: "none",
+            }}
+            className={styles.PlayingCardSuit}
+          >
+            {getSuitUnicodeSymbol(suit)}
+          </Flex>
+
+          <Flex
+            style={{
+              color: getColor(getSuitColor(suit)),
+              fontSize: suitFontSize,
+              userSelect: "none",
+            }}
+            className={styles.PlayingCardSuitInvert}
+          >
+            {getSuitUnicodeSymbol(suit)}
+          </Flex>
         </Flex>
+      ) : (
+        <div ref={playingCardRef}>
+          <Image
+            src="/images/card_back_side.svg"
+            alt="unrevealed_card"
+            width={200}
+            height={170}
+            style={{
+              ...props.styles,
+              backgroundColor: getBGColor(color),
+              userSelect: "none",
+              borderRadius: "6px",
+            }}
+          />
+        </div>
+      )}
     </>
   );
 };
