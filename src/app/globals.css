@@ -45,3 +45,7 @@ body {
 .ant-dropdown-menu-item-selected{
   background: transparent !important;
 }
+
+.ant-pagination-item-ellipsis, .anticon-double-right.ant-pagination-item-link-icon, .anticon-double-left.ant-pagination-item-link-icon{
+  color: #FAF9FB !important;
+}
