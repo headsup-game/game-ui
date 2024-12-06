@@ -137,11 +137,12 @@ export default function UserBetModal({
         { text: "Won", value: true },
         { text: "Lost", value: false },
       ],
-      onFilter: (value: boolean, record: DataType) =>
-        record.isWinner === value,
+      onFilter: (value: boolean, record: DataType) => record.isWinner === value,
       render: (ownWonAmount: string, record: DataType) =>
         record.isWinner ? (
-          <span style={{ color: "green" }}>Won: {ethers.formatEther(ownWonAmount)}</span>
+          <span style={{ color: "green" }}>
+            Won: {ethers.formatEther(ownWonAmount)}
+          </span>
         ) : (
           <span style={{ color: "red" }}>Lost</span>
         ),
@@ -158,7 +159,11 @@ export default function UserBetModal({
         { text: "Unclaimable", value: "unclaimable" },
       ],
       onFilter: (value: string, record: DataType) =>
-        value === "claimed" ? record.hasClaimed : value === "claim" ? record.isWinner : !record.isWinner,
+        value === "claimed"
+          ? record.hasClaimed
+          : value === "claim"
+          ? record.isWinner
+          : !record.isWinner,
       render: (roundNumber: string, round: DataType) => (
         <Button
           type="primary"
@@ -170,19 +175,17 @@ export default function UserBetModal({
           }}
           disabled={round.hasClaimed || !round.isWinner}
         >
-          {
-            round.hasClaimed
-              ? "Claimed"
-              : round.isWinner
-              ? "Claim"
-              : "Unclaimable"
-          }
+          {round.hasClaimed
+            ? "Claimed"
+            : round.isWinner
+            ? "Claim"
+            : "Unclaimable"}
         </Button>
       ),
     },
   ]);
 
-  const [mobileColumns, setMobileColumns] = useState([
+  const [tabletColumns, setTabletColumns] = useState([
     {
       title: "Round#",
       width: "20%",
@@ -208,7 +211,8 @@ export default function UserBetModal({
             cardWidth={40}
           />
           <Text style={{ color: "white" }}>
-            Bet: {ethers.formatEther(record.bet.points)} (x{record.bet.multiplier})
+            Bet: {ethers.formatEther(record.bet.points)} (x
+            {record.bet.multiplier})
           </Text>
         </Flex>
       ),
@@ -228,7 +232,72 @@ export default function UserBetModal({
         <Flex vertical align="center" gap={8}>
           <Text style={{ color: "white" }}>
             {record.isWinner ? (
-              <span style={{ color: "green" }}>Won: {ethers.formatEther(record.ownWonAmount)}</span>
+              <span style={{ color: "green" }}>
+                Won: {ethers.formatEther(record.ownWonAmount)}
+              </span>
+            ) : (
+              <span style={{ color: "red" }}>Lost</span>
+            )}
+          </Text>
+          <Button
+            type="primary"
+            onClick={() => {
+              ClaimWinnings({
+                roundNumber: parseInt(record.roundNumber),
+                onClaimWinningsStateChange: (state) => console.log(state),
+              });
+            }}
+          >
+            Claim
+          </Button>
+        </Flex>
+      ),
+    },
+  ]);
+  const [mobileColumns, setMobileColumns] = useState([
+    {
+      title: "Game Info",
+      align: "center" as AlignType,
+      width: "50%",
+      key: "gameInfo",
+      onFilter: (value: string, record: DataType) => record.winner === value,
+      render: (_: any, record: DataType) => (
+        <Flex key={record.winner} vertical align="center" gap={8}>
+          <Flex key={record.winner} align="center" gap={8}>
+            <Text style={{ color: "#6C6C89" }}>#{record.roundNumber}</Text>
+            <Text style={{ color: "white" }}>Winner: {record.winner}</Text>
+          </Flex>
+          <CardSet
+            isSmall={true}
+            numberOfCards={record.communityCards.length}
+            cards={record.communityCards}
+            cardWidth={40}
+          />
+          <Text style={{ color: "white" }}>
+            Bet: {ethers.formatEther(record.bet.points)} (x
+            {record.bet.multiplier})
+          </Text>
+        </Flex>
+      ),
+    },
+    {
+      title: "Actions",
+      align: "center" as AlignType,
+      width: "30%",
+      key: "actions",
+      filters: [
+        { text: "Claimed", value: true },
+        { text: "Not Claimed", value: false },
+      ],
+      onFilter: (value: boolean, record: DataType) =>
+        record.hasClaimed === value,
+      render: (record: DataType) => (
+        <Flex vertical align="center" gap={8}>
+          <Text style={{ color: "white" }}>
+            {record.isWinner ? (
+              <span style={{ color: "green" }}>
+                Won: {ethers.formatEther(record.ownWonAmount)}
+              </span>
             ) : (
               <span style={{ color: "red" }}>Lost</span>
             )}
@@ -324,13 +393,15 @@ export default function UserBetModal({
           },
           ownWonAmount: participation.winningAmount,
           bet: {
-            points: participation.isWinner ? participation.amount : -participation.amount,
+            points: participation.isWinner
+              ? participation.amount
+              : -participation.amount,
             multiplier: participation.bettingMultiplier,
           },
           isWinner: participation.isWinner,
         });
 
-        console.log('dataSource', dataSource);
+        console.log("dataSource", dataSource);
       } catch (error) {
         console.error("Error handling round data:", error);
       }
@@ -363,7 +434,7 @@ export default function UserBetModal({
       closable={true}
       closeIcon={<div className="text-white">x</div>}
       onCancel={() => setOpen(false)}
-      className="w-[auto_!important]"
+      className="w-[auto_!important] max-w-[100vw_!important] lg:p-[40px_50px_!important] p-[0_!important]"
       styles={{
         content: {
           borderRadius: 24,
@@ -371,64 +442,70 @@ export default function UserBetModal({
           background: "#1F1C37",
           boxShadow: "0px 0px 97.6px 0px rgba(142, 72, 255, 0.30)",
           color: "#fff",
-          padding: "40px 50px",
-          width: "fit-content",
-        },
-        wrapper: {
-          width: "auto",
-        },
-        body: {
-          width: "auto",
         },
       }}
+      wrapClassName="m-0"
+      rootClassName="m-0"
     >
-      <ConfigProvider
-      >
-        <Flex justify="center" className={styles.Title}>
-          <Text
-            style={{
-              fontSize: "32px",
-              fontWeight: "700",
-              color: "white",
-              textAlign: "center",
-              paddingBottom: "32px",
-            }}
-          >
-            My Bets
-          </Text>
-        </Flex>
+      <Flex justify="center" className={styles.Title}>
+        <Text
+          style={{
+            fontSize: "32px",
+            fontWeight: "700",
+            color: "white",
+            textAlign: "center",
+          }}
+          className="pb-2 md:pb-4"
+        >
+          My Bets
+        </Text>
+      </Flex>
 
-        <div className="hidden lg:block">
-          <Table
-            className="w-fit"
-            dataSource={dataSource}
-            columns={columns}
-            pagination={
-              {
-                pageSize: pageSize,
-                current: currentPage,
-                total: dataSource.length,
-                onChange: (page) => setCurrentPage(page),
-              } as any
-            }
-          />
-        </div>
-        <div className="block lg:hidden">
-          <Table
-            className="w-fit"
-            dataSource={dataSource}
-            columns={mobileColumns}
-            pagination={
-              {
-                pageSize: pageSize,
-                current: currentPage,
-                total: dataSource.length,
-                onChange: (page) => setCurrentPage(page),
-              } as any
-            }
-          />
-        </div>
-      </ConfigProvider>
+      <div className="hidden xl:block">
+        <Table
+          className="w-fit"
+          dataSource={dataSource}
+          columns={columns}
+          pagination={
+            {
+              pageSize: pageSize,
+              current: currentPage,
+              total: dataSource.length,
+              onChange: (page) => setCurrentPage(page),
+            } as any
+          }
+        />
+      </div>
+      <div className="hidden md:block xl:hidden">
+        <Table
+          className="w-fit"
+          dataSource={dataSource}
+          columns={tabletColumns}
+          pagination={
+            {
+              pageSize: pageSize,
+              current: currentPage,
+              total: dataSource.length,
+              onChange: (page) => setCurrentPage(page),
+            } as any
+          }
+        />
+      </div>
+      <div className="block md:hidden">
+        <Table
+          className="w-fit"
+          dataSource={dataSource}
+          columns={mobileColumns}
+          pagination={
+            {
+              pageSize: pageSize,
+              current: currentPage,
+              total: dataSource.length,
+              onChange: (page) => setCurrentPage(page),
+            } as any
+          }
+        />
+      </div>
     </Modal>
   );
 }
