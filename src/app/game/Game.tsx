@@ -21,7 +21,7 @@ import { RoundPage } from "gql/graphql";
 import GameTimer from "app/game/GameTimer";
 import { Players } from "interfaces/players";
 import { useAccount } from "wagmi";
-import UserWinModal from "app/components/UserWinModal/UserWinModal";
+import UserBetModal from "app/components/UserWinModal/UserBetModal";
 
 const { Title, Text } = Typography;
 
@@ -30,7 +30,7 @@ const Game = () => {
     getGameStateFromRound(null, null, undefined)
   );
   const [showModal, setShowModal] = useState(false);
-  const [showUserWinModal, setShowUserWinModal] = useState(false);
+  const [showUserBetModal, setShowUserBetModal] = useState(true);
   const [selectedPlayer, setSelectedPlayer] = useState<Players>(Players.None);
   const { isConnected, address } = useAccount();
 
@@ -118,20 +118,17 @@ const Game = () => {
           </Flex>
         </Col>
       </div>
-      <RecentBets />
+      <RecentBets setShowUserBetModal={setShowUserBetModal} />
       <Divider />
-      {showModal && (
+      {showModal && !showUserBetModal && (
         <BetwinModal
           gameState={gameState}
           open={showModal}
           setOpen={setShowModal}
         />
       )}
-      {showUserWinModal && (
-        <UserWinModal
-          open={showUserWinModal}
-          setOpen={setShowUserWinModal}
-        />
+      {showUserBetModal && (
+        <UserBetModal open={showUserBetModal} setOpen={setShowUserBetModal} />
       )}
     </Container>
   );
