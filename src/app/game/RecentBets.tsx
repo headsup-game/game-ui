@@ -411,24 +411,7 @@ const RecentBets = React.memo(({
         </Flex>
 
         <ConfigProvider
-          theme={{
-            components: {
-              Table: {
-                borderColor: "#a8a7af33",
-                headerBg: "#141127",
-                headerColor: "#6C6C89",
-                borderRadius: 8,
-                bodySortBg: "#141127",
-                colorBgContainer: "#141127",
-                colorText: "#F9FAFB",
-              },
-              Pagination: {
-                itemBg: "#141127",
-                colorIcon: "#F9FAFB",
-                colorText: "#F9FAFB",
-              },
-            },
-          }}
+          
         >
           <div className="hidden lg:block">
             <Table
