@@ -223,11 +223,16 @@ export default function UserBetModal({
       width: "30%",
       key: "actions",
       filters: [
-        { text: "Claimed", value: true },
-        { text: "Not Claimed", value: false },
+        { text: "Claimed", value: "claimed" },
+        { text: "Claim", value: "claim" },
+        { text: "Unclaimable", value: "unclaimable" },
       ],
-      onFilter: (value: boolean, record: DataType) =>
-        record.hasClaimed === value,
+      onFilter: (value: string, record: DataType) =>
+        value === "claimed"
+          ? record.hasClaimed
+          : value === "claim"
+          ? record.isWinner
+          : !record.isWinner,
       render: (record: DataType) => (
         <Flex vertical align="center" gap={8}>
           <Text style={{ color: "white" }}>
@@ -247,8 +252,13 @@ export default function UserBetModal({
                 onClaimWinningsStateChange: (state) => console.log(state),
               });
             }}
+            disabled={record.hasClaimed || !record.isWinner}
           >
-            Claim
+            {record.hasClaimed
+              ? "Claimed"
+              : record.isWinner
+              ? "Claim"
+              : "Unclaimable"}
           </Button>
         </Flex>
       ),
@@ -286,11 +296,16 @@ export default function UserBetModal({
       width: "30%",
       key: "actions",
       filters: [
-        { text: "Claimed", value: true },
-        { text: "Not Claimed", value: false },
+        { text: "Claimed", value: "claimed" },
+        { text: "Claim", value: "claim" },
+        { text: "Unclaimable", value: "unclaimable" },
       ],
-      onFilter: (value: boolean, record: DataType) =>
-        record.hasClaimed === value,
+      onFilter: (value: string, record: DataType) =>
+        value === "claimed"
+          ? record.hasClaimed
+          : value === "claim"
+          ? record.isWinner
+          : !record.isWinner,
       render: (record: DataType) => (
         <Flex vertical align="center" gap={8}>
           <Text style={{ color: "white" }}>
@@ -310,8 +325,13 @@ export default function UserBetModal({
                 onClaimWinningsStateChange: (state) => console.log(state),
               });
             }}
+            disabled={record.hasClaimed || !record.isWinner}
           >
-            Claim
+            {record.hasClaimed
+              ? "Claimed"
+              : record.isWinner
+              ? "Claim"
+              : "Unclaimable"}
           </Button>
         </Flex>
       ),
