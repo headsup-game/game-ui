@@ -264,7 +264,7 @@ export default function UserBetModal({
       ),
     },
   ]);
-  const [mobileColumns, setMobileColumns] = useState([
+  const [mobileMediumColumns, setMobileMediumColumns] = useState([
     {
       title: "Game Info",
       align: "center" as AlignType,
@@ -333,6 +333,70 @@ export default function UserBetModal({
               ? "Claim"
               : "Unclaimable"}
           </Button>
+        </Flex>
+      ),
+    },
+  ]);
+  const [mobileSmallColumns, setMobileSmallColumns] = useState([
+    {
+      title: "Game Info",
+      align: "center" as AlignType,
+      width: "50%",
+      key: "gameInfo",
+      filters: [
+        { text: "Claimed", value: "claimed" },
+        { text: "Claim", value: "claim" },
+        { text: "Unclaimable", value: "unclaimable" },
+      ],
+      onFilter: (value: string, record: DataType) =>
+        value === "claimed"
+          ? record.hasClaimed
+          : value === "claim"
+          ? record.isWinner
+          : !record.isWinner,
+      render: (_: any, record: DataType) => (
+        <Flex key={record.winner} vertical align="center" gap={8}>
+          <Flex key={record.winner} align="center" gap={8}>
+            <Text style={{ color: "#6C6C89" }}>#{record.roundNumber}</Text>
+            <Text style={{ color: "white" }}>Winner: {record.winner}</Text>
+          </Flex>
+          <CardSet
+            isSmall={true}
+            numberOfCards={record.communityCards.length}
+            cards={record.communityCards}
+            cardWidth={40}
+          />
+          <Text style={{ color: "white" }}>
+            Bet: {ethers.formatEther(record.bet.points)} (x
+            {record.bet.multiplier})
+          </Text>
+          <Flex vertical align="center" gap={8}>
+          <Text style={{ color: "white" }}>
+            {record.isWinner ? (
+              <span style={{ color: "green" }}>
+                Won: {ethers.formatEther(record.ownWonAmount)}
+              </span>
+            ) : (
+              <span style={{ color: "red" }}>Lost</span>
+            )}
+          </Text>
+          <Button
+            type="primary"
+            onClick={() => {
+              ClaimWinnings({
+                roundNumber: parseInt(record.roundNumber),
+                onClaimWinningsStateChange: (state) => console.log(state),
+              });
+            }}
+            disabled={record.hasClaimed || !record.isWinner}
+          >
+            {record.hasClaimed
+              ? "Claimed"
+              : record.isWinner
+              ? "Claim"
+              : "Unclaimable"}
+          </Button>
+        </Flex>
         </Flex>
       ),
     },
@@ -496,7 +560,7 @@ export default function UserBetModal({
           }
         />
       </div>
-      <div className="hidden md:block xl:hidden">
+      <div className="hidden sm:hidden md:block xl:hidden">
         <Table
           className="w-fit"
           dataSource={dataSource}
@@ -511,11 +575,26 @@ export default function UserBetModal({
           }
         />
       </div>
-      <div className="block md:hidden">
+      <div className="hidden sm:block md:hidden">
         <Table
           className="w-fit"
           dataSource={dataSource}
-          columns={mobileColumns}
+          columns={mobileMediumColumns}
+          pagination={
+            {
+              pageSize: pageSize,
+              current: currentPage,
+              total: dataSource.length,
+              onChange: (page) => setCurrentPage(page),
+            } as any
+          }
+        />
+      </div>
+      <div className="block sm:hidden">
+        <Table
+          className="w-fit"
+          dataSource={dataSource}
+          columns={mobileSmallColumns}
           pagination={
             {
               pageSize: pageSize,
