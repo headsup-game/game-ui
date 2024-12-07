@@ -24,8 +24,8 @@ const FlipCard: React.FC<FlipCardProps> = ({
     <Image
       src="/images/card_back_side.svg"
       alt="two_of_clubs"
-      width={200}
-      height={170}
+      width={63}
+      height={88}
       className={styles.FlopCard}
     />
   ),
@@ -100,7 +100,6 @@ const FlipCard: React.FC<FlipCardProps> = ({
 			style={{
 				perspective: "400px",
 				transformStyle: "preserve-3d",
-				width: width,
 				display: "flex",
 				aspectRatio: "63/88",
 				...style,
