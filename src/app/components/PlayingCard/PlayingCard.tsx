@@ -145,18 +145,19 @@ const PlayingCard = (props: PlayingCardProps) => {
           </Flex>
         </Flex>
       ) : (
-        <div ref={playingCardRef}>
+        <div ref={playingCardRef} className="w-full">
           <Image
             src="/images/card_back_side.svg"
             alt="unrevealed_card"
-            width={200}
-            height={170}
+            width={63}
+            height={88}
             style={{
               ...props.styles,
               backgroundColor: getBGColor(color),
               userSelect: "none",
               borderRadius: "6px",
             }}
+
           />
         </div>
       )}
