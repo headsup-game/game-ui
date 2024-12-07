@@ -29,12 +29,12 @@ const GameTimer: React.FC<GameTimerProps> = React.memo(({
   }, [timerExpiryDateTime.getTime(), timerMessage]);
 
   return (
-    <Flex align="center" justify="center" className={styles.GameTimer}>
+    <div className="max-w-full justify-center items-center flex-wrap text-xl mt-4">
       <span>
         {timerMessage}
       </span>
-      {totalSeconds > 0 && <span>{'...'}{totalSeconds} seconds</span>}
-    </Flex >
+      {totalSeconds > 0 && <span className="font-extrabold">{'...'}{totalSeconds} seconds</span>}
+    </div>
   );
 }, (prevProps, nextProps) => isGameTimerEqual(prevProps, nextProps));
 

@@ -81,29 +81,28 @@ const Game = () => {
 
   useEffect(() => {
     restart(gameState.currentTimerEndDateTime, true);
-    if(remainingSeconds === 0) {
+    if (remainingSeconds === 0) {
       setInitialSeconds(0);
-    }else if(remainingSeconds > initialSeconds) {
+    } else if (remainingSeconds > initialSeconds) {
       setInitialSeconds(remainingSeconds);
     }
   }, [remainingSeconds, gameState.currentTimerEndDateTime]);
 
   return (
     <>
-      <div 
-        className="sticky top-0 w-full h-[5px] bg-[#7047EB] z-10 shadow-[0_0_10px_#7047EB_,_0_0_20px_#fff] rounded-full" 
+      <div
+        className="sticky top-0 w-full h-[5px] bg-[#7047EB] z-10 shadow-[0_0_10px_#7047EB_,_0_0_20px_#fff] rounded-full"
         style={{
-          width: `${initialSeconds ? ((initialSeconds - remainingSeconds) / initialSeconds * 100) : 0}%`,
-          transition: "width 1s linear"
-        }}>  
-      </div>
-      <Container>
-        <Flex
-          style={{ margin: "16px 0" }}
-          justify="center"
-          align="center"
-          className={styles.GameHeader}
-        >
+          width: `${
+            initialSeconds
+              ? ((initialSeconds - remainingSeconds) / initialSeconds) * 100
+              : 0
+          }%`,
+          transition: "width 1s linear",
+        }}
+      ></div>
+      <div className="flex flex-col justify-center items-center gap-[16px] px-4 max-w-[1400px] mx-auto">
+        <Flex justify="center" align="center" className={styles.GameHeader}>
           {/* <span className={styles.GameName}> */}
           {/*   Prize Pool: {gameState.totalAmountPool}ETH */}
           {/* </span> */}
@@ -115,7 +114,7 @@ const Game = () => {
           {/*   Round No.: {Number(gameState.roundNumber)} */}
           {/* </span> */}
         </Flex>
-        <div className="grid lg:grid-flow-col place-items-center">
+        <div className="grid lg:grid-flow-col place-items-center gap-4 lg:gap-0 w-full">
           <div className="flex flex-col gap-8">
             <CommunityCards cards={gameState.communityCards} />
             {/* <GameTimer */}
@@ -142,29 +141,23 @@ const Game = () => {
             />
             {/* <Divider /> */}
           </div>
-          <Col span={6} className={styles.GameUserBetContainer}>
-            <Flex className={styles.GameActionsContainer} vertical>
-              <div style={{ position: "relative" }}>
-                <Image
-                  src="/images/assets/realm-of-aces-card.png"
-                  alt="Realm of Aces"
-                  width={200}
-                  height={170}
-                  className={styles.GameCard}
-                />
-              </div>
-              <BetForm
-                roundId={Number(gameState?.roundNumber ?? 0)}
-                minimumAllowedBetAmount={gameState?.minimumAllowedBetAmount}
-                blindBetCloseTimestamp={
-                  gameState?.blindBetingCloseTimestamp ?? 0
-                }
-                bettingEndTimestamp={gameState?.bettingEndTimestamp ?? 0}
-                selectedPlayer={selectedPlayer}
-                handlePlayerSelection={handlePlayerSelection}
-              />
-            </Flex>
-          </Col>
+          <div className="bg-[#141127] p-4 lg:max-w-[300px] rounded-[24px] flex justify-center items-center flex-wrap lg:flex-wrap sm:flex-nowrap gap-4 w-full">
+            <Image
+              src="/images/assets/realm-of-aces-card.png"
+              alt="Realm of Aces"
+              width={200}
+              height={170}
+              className="h-full w-full rounded-[24px]"
+            />
+            <BetForm
+              roundId={Number(gameState?.roundNumber ?? 0)}
+              minimumAllowedBetAmount={gameState?.minimumAllowedBetAmount}
+              blindBetCloseTimestamp={gameState?.blindBetingCloseTimestamp ?? 0}
+              bettingEndTimestamp={gameState?.bettingEndTimestamp ?? 0}
+              selectedPlayer={selectedPlayer}
+              handlePlayerSelection={handlePlayerSelection}
+            />
+          </div>
         </div>
         <RecentBets setShowUserBetModal={setShowUserBetModal} />
         <Divider />
@@ -178,7 +171,7 @@ const Game = () => {
         {showUserBetModal && (
           <UserBetModal open={showUserBetModal} setOpen={setShowUserBetModal} />
         )}
-      </Container>
+      </div>
     </>
   );
 };
