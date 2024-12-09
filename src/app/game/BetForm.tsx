@@ -7,6 +7,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import { Bet } from "@components/bet";
 import { useAccount, useBalance } from "wagmi";
 import { Players } from "interfaces/players";
+import { GameState, RoundState } from "interfaces/gameState";
 
 interface BetFormProps {
   roundId: number;
@@ -15,6 +16,7 @@ interface BetFormProps {
   bettingEndTimestamp: number;
   selectedPlayer: Players;
   handlePlayerSelection: (player: Players) => void;
+  gameState: GameState;
 }
 
 const BetForm: React.FC<BetFormProps> = React.memo(({
@@ -23,7 +25,8 @@ const BetForm: React.FC<BetFormProps> = React.memo(({
   blindBetCloseTimestamp,
   bettingEndTimestamp,
   selectedPlayer,
-  handlePlayerSelection
+  handlePlayerSelection,
+  gameState
 }) => {
   const { isConnected, address } = useAccount();
   const [BetForm] = Form.useForm();
@@ -31,6 +34,11 @@ const BetForm: React.FC<BetFormProps> = React.memo(({
   const [rounds, setRounds] = useState(1);
   const [logMessages, setLogMessages] = useState<string[]>([]);
   const [multiplier, setMultiplier] = useState(0);
+
+
+  const isBettingOver = (gameState: GameState) => {
+    return gameState.state > RoundState.BlindBettingClosedAndHoleCardsRevealed;
+  };
 
   // Calculate the multiplier on component mount and then every second
   useEffect(() => {
@@ -108,18 +116,21 @@ const BetForm: React.FC<BetFormProps> = React.memo(({
           onChange={handlePlayerChange}
           value={selectedPlayer == Players.None ? null : selectedPlayer}
           buttonStyle="outline"
+          disabled={isBettingOver(gameState)}
         >
           <Radio.Button
             key={Players.Apes}
             value={Players.Apes}
             style={{ background: "red", borderColor: selectedPlayer === Players.Apes ? "white" : "red" }}
-          >
+            disabled={isBettingOver(gameState)}
+            >
             Apes
           </Radio.Button>
           <Radio.Button
             key={Players.Punks}
             value={Players.Punks}
             style={{ background: "blue", borderColor: selectedPlayer == Players.Punks ? "white" : "blue" }}
+            disabled={isBettingOver(gameState)}
           >
             Punks
           </Radio.Button>
@@ -145,6 +156,7 @@ const BetForm: React.FC<BetFormProps> = React.memo(({
           }}
           value={betAmount}
           onChange={(val) => setBetAmount(Number(val))}
+          disabled={isBettingOver(gameState)}
         />
       </Form.Item>
 
@@ -166,6 +178,7 @@ const BetForm: React.FC<BetFormProps> = React.memo(({
                 BetForm.setFieldsValue({ amount: Number(item) });
                 setBetAmount(item);
               }}
+              disabled={isBettingOver(gameState)}
             >
               {item}
             </Button>
@@ -184,9 +197,10 @@ const BetForm: React.FC<BetFormProps> = React.memo(({
           value={rounds}
           buttonStyle="solid"
           onChange={(e) => setRounds(e.target.value)}
+          disabled={isBettingOver(gameState)}
         >
           {[1, 2, 5, 10, 15]?.map((item) => (
-            <Radio.Button key={item} value={item}>{item}</Radio.Button>
+            <Radio.Button key={item} value={item} disabled={isBettingOver(gameState)}>{item}</Radio.Button>
           ))}
         </Radio.Group>
       </Form.Item>
@@ -199,6 +213,7 @@ const BetForm: React.FC<BetFormProps> = React.memo(({
           playerName={selectedPlayer === Players.None ? '' : selectedPlayer == Players.Apes ? "Apes" : "Punks"}
           onBettingStateChange={handleLogs}
           minimumAllowedBetAmount={minimumAllowedBetAmount}
+          forceDisabled={isBettingOver(gameState)}
         />
       </Form.Item>
     </Form>
