@@ -108,7 +108,7 @@ const Game = () => {
           {/* </span> */}
           <GameTimer
             timerMessage={gameState.currentMessage}
-            timer={gameState.currentTimerEndDateTime}
+            timer={remainingSeconds}
           />
           {/* <span className={styles.GameName}> */}
           {/*   Round No.: {Number(gameState.roundNumber)} */}
@@ -156,21 +156,20 @@ const Game = () => {
               bettingEndTimestamp={gameState?.bettingEndTimestamp ?? 0}
               selectedPlayer={selectedPlayer}
               handlePlayerSelection={handlePlayerSelection}
+              gameState={gameState}
             />
           </div>
         </div>
         <RecentBets setShowUserBetModal={setShowUserBetModal} />
         <Divider />
-        {showModal && !showUserBetModal && (
-          <BetwinModal
-            gameState={gameState}
-            open={showModal}
-            setOpen={setShowModal}
-          />
-        )}
-        {showUserBetModal && (
-          <UserBetModal open={showUserBetModal} setOpen={setShowUserBetModal} />
-        )}
+        <BetwinModal
+          gameState={gameState}
+          open={showModal}
+          setOpen={setShowModal}
+          timer={remainingSeconds}
+        />
+
+        <UserBetModal open={showUserBetModal} setOpen={setShowUserBetModal} />
       </div>
     </>
   );
