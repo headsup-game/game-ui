@@ -59,6 +59,8 @@ export const ANT_CUSTOM_THEME: ThemeConfig = {
       colorText: "#F9FAFB",
       colorIconHover: "#141127",
       colorInfoTextHover: "#141127",
+      colorTextDisabled: "#707070",
+      itemActiveBgDisabled: "#707070",
     },
   },
 };
