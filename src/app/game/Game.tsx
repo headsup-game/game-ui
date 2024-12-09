@@ -31,6 +31,7 @@ const Game = () => {
     getGameStateFromRound(null, null, undefined)
   );
   const [showModal, setShowModal] = useState(false);
+  const [forcedCloseBetwinModal, setForcedCloseBetwinModal] = useState(true);
   const [showUserBetModal, setShowUserBetModal] = useState(false);
   const [selectedPlayer, setSelectedPlayer] = useState<Players>(Players.None);
   const { isConnected, address } = useAccount();
@@ -83,6 +84,7 @@ const Game = () => {
     restart(gameState.currentTimerEndDateTime, true);
     if (remainingSeconds === 0) {
       setInitialSeconds(0);
+      setForcedCloseBetwinModal(true);
     } else if (remainingSeconds > initialSeconds) {
       setInitialSeconds(remainingSeconds);
     }
@@ -164,8 +166,8 @@ const Game = () => {
         <Divider />
         <BetwinModal
           gameState={gameState}
-          open={showModal}
-          setOpen={setShowModal}
+          open={showModal ? forcedCloseBetwinModal && initialSeconds > 0 : showModal}
+          setOpen={setForcedCloseBetwinModal}
           timer={remainingSeconds}
         />
 
