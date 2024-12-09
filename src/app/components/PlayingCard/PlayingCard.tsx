@@ -109,6 +109,9 @@ const PlayingCard = (props: PlayingCardProps) => {
             ...props.styles,
             backgroundColor: getBGColor(color),
             userSelect: "none",
+            maxHeight: props.isSmall ? "63px" : "",
+            width: props.isSmall ? "auto" : "100%",
+            aspectRatio: "63 / 88",
           }}
         >
           <Flex
@@ -145,19 +148,23 @@ const PlayingCard = (props: PlayingCardProps) => {
           </Flex>
         </Flex>
       ) : (
-        <div ref={playingCardRef} className="w-full">
+        <div 
+          ref={playingCardRef}  
+          style={{
+            ...props.styles,
+            backgroundColor: getBGColor(color),
+            userSelect: "none",
+            borderRadius: "6px",
+            maxHeight: props.isSmall ? "63px" : "",
+            width: props.isSmall ? "auto" : "100%",
+            aspectRatio: "63 / 88",
+          }}>
           <Image
             src="/images/card_back_side.svg"
             alt="unrevealed_card"
             width={63}
             height={88}
-            style={{
-              ...props.styles,
-              backgroundColor: getBGColor(color),
-              userSelect: "none",
-              borderRadius: "6px",
-            }}
-
+            className={`${className} ${styles.PlayingCard}`}
           />
         </div>
       )}
