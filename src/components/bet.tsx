@@ -28,6 +28,7 @@ type BetProps = {
   playerName: string;
   onBettingStateChange: (state: string) => void;
   minimumAllowedBetAmount: number;
+  forceDisabled: boolean;
 };
 
 export const Bet: React.FC<BetProps> = ({
@@ -37,6 +38,7 @@ export const Bet: React.FC<BetProps> = ({
   playerName,
   onBettingStateChange,
   minimumAllowedBetAmount,
+  forceDisabled,
 }) => {
   const { isConnected, address } = useAccount();
   const [hash, setHash] = useState<string | null>(null);
@@ -176,7 +178,7 @@ export const Bet: React.FC<BetProps> = ({
         block
         className={styles.BetFormCTA}
         loading={requestInProgress}
-        disabled={disabled || !isConnected}
+        disabled={disabled || !isConnected || forceDisabled}
         onClick={handleBetOnPlayer}
       >
         Bet on {playerName}
