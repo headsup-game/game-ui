@@ -109,7 +109,7 @@ const PlayingCard = (props: PlayingCardProps) => {
             ...props.styles,
             backgroundColor: getBGColor(color),
             userSelect: "none",
-            maxHeight: props.isSmall ? "63px" : "",
+            minHeight: props.isSmall ? "63px" : "",
             width: props.isSmall ? "auto" : "100%",
             aspectRatio: "63 / 88",
           }}
