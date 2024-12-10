@@ -399,10 +399,11 @@ const RecentBets = React.memo(
     };
 
     const [whereQuery, setWhereQuery] = useState<{ [key: string]: string }>({});
+    const [itemsPerPage, setItemsPerPage] = useState(10);
 
     // Apollo query to fetch round data
-    useQuery<{ rounds: RoundPage }>(GET_CURRENT_ROUND_QUERY, {
-      variables: { limit: 10, participant: address, where: whereQuery },
+    const  {refetch} = useQuery<{ rounds: RoundPage }>(GET_CURRENT_ROUND_QUERY, {
+      variables: { limit: itemsPerPage, participant: address, where: whereQuery },
       pollInterval: 12000, // Refetch data every 12000 milliseconds (12 seconds)
       onCompleted: handleRoundData,
       notifyOnNetworkStatusChange: true,
@@ -423,8 +424,8 @@ const RecentBets = React.memo(
       ).data?.rounds.items[0].epoch || 0;
     const [currentPage, setCurrentPage] = useState(1);
 
-    function handlePageChange(page: number) {
-      const itemsPerPage = 10;
+    function handlePageChange(page: number, pageSize: number) {
+      console.log('page', page, 'pageSize', pageSize);
       const startEpoch = totalItems - (page - 1) * itemsPerPage;
       const endEpoch = Math.max(startEpoch - itemsPerPage, 1);
 
@@ -434,6 +435,8 @@ const RecentBets = React.memo(
       });
 
       setCurrentPage(page);
+      setItemsPerPage(pageSize);
+      refetch();
     }
 
     return (
@@ -496,6 +499,7 @@ const RecentBets = React.memo(
             defaultCurrent={1}
             current={currentPage}
             total={totalItems}
+            pageSize={itemsPerPage}
             onChange={handlePageChange}
             style={{ margin: "16px 0" }}
           />
