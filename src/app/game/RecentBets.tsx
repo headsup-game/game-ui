@@ -446,14 +446,26 @@ const RecentBets = React.memo(
             Recent Rounds
           </Title>
           <Flex gap={8}>
-            <></>
-            <Button
-              type={"primary"}
-              size="small"
-              onClick={() => setShowUserBetModal(true)}
-            >
-              My Bets
-            </Button>
+          <Button
+            type="primary"
+            size="small"
+            onClick={() => setShowUserBetModal(true)}
+            style={{
+              background: 'linear-gradient(90deg, #8B5CF6 0%, #6366F1 100%)',
+              border: 'none',
+              boxShadow: '0 4px 6px rgba(139, 92, 246, 0.25)',
+              borderRadius: '6px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px'
+            }}
+            icon={<svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+              <path d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z" fill="white"/>
+              <path d="M20 12C20 16.4183 16.4183 20 12 20C7.58172 20 4 16.4183 4 12C4 7.58172 7.58172 4 12 4C16.4183 4 20 7.58172 20 12Z" stroke="white" strokeWidth="2"/>
+            </svg>}
+          >
+            View My Bets
+          </Button>
           </Flex>
         </Flex>
 
