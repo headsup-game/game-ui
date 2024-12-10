@@ -93,13 +93,14 @@ const Game = () => {
   return (
     <>
       <div
-        className="sticky top-0 w-full h-[5px] bg-[#7047EB] z-10 shadow-[0_0_10px_#7047EB_,_0_0_20px_#fff] rounded-full"
+        className="sticky top-0 w-full h-[5px] z-10 shadow-[0_0_10px_#7047EB_,_0_0_20px_#fff] rounded-full"
         style={{
           width: `${
             initialSeconds
               ? ((initialSeconds - remainingSeconds) / initialSeconds) * 100
               : 0
           }%`,
+          background: 'linear-gradient(90deg, #8B5CF6 0%, #6366F1 100%)',
           transition: "width 1s linear",
         }}
       ></div>
