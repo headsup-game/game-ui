@@ -276,7 +276,22 @@ const BetForm: React.FC<BetFormProps> = React.memo(
         </Form.Item>
         <Form.Item
           help="test"
-          label={`Total Amount: ${betAmount * rounds}ETH`}
+          label={
+            <span>
+              Total Amount:{" "}
+              <span
+                style={{
+                  color: "#00E000",
+                  fontWeight: "bold",
+                  fontSize: "1.25em",
+                  lineHeight: "1.5em",
+                  textShadow: "0 0 5px currentColor",
+                }}
+              >
+                {(betAmount * rounds).toFixed(3)} ETH
+              </span>
+            </span>
+          }
           className={styles.BetFormItem}
         >
           <Bet
