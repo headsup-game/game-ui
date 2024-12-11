@@ -84,29 +84,11 @@ export default function HowToPlay() {
     ] as Card[],
   };
 
-  const startInteractiveTutorial = () => {
-    setOpenTour(true);
-  };
-
   return (
     <Container className="min-h-screen">
-      <Title level={5} className="text-[white_!important] text-center my-4">
-        How to play
-      </Title>
-
-      {/* Interactive Tutorial Button */}
-      <div className="text-center mb-8">
-        <Button
-          type="primary"
-          onClick={startInteractiveTutorial}
-          className="bg-purple-600 hover:bg-purple-700"
-        >
-          Start Interactive Tutorial
-        </Button>
-      </div>
 
       {/* How to Place a Bet Section */}
-      <section className="bg-[#1F1C37] rounded-lg p-6 mb-8">
+      <section className="bg-[#2C2A4A] rounded-lg p-6 mb-8 mt-12">
         <h2 className="text-2xl font-bold text-white mb-4">
           How to Place a Bet
         </h2>
@@ -152,7 +134,7 @@ export default function HowToPlay() {
             />
           )}
           {currentStep === 1 && (
-            <div className="bg-purple-900/30 rounded-lg p-4">
+            <div className="bg-[#3A375A] rounded-lg p-4">
               <h3 className="text-xl font-semibold text-white mb-3">
                 Place Your Bet
               </h3>
@@ -172,8 +154,8 @@ export default function HowToPlay() {
                     className="[&_input]:text-[white_!important]"
                     style={{
                       width: "100%",
-                      backgroundColor: "rgba(139, 92, 246, 0.1)",
-                      borderColor: "#8B5CF6",
+                      backgroundColor: "rgba(58, 55, 90, 0.1)",
+                      borderColor: "#6F04FF",
                       color: "white",
                     }}
                   />
@@ -184,7 +166,7 @@ export default function HowToPlay() {
                     <Button
                       size="small"
                       key={amount}
-                      className="bg-purple-600 hover:bg-purple-700 text-white"
+                      className="bg-[#6F04FF] hover:bg-[#5A03CC] text-white"
                       onClick={() => {
                         message.info(`Selected amount: ${amount} ETH`);
                       }}
@@ -194,7 +176,7 @@ export default function HowToPlay() {
                   ))}
                 </Flex>
 
-                <div className="border-t border-purple-500/30 pt-4">
+                <div className="border-t border-[#6F04FF]/30 pt-4">
                   <p className="text-white">Minimum bet: 0.001 ETH</p>
                   <div style={{ marginTop: 8 }}>
                     <p className="text-white">
@@ -215,12 +197,12 @@ export default function HowToPlay() {
             </div>
           )}
           {currentStep === 2 && (
-            <div className="bg-purple-900/30 rounded-lg p-4">
+            <div className="bg-[#3A375A] rounded-lg p-4">
               <h3 className="text-xl font-semibold text-white mb-3">
                 Confirm Transaction
               </h3>
               <Flex vertical gap={8}>
-                <div className="border-l-4 border-purple-500 pl-4">
+                <div className="border-l-4 border-[#6F04FF] pl-4">
                   <p className="text-white">
                     Team: {selectedPlayer === Players.Apes ? "Apes" : "Punks"}
                   </p>
@@ -234,7 +216,7 @@ export default function HowToPlay() {
                 </div>
                 <Button
                   type="primary"
-                  className="bg-purple-600 hover:bg-purple-700"
+                  className="bg-[#6F04FF] hover:bg-[#5A03CC]"
                   ref={claimRef}
                   onClick={() => {
                     message
@@ -250,7 +232,7 @@ export default function HowToPlay() {
                 </Button>
                 <Button
                   onClick={() => setCurrentStep(currentStep - 1)}
-                  className="bg-transparent border-purple-600 text-purple-600 hover:bg-purple-600/10"
+                  className="bg-transparent border-[#6F04FF] text-[#6F04FF] hover:bg-[#6F04FF]/10"
                 >
                   Go Back
                 </Button>
@@ -261,12 +243,12 @@ export default function HowToPlay() {
       </section>
 
       {/* How to Claim Winnings Section */}
-      <section className="bg-[#1F1C37] rounded-lg p-6 mb-8">
+      <section className="bg-[#2C2A4A] rounded-lg p-6 mb-8">
         <h2 className="text-2xl font-bold text-white mb-4">
           How to Claim Winnings
         </h2>
         <div className="space-y-4">
-          <div className="bg-purple-900/30 p-4 rounded">
+          <div className="bg-[#3A375A] p-4 rounded">
             <h3 className="text-white font-semibold">1. View Your Bets</h3>
             <p className="mb-2">
               Check your active and past bets to see your winnings
@@ -305,14 +287,14 @@ export default function HowToPlay() {
             ) : (
               <Button
                 type="primary"
-                className="bg-purple-600 hover:bg-purple-700"
+                className="bg-[#6F04FF] hover:bg-[#5A03CC]"
                 onClick={() => setShowUserBetModal(true)}
               >
                 Open My Bets
               </Button>
             )}
           </div>
-          <div className="bg-purple-900/30 p-4 rounded">
+          <div className="bg-[#3A375A] p-4 rounded">
             <h3 className="text-white font-semibold">2. Claiming Process</h3>
             <p className="mb-2">
               For winning bets, you&apos;ll see a &quot;Claim&quot; button that
@@ -330,12 +312,12 @@ export default function HowToPlay() {
               </Button>
             </div>
           </div>
-          <div className="bg-purple-900/30 p-4 rounded">
+          <div className="bg-[#3A375A] p-4 rounded">
             <h3 className="text-white font-semibold">3. Track Your History</h3>
             <p className="mb-2">
               Keep track of your betting history and claimed winnings
             </p>
-            <div className="bg-purple-800/30 p-3 rounded">
+            <div className="bg-[#2C2A4A] p-3 rounded">
               <p className="text-green-400 block">Won bets appear in green</p>
               <p className="text-red-400 block">Lost bets appear in red</p>
               <p className="text-gray-400 block">
@@ -350,14 +332,14 @@ export default function HowToPlay() {
       </section>
 
       {/* Original Poker Hand Rankings Section */}
-      <section className="bg-gradient-to-r from-purple-900 to-blue-900 rounded-2xl p-8 shadow-2xl">
+      <section className="bg-gradient-to-r from-[#2C2A4A] to-[#3A375A] rounded-2xl p-8 shadow-2xl">
         <h1 className="text-4xl font-bold text-white text-center mb-8">
           Let&apos;s Learn Poker Together! 🎮
         </h1>
 
         <div className="space-y-8">
           {/* Royal Flush */}
-          <div className="bg-[#1F1C37]/80 rounded-xl p-6">
+          <div className="bg-[#2C2A4A]/80 rounded-xl p-6">
             <h2 className="text-2xl font-bold text-white mb-4">
               1. Royal Flush - The Super Special Hand! 👑
             </h2>
@@ -379,7 +361,7 @@ export default function HowToPlay() {
           </div>
 
           {/* Straight Flush */}
-          <div className="bg-[#1F1C37]/80 rounded-xl p-6">
+          <div className="bg-[#2C2A4A]/80 rounded-xl p-6">
             <h2 className="text-2xl font-bold text-white mb-4">
               2. Straight Flush - The Rainbow Line! 🌈
             </h2>
@@ -400,7 +382,7 @@ export default function HowToPlay() {
           </div>
 
           {/* Four of a Kind */}
-          <div className="bg-[#1F1C37]/80 rounded-xl p-6">
+          <div className="bg-[#2C2A4A]/80 rounded-xl p-6">
             <h2 className="text-2xl font-bold text-white mb-4">
               3. Four of a Kind - The Quadruplets! 👯‍♂️👯‍♀️
             </h2>
@@ -422,7 +404,7 @@ export default function HowToPlay() {
           </div>
 
           {/* Fun Tips Box */}
-          <div className="bg-purple-800/50 p-4 rounded-lg border-2 border-purple-500">
+          <div className="bg-[#3A375A]/50 p-4 rounded-lg border-2 border-[#6F04FF]">
             <h3 className="text-xl font-bold text-white mb-2">
               Fun Tips for New Players! 🌟
             </h3>
@@ -435,12 +417,6 @@ export default function HowToPlay() {
           </div>
         </div>
       </section>
-      {/* Tour Component */}
-      <Tour
-        open={openTour}
-        onClose={() => setOpenTour(false)}
-        steps={tourSteps}
-      />
     </Container>
   );
 }
