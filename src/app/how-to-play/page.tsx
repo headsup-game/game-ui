@@ -23,7 +23,7 @@ import { useAccount, useWalletClient } from "wagmi";
 
 const { Title, Text } = Typography;
 
-export default function Quests() {
+export default function HowToPlay() {
   const [currentStep, setCurrentStep] = useState(0);
   const [openTour, setOpenTour] = useState(false);
   const [selectedPlayer, setSelectedPlayer] = useState<Players>(2);
@@ -91,7 +91,7 @@ export default function Quests() {
   return (
     <Container className="min-h-screen">
       <Title level={5} className="text-[white_!important] text-center my-4">
-        Quests
+        How to play
       </Title>
 
       {/* Interactive Tutorial Button */}

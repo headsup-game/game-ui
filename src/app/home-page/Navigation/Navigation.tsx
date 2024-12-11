@@ -26,7 +26,7 @@ const Navigation = () => {
 		},
 		{
 			key: "4",
-			label: <Link href="/quests">Quests</Link>,
+			label: <Link href="/how-to-play">How to Play</Link>,
 			className: styles.NavItem,
 		},
 	];
@@ -37,7 +37,7 @@ const Navigation = () => {
 		if (path === "/") return ["1"];
 		if (path === "/game") return ["2"];
 		if (path === "/leaderboard") return ["3"];
-		if (path === "/quests") return ["4"];
+		if (path === "/how-to-play") return ["4"];
 		return ["1"];
 	}
 
