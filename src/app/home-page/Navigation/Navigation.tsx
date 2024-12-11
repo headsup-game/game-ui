@@ -1,6 +1,6 @@
 "use client";
 
-import { Layout, Menu, MenuProps, Image } from "antd";
+import { Layout, Menu, MenuProps, Image, Button } from "antd";
 import React from "react";
 import styles from "./Navigation.module.scss";
 import Link from "next/link";
@@ -60,11 +60,54 @@ const Navigation = () => {
 					style={{ flex: 1, minWidth: 0 }}
 					className={styles.Menu}
 				/>
-				<ConnectButton
+				{/* <ConnectButton
 					chainStatus="full"
 					showBalance={true}
 					accountStatus="avatar"
-				/>
+				/> */}
+				<ConnectButton.Custom>
+					{({ account, chain, openConnectModal, openAccountModal }) => {
+						if (!account) {
+							return (
+								<Button
+									type="primary"
+									size="large"
+									onClick={openConnectModal}
+									style={{
+										background: "linear-gradient(90deg, #8E48FF 0%, #6F04FF 100%)",
+										border: "none",
+										borderRadius: "12px",
+										height: "48px",
+										fontSize: "18px"
+									}}
+								>
+									Connect Wallet
+								</Button>
+							);
+						}
+
+						return (
+							<Button
+								type="primary"
+								size="large"
+								onClick={openAccountModal}
+								style={{
+									background: "linear-gradient(90deg, #8E48FF 0%, #6F04FF 100%)",
+									border: "none",
+									borderRadius: "12px",
+									height: "48px",
+									fontSize: "16px",
+									display: "flex",
+									alignItems: "center",
+									gap: "8px"
+								}}
+							>
+								{chain?.iconUrl && <img src={chain.iconUrl} alt={chain?.name} width={20} height={20} />}
+								{account.address.slice(0, 6)}...{account.address.slice(-4)}
+							</Button>
+						);
+					}}
+				</ConnectButton.Custom>
 			</div>
 		</header>
 	);
