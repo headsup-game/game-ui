@@ -81,7 +81,7 @@ const Navigation = () => {
 										fontSize: "18px"
 									}}
 								>
-									Connect Wallet
+									Login
 								</Button>
 							);
 						}
