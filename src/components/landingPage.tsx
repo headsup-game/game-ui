@@ -10,25 +10,8 @@ import { JSX, SVGProps } from "react"
 export default function LandingPageComponent() {
   return (
     <div className="flex flex-col min-h-[100dvh]">
-      <header className="px-4 lg:px-6 h-14 flex items-center justify-between w-full max-w-[1400px] mx-auto">
-        <Link className="flex items-center justify-center" href="#">
-          <PuzzleIcon className="h-6 w-6" />
-          <span className="sr-only">Poker Web3 Game</span>
-        </Link>
-        <nav className="ml-auto flex gap-4 sm:gap-6">
-          <Link className="text-sm font-medium hover:underline underline-offset-4" href="#">
-            Features
-          </Link>
-          <Link className="text-sm font-medium hover:underline underline-offset-4" href="#">
-            How to Play
-          </Link>
-          <Link className="text-sm font-medium hover:underline underline-offset-4" href="#">
-            Roadmap
-          </Link>
-        </nav>
-      </header>
       <main className="flex-1 max-w-[1400px] mx-auto">
-        <section className="w-full py-12 md:py-24 lg:py-32 xl:py-48">
+        <section className="w-full py-12">
           <div className="container px-4 md:px-6">
             <div className="grid gap-6 lg:grid-cols-[1fr_400px] lg:gap-12 xl:grid-cols-[1fr_600px]">
               <div className="flex flex-col justify-center space-y-4">
@@ -51,9 +34,9 @@ export default function LandingPageComponent() {
               <Image
                 alt="Poker Web3 Game"
                 className="mx-auto aspect-video overflow-hidden rounded-xl object-cover sm:w-full lg:order-last lg:aspect-square"
-                height="550"
-                src="/images/placeholder.svg"
-                width="550"
+                height="950"
+                src="/images/assets/home-cards-showing.png"
+                width="950"
               />
             </div>
           </div>
@@ -65,7 +48,7 @@ export default function LandingPageComponent() {
                 <div className="inline-block rounded-lg bg-gray-100 px-3 py-1 text-sm dark:bg-gray-800">
                   Key Features
                 </div>
-                <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl">Experience the Future of Poker</h2>
+                <h2 className="text-3xl font-bold tra</div>cking-tighter sm:text-5xl">Experience the Future of Poker</h2>
                 <p className="max-w-[900px] text-gray-500 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed dark:text-gray-400">
                   Our decentralized poker game offers provably fair outcomes, secure crypto payouts, and a transparent
                   gameplay experience.
@@ -106,7 +89,7 @@ export default function LandingPageComponent() {
                 alt="Poker Web3 Game"
                 className="mx-auto aspect-video overflow-hidden rounded-xl object-cover object-center sm:w-full lg:order-last"
                 height="310"
-                src="/images/placeholder.svg"
+                src="/images/assets/realm-of-aces-card.png"
                 width="550"
               />
             </div>
@@ -143,42 +126,6 @@ export default function LandingPageComponent() {
                 <h3 className="text-xl font-bold">4. Withdraw Winnings</h3>
                 <p className="text-gray-500 dark:text-gray-400">
                   Withdraw your earned cryptocurrency anytime to your connected wallet.
-                </p>
-              </div>
-            </div>
-          </div>
-        </section>
-        <section className="w-full py-12 md:py-24 lg:py-32 border-t" id="roadmap">
-          <div className="container grid items-center justify-center gap-4 px-4 text-center md:px-6">
-            <div className="space-y-3">
-              <h2 className="text-3xl font-bold tracking-tighter md:text-4xl/tight">Poker Web3 Game Roadmap</h2>
-              <p className="mx-auto max-w-[600px] text-gray-500 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed dark:text-gray-400">
-                Check out our development roadmap to see whats in store for the future of our decentralized poker game.
-              </p>
-            </div>
-            <div className="mx-auto w-full max-w-2xl space-y-6">
-              <div className="grid gap-2">
-                <h3 className="text-xl font-bold">Q2 2023</h3>
-                <p className="text-gray-500 dark:text-gray-400">
-                  Launch the initial version of the Poker Web3 Game with basic features.
-                </p>
-              </div>
-              <div className="grid gap-2">
-                <h3 className="text-xl font-bold">Q3 2023</h3>
-                <p className="text-gray-500 dark:text-gray-400">
-                  Implement advanced gameplay modes, such as tournaments and sit-and-go events.
-                </p>
-              </div>
-              <div className="grid gap-2">
-                <h3 className="text-xl font-bold">Q4 2023</h3>
-                <p className="text-gray-500 dark:text-gray-400">
-                  Introduce a comprehensive loyalty program and NFT-based rewards system.
-                </p>
-              </div>
-              <div className="grid gap-2">
-                <h3 className="text-xl font-bold">2024</h3>
-                <p className="text-gray-500 dark:text-gray-400">
-                  Expand the game to support cross-chain functionality and integrate with other Web3 platforms.
                 </p>
               </div>
             </div>
