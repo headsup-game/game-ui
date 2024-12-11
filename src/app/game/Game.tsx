@@ -68,7 +68,7 @@ const Game = () => {
       limit: 2,
       participant: address != undefined ? { userId: address } : undefined,
     },
-    pollInterval: 500, // Refetch data every 5000 milliseconds (5 seconds)
+    pollInterval: 500, // Refetch data every 500 milliseconds (0.5 seconds)
     onCompleted: handleRoundData,
     notifyOnNetworkStatusChange: true,
   });
