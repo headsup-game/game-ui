@@ -26,6 +26,7 @@ export const ANT_CUSTOM_THEME: ThemeConfig = {
     },
     Input: {
       colorBorder: "rgba(255, 255, 255, 0.20)",
+      colorText: "#F9FAFB",
     },
     Menu: {
       horizontalItemBorderRadius: 12,
@@ -62,5 +63,12 @@ export const ANT_CUSTOM_THEME: ThemeConfig = {
       colorTextDisabled: "#707070",
       itemActiveBgDisabled: "#707070",
     },
+    Steps: {
+      colorIcon: "#F9FAFB",
+      colorIconHover: "#F9FAFB",
+      colorText: "#F9FAFB",
+      colorTextDescription: "#F9FAFB",
+      colorTextDisabled: "#707070",
+    }
   },
 };
