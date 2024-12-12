@@ -23,6 +23,7 @@ import { Players } from "interfaces/players";
 import { useAccount } from "wagmi";
 import UserBetModal from "app/components/UserWinModal/UserBetModal";
 import { useTimer } from "react-timer-hook";
+import { motion } from "framer-motion";
 
 const { Title, Text } = Typography;
 
@@ -92,38 +93,46 @@ const Game = () => {
 
   return (
     <>
-      <div
-        className="sticky top-0 w-full h-[5px] z-10 shadow-[0_0_10px_#7047EB_,_0_0_20px_#fff] rounded-full"
-        style={{
+      <motion.div
+        initial={{ width: 0 }}
+        animate={{
           width: `${
             initialSeconds
               ? ((initialSeconds - remainingSeconds) / initialSeconds) * 100
               : 0
           }%`,
-          background: 'linear-gradient(90deg, #8B5CF6 0%, #6366F1 100%)',
-          transition: "width 1s linear",
         }}
-      ></div>
+        transition={{ duration: 1, ease: "linear" }}
+        className="sticky top-0 h-[5px] z-10 shadow-[0_0_10px_#7047EB_,_0_0_20px_#fff] rounded-full"
+        style={{
+          background: "linear-gradient(90deg, #8B5CF6 0%, #6366F1 100%)",
+        }}
+      />
+
       <div className="flex flex-col justify-center items-center gap-[16px] px-4 max-w-[1400px] mx-auto">
-        <Flex justify="center" align="center" className={styles.GameHeader}>
-          {/* <span className={styles.GameName}> */}
-          {/*   Prize Pool: {gameState.totalAmountPool}ETH */}
-          {/* </span> */}
-          <GameTimer
-            timerMessage={gameState.currentMessage}
-            timer={remainingSeconds}
-          />
-          {/* <span className={styles.GameName}> */}
-          {/*   Round No.: {Number(gameState.roundNumber)} */}
-          {/* </span> */}
-        </Flex>
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+        >
+          <Flex justify="center" align="center" className={styles.GameHeader}>
+            <GameTimer
+              timerMessage={gameState.currentMessage}
+              timer={remainingSeconds}
+            />
+          </Flex>
+        </motion.div>
+
         <div className="grid lg:grid-flow-col place-items-center gap-4 lg:gap-0 w-full">
-          <div className="flex flex-col gap-8">
+          <motion.div
+            className="flex flex-col gap-8"
+            initial={{ opacity: 0, x: -50 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+          >
             <CommunityCards cards={gameState.communityCards} />
-            {/* <GameTimer */}
-            {/*   timerMessage={gameState.currentMessage} */}
-            {/*   timer={gameState.currentTimerEndDateTime} */}
-            {/* /> */}
             <GameCards
               redCardsInput={gameState.apesData.cards}
               blueCardsInput={gameState.punksData.cards}
@@ -142,9 +151,15 @@ const Game = () => {
               apesSelfBet={gameState.apesData.totalSelfBetAmount}
               punksSelfBet={gameState.punksData.totalSelfBetAmount}
             />
-            {/* <Divider /> */}
-          </div>
-          <div className="bg-[#141127] p-4 lg:max-w-[300px] rounded-[24px] flex justify-center items-center flex-wrap lg:flex-wrap sm:flex-nowrap gap-4 w-full">
+          </motion.div>
+
+          <motion.div
+            className="bg-[#141127] p-4 lg:max-w-[300px] rounded-[24px] flex justify-center items-center flex-wrap lg:flex-wrap sm:flex-nowrap gap-4 w-full"
+            initial={{ opacity: 0, x: 50 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8, delay: 0.4 }}
+          >
             <Image
               src="/images/assets/realm-of-aces-card.png"
               alt="Realm of Aces"
@@ -161,13 +176,26 @@ const Game = () => {
               handlePlayerSelection={handlePlayerSelection}
               gameState={gameState}
             />
-          </div>
+          </motion.div>
         </div>
-        <RecentBets setShowUserBetModal={setShowUserBetModal} />
+
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6, delay: 0.6 }}
+          className="w-full"
+        >
+          <RecentBets setShowUserBetModal={setShowUserBetModal} />
+        </motion.div>
+
         <Divider />
+
         <BetwinModal
           gameState={gameState}
-          open={showModal ? forcedCloseBetwinModal && initialSeconds > 0 : showModal}
+          open={
+            showModal ? forcedCloseBetwinModal && initialSeconds > 0 : showModal
+          }
           setOpen={setForcedCloseBetwinModal}
           timer={remainingSeconds}
         />
