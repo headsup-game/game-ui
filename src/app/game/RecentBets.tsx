@@ -425,9 +425,8 @@ const RecentBets = React.memo(
     const [currentPage, setCurrentPage] = useState(1);
 
     function handlePageChange(page: number, pageSize: number) {
-      console.log('page', page, 'pageSize', pageSize);
-      const startEpoch = totalItems - (page - 1) * itemsPerPage;
-      const endEpoch = Math.max(startEpoch - itemsPerPage, 1);
+      const startEpoch = totalItems - (page - 1) * pageSize;
+      const endEpoch = Math.max(startEpoch - pageSize, 1);
 
       setWhereQuery({
         epoch_lte: String(startEpoch + 1),
