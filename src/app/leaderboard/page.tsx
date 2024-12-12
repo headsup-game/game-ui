@@ -9,6 +9,7 @@ import { useAccount, useEnsName } from "wagmi";
 import { gql, useQuery } from "@apollo/client";
 import { ethers } from "ethers";
 import { client } from "apolloClient";
+import { useMotionValue, motion } from "framer-motion";
 
 const { Title, Text } = Typography;
 
@@ -33,95 +34,137 @@ const Leaderboard = React.memo(
     const { isConnected, address } = useAccount();
 
     const [dataSource, setDataSource] = useState<LeaderboardProps[]>([]);
+    
+    const [scope] = useState(useMotionValue(1));
+    const [reveal, setReveal] = useState(false);
+
+    useEffect(() => {
+      if (dataSource.length > 0) {
+        setReveal(true);
+      }
+    }, [dataSource]);
+
+    const staggerChildren = {
+      animate: {
+        transition: {
+          delayChildren: 0.4,
+          staggerChildren: 0.1,
+        },
+      },
+    };
+
+    const animation = {
+      initial: {
+        y: 20,
+        opacity: 0,
+      },
+      animate: {
+        y: 0,
+        opacity: 1,
+      },
+    };
+
     const [columns, setColumns] = useState([
       {
-        title: "Rank",
-        align: "center" as AlignType,
-        dataIndex: "rank",
-        key: "rank",
-        render: (rank?: number) => <span>{rank}</span>,
+      title: "Rank",
+      align: "center" as AlignType,
+      dataIndex: "rank",
+      key: "rank",
+      render: (rank?: number) => (
+        <motion.span {...animation}>{rank}</motion.span>
+      ),
       },
       {
-        title: "Address",
-        width: "5",
-        align: "center" as AlignType,
-        dataIndex: "address",
-        key: "address",
-        render: (address?: string) =>
-          address ? (
-            <ENSName address={ethers.formatEther(address) as `0x${string}`} />
-          ) : (
-            <span>0x000...0000</span>
-          ),
+      title: "Address",
+      width: "5",
+      align: "center" as AlignType,
+      dataIndex: "address",
+      key: "address",
+      render: (address?: string) =>
+        address ? (
+        <motion.div {...animation}>
+          <ENSName address={ethers.formatEther(address) as `0x${string}`} />
+        </motion.div>
+        ) : (
+        <motion.span {...animation}>0x000...0000</motion.span>
+        ),
       },
       {
-        title: "Total Points",
-        align: "center" as AlignType,
-        dataIndex: "points",
-        key: "points",
-        render: (points?: string) =>
-          points ? <span>{ethers.formatEther(points)}</span> : <span>0</span>,
+      title: "Total Points",
+      align: "center" as AlignType,
+      dataIndex: "points",
+      key: "points",
+      render: (points?: string) =>
+        points ? (
+        <motion.span {...animation}>{ethers.formatEther(points)}</motion.span>
+        ) : (
+        <motion.span {...animation}>0</motion.span>
+        ),
       },
       {
-        title: "Total Bets",
-        align: "center" as AlignType,
-        dataIndex: "totalBets",
-        key: "totalBets",
-        render: (totalBets?: string) =>
-          totalBets ? (
-            <span style={{ textAlign: "right" }}>
-              {ethers.formatEther(totalBets)} ETH
-            </span>
-          ) : (
-            <span style={{ textAlign: "right" }}>0.0 ETH</span>
-          ),
+      title: "Total Bets",
+      align: "center" as AlignType,
+      dataIndex: "totalBets",
+      key: "totalBets",
+      render: (totalBets?: string) =>
+        totalBets ? (
+        <motion.span {...animation} style={{ textAlign: "right" }}>
+          {ethers.formatEther(totalBets)} ETH
+        </motion.span>
+        ) : (
+        <motion.span {...animation} style={{ textAlign: "right" }}>
+          0.0 ETH
+        </motion.span>
+        ),
       },
     ]);
     const [mobileColumns] = useState([
       {
-        title: "Rank",
-        align: "center" as AlignType,
-        dataIndex: "rank",
-        key: "rank",
-        render: (rank?: number) => <span>{rank}</span>,
+      title: "Rank",
+      align: "center" as AlignType,
+      dataIndex: "rank",
+      key: "rank",
+      render: (rank?: number) => (
+        <motion.span {...animation}>{rank}</motion.span>
+      ),
       },
       {
-        title: "Address",
-        align: "center" as AlignType,
-        dataIndex: "address",
-        key: "address",
-        render: (_?: string, data?: any) => (
-          <div>
-            {data.address ? (
-              <>
-                <ENSName
-                  address={ethers.formatEther(data.address) as `0x${string}`}
-                />
-                <div
-                  style={{
-                    fontSize: "12px",
-                    color: data.address !== address ? "#6C6C89" : "#F9FAFB",
-                  }}
-                >
-                  Points: {ethers.formatEther(data?.points) || "0"}
-                </div>
-              </>
-            ) : (
-              <span>0x000...0000</span>
-            )}
+      title: "Address",
+      align: "center" as AlignType,
+      dataIndex: "address",
+      key: "address",
+      render: (_?: string, data?: any) => (
+        <motion.div {...animation}>
+        {data.address ? (
+          <>
+          <ENSName
+            address={ethers.formatEther(data.address) as `0x${string}`}
+          />
+          <div
+            style={{
+            fontSize: "12px",
+            color: data.address !== address ? "#6C6C89" : "#F9FAFB",
+            }}
+          >
+            Points: {ethers.formatEther(data?.points) || "0"}
           </div>
-        ),
+          </>
+        ) : (
+          <span>0x000...0000</span>
+        )}
+        </motion.div>
+      ),
       },
       {
-        title: "Total Bets",
-        align: "center" as AlignType,
-        dataIndex: "totalBets",
-        key: "totalBets",
-        render: (totalBets?: string) => (
-          <span style={{ textAlign: "right" }}>
-            {ethers.formatEther(totalBets || "0.0")} ETH
-          </span>
-        ),
+      title: "Total Bets",
+      align: "center" as AlignType,
+      dataIndex: "totalBets",
+      key: "totalBets",
+      render: (totalBets?: string) => (
+        <motion.span {...animation} style={{ textAlign: "right" }}>
+        {ethers.formatEther(totalBets || "0.0")} ETH
+        </motion.span>
+      ),
       },
     ]);
 
