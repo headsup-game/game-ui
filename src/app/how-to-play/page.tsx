@@ -88,7 +88,8 @@ export default function HowToPlay() {
   };
 
   return (
-    <Container className="min-h-screen bg-gradient-to-b ">
+
+    <Container className="min-h-screen">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}

@@ -185,8 +185,6 @@ const Leaderboard = React.memo(
       }
     ).data?.headsUps.items[0].totalUsers;
 
-    console.log("dataSource", dataSource);
-
     const handleLeaderboardData = (data: {
       users: {
         items: {

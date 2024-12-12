@@ -485,7 +485,6 @@ export default function UserBetModal({
           isWinner: participation.isWinner,
         });
 
-        console.log("dataSource", dataSource);
       } catch (error) {
         console.error("Error handling round data:", error);
       }
