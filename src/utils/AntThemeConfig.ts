@@ -65,9 +65,8 @@ export const ANT_CUSTOM_THEME: ThemeConfig = {
     },
     Steps: {
       colorIcon: "#F9FAFB",
-      colorIconHover: "#F9FAFB",
       colorText: "#F9FAFB",
-      colorTextDescription: "#F9FAFB",
+      colorTextDescription: "#cecece",
       colorTextDisabled: "#707070",
     }
   },
