@@ -11,6 +11,7 @@ import {
 } from "interfaces/card";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
+import { cn } from "utils/cn";
 
 const { Text } = Typography;
 
@@ -101,7 +102,12 @@ const PlayingCard = (props: PlayingCardProps) => {
       {value != Rank.None || suit != Suit.None || suit != Suit.None ? (
         <Flex
           ref={playingCardRef}
-          className={`${className} ${styles.PlayingCard}`}
+          className={cn(
+            className,
+            styles.PlayingCard,
+            props.isSmall ? "min-h-[47.25px]" : "",
+            props.isSmall ? "sm:min-h-[63px]" : ""
+          )}
           align="center"
           justify="center"
           onClick={onClick}
@@ -109,7 +115,6 @@ const PlayingCard = (props: PlayingCardProps) => {
             ...props.styles,
             backgroundColor: getBGColor(color),
             userSelect: "none",
-            minHeight: props.isSmall ? "63px" : "",
             width: props.isSmall ? "auto" : "100%",
             aspectRatio: "63 / 88",
           }}
@@ -148,23 +153,18 @@ const PlayingCard = (props: PlayingCardProps) => {
           </Flex>
         </Flex>
       ) : (
-        <div 
-          ref={playingCardRef}  
-          style={{
-            ...props.styles,
-            backgroundColor: getBGColor(color),
-            userSelect: "none",
-            borderRadius: "6px",
-            maxHeight: props.isSmall ? "63px" : "",
-            width: props.isSmall ? "auto" : "100%",
-            aspectRatio: "63 / 88",
-          }}>
+        <div ref={playingCardRef}>
           <Image
             src="/images/card_back_side.svg"
             alt="unrevealed_card"
             width={63}
             height={88}
-            className={`${className} ${styles.PlayingCard}`}
+            className={cn(
+              className,
+              styles.PlayingCard, "w-auto", 
+              props.isSmall ? "max-h-[47.25px]" : "",
+              props.isSmall ? "sm:max-h-[63px]" : ""
+            )}
           />
         </div>
       )}
