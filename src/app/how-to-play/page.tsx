@@ -13,13 +13,36 @@ import {
 import Container from "app/components/Container/Container";
 import CardSet from "@components/CardSet";
 import { Card, Color, Rank, Suit } from "interfaces/card";
-import { useState, useRef } from "react";
+import { useState, useRef, ReactNode, FC } from "react";
 import GameCards from "app/game/GameCards";
 import { Players } from "interfaces/players";
-import { FaEthereum } from "react-icons/fa";
+import { FaArrowRight, FaEthereum, FaHandHoldingUsd, FaHandSparkles } from "react-icons/fa";
+import { TbCardsFilled } from "react-icons/tb";
 import UserBetModal from "app/components/UserWinModal/UserBetModal";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
-import { useAccount, useWalletClient } from "wagmi";
+import { useAccount } from "wagmi";
+import { motion } from "framer-motion";
+
+interface GradientTextProps {
+  children: ReactNode;
+  className?: string;
+}
+
+export const GradientText: FC<GradientTextProps> = ({
+  children,
+  className,
+}) => {
+  return (
+    <span
+      className={
+        "bg-gradient-to-r from-purple-400 to-pink-600 text-transparent bg-clip-text " +
+        className
+      }
+    >
+      {children}
+    </span>
+  );
+};
 
 const { Title, Text } = Typography;
 
@@ -27,6 +50,7 @@ export default function HowToPlay() {
   const [currentStep, setCurrentStep] = useState(0);
   const [openTour, setOpenTour] = useState(false);
   const [selectedPlayer, setSelectedPlayer] = useState<Players>(2);
+  const [step2InputValue, setStep2InputValue] = useState(0.001);
 
   // References for tour targets
   const connectRef = useRef(null);
@@ -37,27 +61,6 @@ export default function HowToPlay() {
 
   // Check if wallet is connected
   const { isConnected } = useAccount();
-
-  const tourSteps = [
-    {
-      title: "Connect Your Wallet",
-      description:
-        "First, connect your wallet using the button in the top right corner",
-      target: () => connectRef.current,
-    },
-    {
-      title: "Place Your Bet",
-      description:
-        "Choose your team and enter your bet amount. Higher bets mean bigger potential winnings!",
-      target: () => betRef.current,
-    },
-    {
-      title: "Claim Winnings",
-      description:
-        "If your team wins, click the claim button to receive your winnings directly to your wallet",
-      target: () => claimRef.current,
-    },
-  ];
 
   const exampleHands = {
     royalFlush: [
@@ -85,13 +88,30 @@ export default function HowToPlay() {
   };
 
   return (
-    <Container className="min-h-screen">
+    <Container className="min-h-screen bg-gradient-to-b ">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="w-full text-center my-8"
+      >
+        <GradientText className="text-5xl font-bold text-center mt-12 mb-8">
+          How to Play
+        </GradientText>
+      </motion.div>
 
       {/* How to Place a Bet Section */}
-      <section className="bg-[#2C2A4A] rounded-lg p-6 mb-8 mt-12">
-        <h2 className="text-2xl font-bold text-white mb-4">
+      <motion.section
+        className="bg-[#141127] rounded-lg p-6 mb-8"
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5, delay: 0.2 }}
+      >
+        <h2 className="text-3xl font-bold text-white mb-8 flex justify-center items-center">
+          <FaHandSparkles className="mr-2 text-yellow-400" />
           How to Place a Bet
         </h2>
+        <div className="space-y-8 max-w-[800px] mx-auto">
         <Steps
           current={currentStep}
           onChange={setCurrentStep}
@@ -112,63 +132,85 @@ export default function HowToPlay() {
         />
         <div className="mt-4 space-y-6">
           {currentStep === 0 && (
-            <GameCards
-              redCardsInput={[
-                { rank: Rank.Ace, suit: Suit.Spades, color: Color.BLACK },
-                { rank: Rank.Ace, suit: Suit.Hearts, color: Color.RED },
-              ]}
-              blueCardsInput={[
-                { rank: Rank.King, suit: Suit.Diamonds, color: Color.RED },
-                { rank: Rank.King, suit: Suit.Clubs, color: Color.BLACK },
-              ]}
-              redCardsTotalAmount="5.5"
-              blueCardsTotalAmout="4.8"
-              redCardsNumberOfBets={10}
-              blueCardsNumberOfBets={8}
-              selectedPlayer={selectedPlayer}
-              handlePlayerSelection={(player) => setSelectedPlayer(player)}
-              apesPayout={2.5}
-              punksPayout={2.5}
-              apesSelfBet="0"
-              punksSelfBet="0"
-            />
+            <div className="flex flex-col gap-4">
+              <GameCards
+                redCardsInput={[
+                  { rank: Rank.Ace, suit: Suit.Spades, color: Color.BLACK },
+                  { rank: Rank.Ace, suit: Suit.Hearts, color: Color.RED },
+                ]}
+                blueCardsInput={[
+                  { rank: Rank.King, suit: Suit.Diamonds, color: Color.RED },
+                  { rank: Rank.King, suit: Suit.Clubs, color: Color.BLACK },
+                ]}
+                redCardsTotalAmount="5.5"
+                blueCardsTotalAmout="4.8"
+                redCardsNumberOfBets={10}
+                blueCardsNumberOfBets={8}
+                selectedPlayer={selectedPlayer}
+                handlePlayerSelection={(player) => setSelectedPlayer(player)}
+                apesPayout={2.5}
+                punksPayout={2.5}
+                apesSelfBet="0"
+                punksSelfBet="0"
+              />
+              <Button
+                type="primary"
+                className="bg-[#6F04FF] hover:bg-[#5A03CC] max-w-[500px] w-full mx-auto"
+                onClick={() => setCurrentStep(currentStep + 1)}
+                ref={connectRef}
+                disabled={selectedPlayer === 2}
+              >
+                {selectedPlayer === 2 ? (
+                  "Select a Team"
+                ) : (
+                  <div className="flex justify-center items-center gap-2">
+                    Next <FaArrowRight />
+                  </div>
+                )}
+              </Button>
+            </div>
           )}
           {currentStep === 1 && (
-            <div className="bg-[#3A375A] rounded-lg p-4">
+            <div className="bg-[#3A375A] rounded-lg p-4 max-w-[400px] mx-auto">
               <h3 className="text-xl font-semibold text-white mb-3">
                 Place Your Bet
               </h3>
               <Flex vertical gap={8}>
                 {/* Amount Input */}
-                  <InputNumber
-                    min={0.001}
-                    step={0.001}
-                    precision={3}
-                    defaultValue={0.001}
-                    prefix={<FaEthereum />}
-                    onChange={(value) => {
-                      if (value) {
-                        message.success(`Bet amount set to ${value} ETH`);
-                      }
-                    }}
-                    className="[&_input]:text-[white_!important]"
-                    style={{
-                      width: "100%",
-                      backgroundColor: "rgba(58, 55, 90, 0.1)",
-                      borderColor: "#6F04FF",
-                      color: "white",
-                    }}
-                  />
+                <InputNumber
+                  min={0.001}
+                  step={0.001}
+                  precision={3}
+                  value={step2InputValue}
+                  defaultValue={0.001}
+                  prefix={<FaEthereum />}
+                  onChange={(value) => {
+                    setStep2InputValue(value as number);
+                  }}
+                  className="[&_input]:text-[white_!important]"
+                  style={{
+                    width: "100%",
+                    backgroundColor: "#141127",
+                    borderColor: "#6F04FF",
+                    color: "white",
+                  }}
+                />
 
                 {/* Quick Amount Buttons */}
-                <Flex align="center" gap={6}>
+                <Flex align="center" gap={6} className="w-fit">
                   {[0.01, 0.05, 0.1].map((amount) => (
                     <Button
                       size="small"
                       key={amount}
-                      className="bg-[#6F04FF] hover:bg-[#5A03CC] text-white"
+                      className="bg-[#6F04FF] hover:bg-[#5A03CC] [&_span]:text-white"
+                      style={{
+                        background: "transparent",
+                        border: "1px solid #cecece",
+                        borderRadius: "6px",
+                        color: "white",
+                      }}
                       onClick={() => {
-                        message.info(`Selected amount: ${amount} ETH`);
+                        setStep2InputValue(amount as number);
                       }}
                     >
                       {amount} ETH
@@ -176,7 +218,7 @@ export default function HowToPlay() {
                   ))}
                 </Flex>
 
-                <div className="border-t border-[#6F04FF]/30 pt-4">
+                <div className="border-t border-[#6F04FF] pt-4">
                   <p className="text-white">Minimum bet: 0.001 ETH</p>
                   <div style={{ marginTop: 8 }}>
                     <p className="text-white">
@@ -188,29 +230,57 @@ export default function HowToPlay() {
                           textShadow: "0 0 5px currentColor",
                         }}
                       >
-                        0.002 ETH
+                        {
+                          (step2InputValue * 2.5).toFixed(3) // Potential win calculation
+                        }
+                        ETH
                       </span>
                     </p>
                   </div>
+                </div>
+
+                <div className="flex justify-between mt-4">
+                  <Button
+                    onClick={() => setCurrentStep(currentStep - 1)}
+                    className="bg-transparent border-[#6F04FF] text-[#6F04FF] hover:bg-[#6F04FF]/10"
+                  >
+                    Go Back
+                  </Button>
+                  <Button
+                    type="primary"
+                    className="bg-[#6F04FF] hover:bg-[#5A03CC]"
+                    onClick={() => setCurrentStep(currentStep + 1)}
+                    ref={betRef}
+                  >
+                    Next <FaArrowRight />
+                  </Button>
                 </div>
               </Flex>
             </div>
           )}
           {currentStep === 2 && (
-            <div className="bg-[#3A375A] rounded-lg p-4">
-              <h3 className="text-xl font-semibold text-white mb-3">
+            <div className="bg-[#3A375A] max-w-[400px] mx-auto rounded-lg p-4">
+              <h3 className="text-xl font-bold text-white mb-3">
                 Confirm Transaction
               </h3>
               <Flex vertical gap={8}>
-                <div className="border-l-4 border-[#6F04FF] pl-4">
+                <div className="border-l-4 border-[#6F04FF] pl-4 text-[14px]">
                   <p className="text-white">
                     Team: {selectedPlayer === Players.Apes ? "Apes" : "Punks"}
                   </p>
-                  <p className="text-white">Bet Amount: 0.5 ETH</p>
+                  <p className="text-white">
+                    Bet Amount: {step2InputValue} ETH
+                  </p>
                   <p className="text-white">
                     Potential Win:{" "}
-                    <span style={{ color: "#00E000", fontWeight: "bold" }}>
-                      {(0.5 * 2.5).toFixed(2)} ETH
+                    <span
+                      style={{
+                        color: "#00E000",
+                        fontWeight: "bold",
+                        textShadow: "0 0 5px currentColor",
+                      }}
+                    >
+                      {(step2InputValue * 2.5).toFixed(3)} ETH
                     </span>
                   </p>
                 </div>
@@ -240,17 +310,24 @@ export default function HowToPlay() {
             </div>
           )}
         </div>
-      </section>
+        </div>
+      </motion.section>
 
       {/* How to Claim Winnings Section */}
-      <section className="bg-[#2C2A4A] rounded-lg p-6 mb-8">
-        <h2 className="text-2xl font-bold text-white mb-4">
+      <motion.section
+        className="bg-[#141127] rounded-lg p-6 mb-8"
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5, delay: 0.4 }}
+      >
+        <h2 className="text-3xl font-bold text-white mb-8 flex justify-center items-center">
+          <FaHandHoldingUsd className="mr-2 text-green-400" />
           How to Claim Winnings
         </h2>
-        <div className="space-y-4">
+        <div className="space-y-4 max-w-[800px] mx-auto">
           <div className="bg-[#3A375A] p-4 rounded">
-            <h3 className="text-white font-semibold">1. View Your Bets</h3>
-            <p className="mb-2">
+            <h3 className="text-white font-bold text-[18px]">1. View Your Bets</h3>
+            <p className="mb-2 text-small text-[#cecece]">
               Check your active and past bets to see your winnings
             </p>
             {!isConnected ? (
@@ -290,13 +367,13 @@ export default function HowToPlay() {
                 className="bg-[#6F04FF] hover:bg-[#5A03CC]"
                 onClick={() => setShowUserBetModal(true)}
               >
-                Open My Bets
+                View My Bets
               </Button>
             )}
           </div>
           <div className="bg-[#3A375A] p-4 rounded">
-            <h3 className="text-white font-semibold">2. Claiming Process</h3>
-            <p className="mb-2">
+            <h3 className="text-white font-bold text-[18px] ">2. Claiming Process</h3>
+            <p className="mb-2 text-[#cecece]">
               For winning bets, you&apos;ll see a &quot;Claim&quot; button that
               allows you to collect your winnings
             </p>
@@ -313,8 +390,8 @@ export default function HowToPlay() {
             </div>
           </div>
           <div className="bg-[#3A375A] p-4 rounded">
-            <h3 className="text-white font-semibold">3. Track Your History</h3>
-            <p className="mb-2">
+            <h3 className="text-white font-bold text-[18px]">3. Track Your History</h3>
+            <p className="mb-2 text-[#cecece]">
               Keep track of your betting history and claimed winnings
             </p>
             <div className="bg-[#2C2A4A] p-3 rounded">
@@ -329,17 +406,27 @@ export default function HowToPlay() {
 
         {/* UserBetModal component for real claiming functionality */}
         <UserBetModal open={showUserBetModal} setOpen={setShowUserBetModal} />
-      </section>
+      </motion.section>
 
-      {/* Original Poker Hand Rankings Section */}
-      <section className="bg-gradient-to-r from-[#2C2A4A] to-[#3A375A] rounded-2xl p-8 shadow-2xl">
-        <h1 className="text-4xl font-bold text-white text-center mb-8">
-          Let&apos;s Learn Poker Together! 🎮
-        </h1>
+      {/* Poker Hand Rankings Section */}
+      <motion.section
+        className="bg-[#141127] rounded-2xl p-8 shadow-2xl"
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5, delay: 0.6 }}
+      >
+        <h2 className="text-3xl font-bold text-white mb-8 flex justify-center items-center">
+          <TbCardsFilled className="mr-2 text-purple-400" />
+            Let&apos;s Learn Poker Together!
+        </h2>
 
-        <div className="space-y-8">
+        <div className="space-y-8 max-w-[800px] mx-auto">
           {/* Royal Flush */}
-          <div className="bg-[#2C2A4A]/80 rounded-xl p-6">
+          <motion.div
+            className="bg-[#2C2A4A]/80 rounded-xl p-6"
+            whileHover={{ scale: 1.02 }}
+            transition={{ type: "spring", stiffness: 300 }}
+          >
             <h2 className="text-2xl font-bold text-white mb-4">
               1. Royal Flush - The Super Special Hand! 👑
             </h2>
@@ -358,10 +445,14 @@ export default function HowToPlay() {
                 rarest and best hand in poker.
               </p>
             </Flex>
-          </div>
+          </motion.div>
 
           {/* Straight Flush */}
-          <div className="bg-[#2C2A4A]/80 rounded-xl p-6">
+          <motion.div
+            className="bg-[#2C2A4A]/80 rounded-xl p-6"
+            whileHover={{ scale: 1.02 }}
+            transition={{ type: "spring", stiffness: 300 }}
+          >
             <h2 className="text-2xl font-bold text-white mb-4">
               2. Straight Flush - The Rainbow Line! 🌈
             </h2>
@@ -379,10 +470,14 @@ export default function HowToPlay() {
                 but not as rare as the Royal Flush.
               </p>
             </Flex>
-          </div>
+          </motion.div>
 
           {/* Four of a Kind */}
-          <div className="bg-[#2C2A4A]/80 rounded-xl p-6">
+          <motion.div
+            className="bg-[#2C2A4A]/80 rounded-xl p-6"
+            whileHover={{ scale: 1.02 }}
+            transition={{ type: "spring", stiffness: 300 }}
+          >
             <h2 className="text-2xl font-bold text-white mb-4">
               3. Four of a Kind - The Quadruplets! 👯‍♂️👯‍♀️
             </h2>
@@ -401,10 +496,17 @@ export default function HowToPlay() {
                 company!
               </p>
             </Flex>
-          </div>
+          </motion.div>
 
           {/* Fun Tips Box */}
-          <div className="bg-[#3A375A]/50 p-4 rounded-lg border-2 border-[#6F04FF]">
+          <motion.div
+            className="bg-[#3A375A]/50 p-4 rounded-lg border-2 border-[#6F04FF]"
+            whileHover={{
+              scale: 1.05,
+              boxShadow: "0 0 20px rgba(111, 4, 255, 0.5)",
+            }}
+            transition={{ type: "spring", stiffness: 300 }}
+          >
             <h3 className="text-xl font-bold text-white mb-2">
               Fun Tips for New Players! 🌟
             </h3>
@@ -414,9 +516,9 @@ export default function HowToPlay() {
               <li>Practice makes perfect - don&apos;t give up!</li>
               <li>Start with small bets while learning</li>
             </ul>
-          </div>
+          </motion.div>
         </div>
-      </section>
+      </motion.section>
     </Container>
   );
 }
