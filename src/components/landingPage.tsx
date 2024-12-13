@@ -4,28 +4,6 @@ import Image from "next/image";
 
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { useContext } from "react";
-import { PokerConfettiContext } from "./PokerCardsConfetti";
-
-// Create a button component that will trigger the confetti
-const ConfettiButton = () => {
-  const confettiContext = useContext(PokerConfettiContext);
-
-  if (!confettiContext) {
-    return null;
-  }
-
-  return (
-    <motion.button
-      whileHover={{ scale: 1.05 }}
-      whileTap={{ scale: 0.95 }}
-      onClick={() => confettiContext.triggerPokerConfetti(100)}
-      className="inline-flex h-10 items-center justify-center bg-gradient-to-r from-[#FF4848] to-[#FF0404] text-white px-6 py-2 rounded-xl text-lg hover:text-white"
-    >
-      Celebrate! 🎉
-    </motion.button>
-  );
-};
 
 export default function AnimatedLandingPage() {
   return (
@@ -57,13 +35,13 @@ export default function AnimatedLandingPage() {
                     decentralized poker game and earn crypto rewards.
                   </p>
                 </div>
-                <div className="flex flex-col gap-2 min-[400px]:flex-row">
+                <div className="flex flex-col gap-2 md:flex-row">
                   <motion.div
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                   >
                     <Link
-                      className="inline-flex h-10 items-center justify-center bg-gradient-to-r from-[#8E48FF] to-[#6F04FF] text-white px-6 py-2 rounded-xl text-lg hover:text-white"
+                      className="inline-flex h-10 items-center justify-center bg-gradient-to-r from-[#8E48FF] to-[#6F04FF] text-white px-6 py-2 rounded-xl text-lg hover:text-white text-nowrap whitespace-nowrap"
                       href="/game"
                     >
                       Join The Game
@@ -75,13 +53,17 @@ export default function AnimatedLandingPage() {
                     className="mt-2 min-[400px]:mt-0"
                   >
                     <Link
-                      className="inline-flex h-10 items-center justify-center bg-gray-800 text-white px-6 py-2 rounded-xl text-lg hover:text-white"
+                      className="inline-flex h-10 items-center justify-center px-6 py-2 rounded-xl text-lg"
                       href="/how-to-play"
+                      style={{
+                        color: "#fff",
+                        borderColor: "#8d6cef24",
+                        background: "#8d6cef24",
+                      }}
                     >
                       Learn How To Play
                     </Link>
                   </motion.div>
-                  <ConfettiButton />
                 </div>
               </motion.div>
               <motion.div
