@@ -5,6 +5,7 @@ import { GameState } from "interfaces/gameState";
 import GameTimer from "app/game/GameTimer";
 import CardSet from "@components/CardSet";
 import { Color, Rank, Suit, getCardNamesForPokerHandRank, getRankValue, getSortedCardsByRank } from "interfaces/card";
+import { IoIosClose } from "react-icons/io";
 const { Text } = Typography;
 
 const BetwinModal = ({
@@ -25,7 +26,7 @@ const BetwinModal = ({
       title={null}
       footer={null}
       closable={true}
-      closeIcon={<div className="text-white">x</div>}
+      closeIcon={<IoIosClose className="text-white text-[32px]" />}
       onCancel={() => setOpen(false)}
       className={styles.BetwinModal}
       width={630}
