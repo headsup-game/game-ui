@@ -435,7 +435,7 @@ const RecentBets = React.memo(
     }
 
     return (
-      <div className="w-full">
+      <div>
         <Flex
           justify="space-between"
           align="flex-start"

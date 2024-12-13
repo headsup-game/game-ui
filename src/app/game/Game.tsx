@@ -277,7 +277,7 @@ const Game = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6, delay: 0.6 }}
-          className="w-full"
+          className="w-full max-w-[calc(100vw-32px)]"
           ref={recentBetsRef}
         >
           <RecentBets />
