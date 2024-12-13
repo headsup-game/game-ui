@@ -10,6 +10,7 @@ import { gql, useQuery } from "@apollo/client";
 import { ethers } from "ethers";
 import { client } from "apolloClient";
 import { useMotionValue, motion } from "framer-motion";
+import { ColumnsType } from "antd/es/table";
 
 const { Title, Text } = Typography;
 
@@ -34,7 +35,7 @@ const Leaderboard = React.memo(
     const { isConnected, address } = useAccount();
 
     const [dataSource, setDataSource] = useState<LeaderboardProps[]>([]);
-    
+
     const [scope] = useState(useMotionValue(1));
     const [reveal, setReveal] = useState(false);
 
@@ -63,110 +64,6 @@ const Leaderboard = React.memo(
         opacity: 1,
       },
     };
-
-    const [columns, setColumns] = useState([
-      {
-      title: "Rank",
-      align: "center" as AlignType,
-      dataIndex: "rank",
-      key: "rank",
-      render: (rank?: number) => (
-        <motion.span {...animation}>{rank}</motion.span>
-      ),
-      },
-      {
-      title: "Address",
-      width: "5",
-      align: "center" as AlignType,
-      dataIndex: "address",
-      key: "address",
-      render: (address?: string) =>
-        address ? (
-        <motion.div {...animation}>
-          <ENSName address={ethers.formatEther(address) as `0x${string}`} />
-        </motion.div>
-        ) : (
-        <motion.span {...animation}>0x000...0000</motion.span>
-        ),
-      },
-      {
-      title: "Total Points",
-      align: "center" as AlignType,
-      dataIndex: "points",
-      key: "points",
-      render: (points?: string) =>
-        points ? (
-        <motion.span {...animation}>{ethers.formatEther(points)}</motion.span>
-        ) : (
-        <motion.span {...animation}>0</motion.span>
-        ),
-      },
-      {
-      title: "Total Bets",
-      align: "center" as AlignType,
-      dataIndex: "totalBets",
-      key: "totalBets",
-      render: (totalBets?: string) =>
-        totalBets ? (
-        <motion.span {...animation} style={{ textAlign: "right" }}>
-          {ethers.formatEther(totalBets)} ETH
-        </motion.span>
-        ) : (
-        <motion.span {...animation} style={{ textAlign: "right" }}>
-          0.0 ETH
-        </motion.span>
-        ),
-      },
-    ]);
-    const [mobileColumns] = useState([
-      {
-      title: "Rank",
-      align: "center" as AlignType,
-      dataIndex: "rank",
-      key: "rank",
-      render: (rank?: number) => (
-        <motion.span {...animation}>{rank}</motion.span>
-      ),
-      },
-      {
-      title: "Address",
-      align: "center" as AlignType,
-      dataIndex: "address",
-      key: "address",
-      render: (_?: string, data?: any) => (
-        <motion.div {...animation}>
-        {data.address ? (
-          <>
-          <ENSName
-            address={ethers.formatEther(data.address) as `0x${string}`}
-          />
-          <div
-            style={{
-            fontSize: "12px",
-            color: data.address !== address ? "#6C6C89" : "#F9FAFB",
-            }}
-          >
-            Points: {ethers.formatEther(data?.points) || "0"}
-          </div>
-          </>
-        ) : (
-          <span>0x000...0000</span>
-        )}
-        </motion.div>
-      ),
-      },
-      {
-      title: "Total Bets",
-      align: "center" as AlignType,
-      dataIndex: "totalBets",
-      key: "totalBets",
-      render: (totalBets?: string) => (
-        <motion.span {...animation} style={{ textAlign: "right" }}>
-        {ethers.formatEther(totalBets || "0.0")} ETH
-        </motion.span>
-      ),
-      },
-    ]);
 
     const [currentPage, setCurrentPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
@@ -220,11 +117,24 @@ const Leaderboard = React.memo(
       );
     };
 
+    const [sortConfig, setSortConfig] = useState<{
+      orderBy: "totalPoints" | "totalBetAmount";
+      orderDirection: "asc" | "desc";
+    }>({
+      orderBy: "totalPoints",
+      orderDirection: "desc",
+    });
+
     const GET_LEADERBOARD_QUERY = gql`
-      query MyQuery($limit: Int!, $where: UserFilter) {
+      query MyQuery(
+        $limit: Int!
+        $where: UserFilter
+        $orderBy: String!
+        $orderDirection: String!
+      ) {
         users(
-          orderBy: "totalPoints"
-          orderDirection: "desc"
+          orderBy: $orderBy
+          orderDirection: $orderDirection
           limit: $limit
           where: $where
         ) {
@@ -241,6 +151,8 @@ const Leaderboard = React.memo(
       const { data } = await client.query({
         query: GET_LEADERBOARD_QUERY,
         variables: {
+          orderBy: sortConfig.orderBy,
+          orderDirection: sortConfig.orderDirection,
           limit: pageSize,
           where: query,
         },
@@ -248,9 +160,207 @@ const Leaderboard = React.memo(
       handleLeaderboardData(data);
     };
 
+    const handleSortConfig = (orderBy: typeof sortConfig.orderBy) => {
+      setSortConfig((prevSortConfig) => ({
+        orderBy,
+        orderDirection:
+          prevSortConfig.orderBy === orderBy && prevSortConfig.orderDirection === "desc"
+            ? "asc"
+            : "desc",
+      }));
+    };
+
+    const [columns, setColumns] = useState<ColumnsType>([
+      {
+        title: "Rank",
+        align: "center" as AlignType,
+        dataIndex: "rank",
+        key: "rank",
+        render: (rank?: number) => (
+          <motion.span {...animation}>{rank}</motion.span>
+        ),
+      },
+      {
+        title: "Address",
+        width: "5",
+        align: "center" as AlignType,
+        dataIndex: "address",
+        key: "address",
+        render: (address?: string) =>
+          address ? (
+            <motion.div {...animation}>
+              <ENSName address={ethers.formatEther(address) as `0x${string}`} />
+            </motion.div>
+          ) : (
+            <motion.span {...animation}>0x000...0000</motion.span>
+          ),
+      },
+      {
+        title: "Total Points",
+        align: "center" as AlignType,
+        dataIndex: "points",
+        key: "points",
+        sorter: true,
+        sortOrder:
+          sortConfig.orderBy === "totalPoints"
+            ? sortConfig.orderDirection === "desc"
+              ? "descend"
+              : "ascend"
+            : undefined,
+        onHeaderCell: () => ({
+          onClick: () => {
+            handleSortConfig("totalPoints");
+          },
+        }),
+        render: (points?: string) =>
+          points ? (
+            <motion.span {...animation}>
+              {ethers.formatEther(points)}
+            </motion.span>
+          ) : (
+            <motion.span {...animation}>0</motion.span>
+          ),
+      },
+      {
+        title: "Total Bets",
+        align: "center" as AlignType,
+        dataIndex: "totalBets",
+        key: "totalBets",
+        sorter: true,
+        sortOrder:
+          sortConfig.orderBy === "totalBetAmount"
+            ? sortConfig.orderDirection === "desc"
+              ? "descend"
+              : "ascend"
+            : undefined,
+        onHeaderCell: () => ({
+          onClick: () => {
+            handleSortConfig("totalBetAmount");
+          },
+        }),
+        render: (totalBets?: string) =>
+          totalBets ? (
+            <motion.span {...animation} style={{ textAlign: "right" }}>
+              {ethers.formatEther(totalBets)} ETH
+            </motion.span>
+          ) : (
+            <motion.span {...animation} style={{ textAlign: "right" }}>
+              0.0 ETH
+            </motion.span>
+          ),
+      },
+    ]);
+    const [mobileColumns, setMobileColumns] = useState<ColumnsType>([
+      {
+        title: "Rank",
+        align: "center" as AlignType,
+        dataIndex: "rank",
+        key: "rank",
+        render: (rank?: number) => (
+          <motion.span {...animation}>{rank}</motion.span>
+        ),
+      },
+      {
+        title: "Address",
+        align: "center" as AlignType,
+        dataIndex: "points",
+        key: "points",
+        sorter: true,
+        sortOrder:
+          sortConfig.orderBy === "totalPoints"
+            ? sortConfig.orderDirection === "desc"
+              ? "descend"
+              : "ascend"
+            : undefined,
+        onHeaderCell: () => ({
+          onClick: () => {
+            handleSortConfig("totalPoints");
+          },
+        }),
+        render: (_?: string, data?: any) => (
+          <motion.div {...animation}>
+            {data.address ? (
+              <>
+                <ENSName
+                  address={ethers.formatEther(data.address) as `0x${string}`}
+                />
+                <div
+                  style={{
+                    fontSize: "12px",
+                    color: data.address !== address ? "#6C6C89" : "#F9FAFB",
+                  }}
+                >
+                  Points: {ethers.formatEther(data?.points) || "0"}
+                </div>
+              </>
+            ) : (
+              <span>0x000...0000</span>
+            )}
+          </motion.div>
+        ),
+      },
+      {
+        title: "Total Bets",
+        align: "center" as AlignType,
+        dataIndex: "totalBets",
+        key: "totalBets",
+        sorter: true,
+        sortOrder:
+          sortConfig.orderBy === "totalBetAmount"
+            ? sortConfig.orderDirection === "desc"
+              ? "descend"
+              : "ascend"
+            : undefined,
+        onHeaderCell: () => ({
+          onClick: () => {
+            handleSortConfig("totalBetAmount");
+          },
+        }),
+        render: (totalBets?: string) => (
+          <motion.span {...animation} style={{ textAlign: "right" }}>
+            {ethers.formatEther(totalBets || "0.0")} ETH
+          </motion.span>
+        ),
+      },
+    ]);
+
     useEffect(() => {
+      setColumns((prevColumns) =>
+        prevColumns.map((column) => {
+          if (column.key === "points" || column.key === "totalBets") {
+            return {
+              ...column,
+              sortOrder:
+                sortConfig.orderBy === (column.key === "points" ? "totalPoints" : "totalBetAmount")
+                  ? sortConfig.orderDirection === "desc"
+                    ? "descend"
+                    : "ascend"
+                  : undefined,
+            };
+          }
+          return column;
+        })
+      );
+
+      setMobileColumns((prevColumns) =>
+        prevColumns.map((column) => {
+          if (column.key === "points" || column.key === "totalBets") {
+            return {
+              ...column,
+              sortOrder:
+                sortConfig.orderBy === (column.key === "points" ? "totalPoints" : "totalBetAmount")
+                  ? sortConfig.orderDirection === "desc"
+                    ? "descend"
+                    : "ascend"
+                  : undefined,
+            };
+          }
+          return column;
+        })
+      );
+
       fetchData();
-    }, []);
+    }, [sortConfig]);
 
     const handlePageChange = (page: number, pageSize?: number) => {
       setCurrentPage(page);
