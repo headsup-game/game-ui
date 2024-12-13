@@ -1,15 +1,6 @@
 "use client";
 
-import {
-  Button,
-  Flex,
-  Steps,
-  Typography,
-  Tour,
-  message,
-  InputNumber,
-  ConfigProvider,
-} from "antd";
+import { Button, Flex, Steps, Typography, message, InputNumber } from "antd";
 import Container from "app/components/Container/Container";
 import CardSet from "@components/CardSet";
 import { Card, Color, Rank, Suit } from "interfaces/card";
@@ -29,27 +20,6 @@ import { useAccount } from "wagmi";
 import { motion } from "framer-motion";
 import { PokerConfettiContext } from "@components/PokerCardsConfetti";
 import { GiPokerHand } from "react-icons/gi";
-
-interface GradientTextProps {
-  children: ReactNode;
-  className?: string;
-}
-
-export const GradientText: FC<GradientTextProps> = ({
-  children,
-  className,
-}) => {
-  return (
-    <span
-      className={
-        "bg-gradient-to-r from-purple-400 to-pink-600 text-transparent bg-clip-text " +
-        className
-      }
-    >
-      {children}
-    </span>
-  );
-};
 
 const { Title, Text } = Typography;
 
@@ -102,9 +72,13 @@ export default function HowToPlay() {
         transition={{ duration: 0.5 }}
         className="w-full text-center my-8"
       >
-        <GradientText className="text-5xl font-bold text-center mt-12 mb-8">
+        <span
+          className={
+            "bg-gradient-to-r from-purple-400 to-pink-600 text-transparent bg-clip-text text-5xl font-bold text-center mt-12 mb-8"
+          }
+        >
           How to Play
-        </GradientText>
+        </span>
       </motion.div>
 
       {/* How to Place a Bet Section */}
