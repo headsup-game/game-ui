@@ -2,13 +2,22 @@
 
 import Container from "app/components/Container/Container";
 import styles from "./Game.module.scss";
-import { Button, Col, Divider, Flex, Row, Typography } from "antd";
+import {
+  Button,
+  Col,
+  Divider,
+  Flex,
+  Row,
+  Tour,
+  TourProps,
+  Typography,
+} from "antd";
 import Image from "next/image";
 import BetForm from "app/game/BetForm";
 import RecentBets from "app/game/RecentBets";
 import CommunityCards from "app/game/CommunityCards";
 import GameCards from "app/game/GameCards";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import BetwinModal from "app/components/BetwinModal/BetwinModal";
 import {
   GameState,
@@ -24,6 +33,8 @@ import { useAccount } from "wagmi";
 import UserBetModal from "app/components/UserWinModal/UserBetModal";
 import { useTimer } from "react-timer-hook";
 import { motion } from "framer-motion";
+import { FaQuestionCircle } from "react-icons/fa";
+import { GiPokerHand } from "react-icons/gi";
 
 const { Title, Text } = Typography;
 
@@ -91,6 +102,51 @@ const Game = () => {
     }
   }, [remainingSeconds, gameState.currentTimerEndDateTime]);
 
+  const [isTourOpen, setIsTourOpen] = useState(false);
+
+  const gameTimerRef = useRef(null);
+  const communityCardsRef = useRef(null);
+  const gameCardsRef = useRef(null);
+  const betFormRef = useRef(null);
+  const recentBetsRef = useRef(null);
+
+  const steps: TourProps["steps"] = [
+    {
+      title: "Game Timer",
+      description: "This shows the current game state and remaining time.",
+      target: () => gameTimerRef.current,
+    },
+    {
+      title: "Community Cards",
+      description:
+        "These are the community cards that will be revealed during the game.",
+      target: () => communityCardsRef.current,
+    },
+    {
+      title: "Player Cards",
+      description: "Choose between Apes and Punks to place your bet.",
+      target: () => gameCardsRef.current,
+    },
+    {
+      title: "Place Your Bet",
+      description: "Enter your bet amount and confirm your selection here.",
+      target: () => betFormRef.current,
+    },
+    {
+      title: "Recent Bets",
+      description: "View all recent bets placed by players.",
+      target: () => recentBetsRef.current,
+    },
+  ];
+
+  useEffect(() => {
+    const hasVisited = localStorage.getItem("hasVisitedGame");
+    if (!hasVisited) {
+      setIsTourOpen(true);
+      localStorage.setItem("hasVisitedGame", "true");
+    }
+  }, []);
+
   return (
     <>
       <motion.div
@@ -110,11 +166,42 @@ const Game = () => {
       />
 
       <div className="flex flex-col justify-center items-center gap-[16px] px-4 max-w-[1400px] mx-auto">
+        <div className="max-w-[1400px] ml-auto flex justify-end items-end gap-3 my-4">
+          <Button
+            size="small"
+            onClick={() => setShowUserBetModal(true)}
+            className="hover:text-[#8B5CF6]"
+            style={{
+              color: "#fff",
+              borderColor: "#8d6cef24",
+              background: "#8d6cef24",
+            }}
+            icon={<GiPokerHand className="text-[24px]" />}
+          >
+            {" "}
+            View My Bets
+          </Button>
+          <Button
+            size="small"
+            onClick={() => setIsTourOpen(true)}
+            className="text-gray-400 hover:text-[#8B5CF6]"
+            icon={<FaQuestionCircle />}
+            style={{
+              color: "#fff",
+              borderColor: "#8d6cef24",
+              background: "#8d6cef24",
+            }}
+          >
+            {" "}
+            Guide{" "}
+          </Button>
+        </div>
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
+          ref={gameTimerRef}
         >
           <Flex justify="center" align="center" className={styles.GameHeader}>
             <GameTimer
@@ -132,25 +219,30 @@ const Game = () => {
             viewport={{ once: true }}
             transition={{ duration: 0.8, delay: 0.2 }}
           >
-            <CommunityCards cards={gameState.communityCards} />
-            <GameCards
-              redCardsInput={gameState.apesData.cards}
-              blueCardsInput={gameState.punksData.cards}
-              redCardsTotalAmount={gameState.apesData.totalBetAmounts}
-              redCardsNumberOfBets={Number(
-                gameState.apesData.totalNumberOfBets
-              )}
-              blueCardsNumberOfBets={Number(
-                gameState.punksData.totalNumberOfBets
-              )}
-              blueCardsTotalAmout={gameState.punksData.totalBetAmounts}
-              selectedPlayer={selectedPlayer}
-              handlePlayerSelection={handlePlayerSelection}
-              apesPayout={gameState.apesData.payoutMultiplier}
-              punksPayout={gameState.punksData.payoutMultiplier}
-              apesSelfBet={gameState.apesData.totalSelfBetAmount}
-              punksSelfBet={gameState.punksData.totalSelfBetAmount}
-            />
+            <div ref={communityCardsRef}>
+              <CommunityCards cards={gameState.communityCards} />
+            </div>
+
+            <div ref={gameCardsRef}>
+              <GameCards
+                redCardsInput={gameState.apesData.cards}
+                blueCardsInput={gameState.punksData.cards}
+                redCardsTotalAmount={gameState.apesData.totalBetAmounts}
+                redCardsNumberOfBets={Number(
+                  gameState.apesData.totalNumberOfBets
+                )}
+                blueCardsNumberOfBets={Number(
+                  gameState.punksData.totalNumberOfBets
+                )}
+                blueCardsTotalAmout={gameState.punksData.totalBetAmounts}
+                selectedPlayer={selectedPlayer}
+                handlePlayerSelection={handlePlayerSelection}
+                apesPayout={gameState.apesData.payoutMultiplier}
+                punksPayout={gameState.punksData.payoutMultiplier}
+                apesSelfBet={gameState.apesData.totalSelfBetAmount}
+                punksSelfBet={gameState.punksData.totalSelfBetAmount}
+              />
+            </div>
           </motion.div>
 
           <motion.div
@@ -159,6 +251,7 @@ const Game = () => {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8, delay: 0.4 }}
+            ref={betFormRef}
           >
             <Image
               src="/images/assets/realm-of-aces-card.png"
@@ -185,8 +278,9 @@ const Game = () => {
           viewport={{ once: true }}
           transition={{ duration: 0.6, delay: 0.6 }}
           className="w-full"
+          ref={recentBetsRef}
         >
-          <RecentBets setShowUserBetModal={setShowUserBetModal} />
+          <RecentBets />
         </motion.div>
 
         <Divider />
@@ -202,6 +296,12 @@ const Game = () => {
 
         <UserBetModal open={showUserBetModal} setOpen={setShowUserBetModal} />
       </div>
+      <Tour
+        open={isTourOpen}
+        steps={steps}
+        onClose={() => setIsTourOpen(false)}
+        placement="center"
+      />
     </>
   );
 };
