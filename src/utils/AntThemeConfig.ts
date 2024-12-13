@@ -23,6 +23,8 @@ export const ANT_CUSTOM_THEME: ThemeConfig = {
     Button: {
       colorBorder: "rgba(255, 255, 255, 0.20)",
       colorTextDisabled: "#F9FAFB",
+      borderColorDisabled: "#8d6cef24",
+      colorBgContainerDisabled: "#8d6cef24",
     },
     Input: {
       colorBorder: "rgba(255, 255, 255, 0.20)",
