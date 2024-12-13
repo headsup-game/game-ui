@@ -21,6 +21,9 @@ import { useQuery } from "@apollo/client";
 import { ethers } from "ethers";
 import { ClaimWinnings } from "@components/claimWinnings";
 import { GET_USER_WINNINGS_QUERY } from "graphQueries/getUserWinnings";
+import { ConnectButton } from "@rainbow-me/rainbowkit";
+import { FaCross, FaWallet } from "react-icons/fa";
+import { IoIosClose } from "react-icons/io";
 const { Text } = Typography;
 
 type DataType = {
@@ -168,6 +171,7 @@ export default function UserBetModal({
         <Button
           type="primary"
           onClick={() => {
+            if (!round.isWinner && round.hasClaimed) return;
             ClaimWinnings({
               roundNumber: parseInt(roundNumber),
               onClaimWinningsStateChange: (state) => console.log(state),
@@ -247,6 +251,7 @@ export default function UserBetModal({
           <Button
             type="primary"
             onClick={() => {
+              if (!record.isWinner && record.hasClaimed) return;
               ClaimWinnings({
                 roundNumber: parseInt(record.roundNumber),
                 onClaimWinningsStateChange: (state) => console.log(state),
@@ -320,6 +325,7 @@ export default function UserBetModal({
           <Button
             type="primary"
             onClick={() => {
+              if (!record.isWinner && record.hasClaimed) return;
               ClaimWinnings({
                 roundNumber: parseInt(record.roundNumber),
                 onClaimWinningsStateChange: (state) => console.log(state),
@@ -371,32 +377,33 @@ export default function UserBetModal({
             {record.bet.multiplier})
           </Text>
           <Flex vertical align="center" gap={8}>
-          <Text style={{ color: "white" }}>
-            {record.isWinner ? (
-              <span style={{ color: "green" }}>
-                Won: {ethers.formatEther(record.ownWonAmount)}
-              </span>
-            ) : (
-              <span style={{ color: "red" }}>Lost</span>
-            )}
-          </Text>
-          <Button
-            type="primary"
-            onClick={() => {
-              ClaimWinnings({
-                roundNumber: parseInt(record.roundNumber),
-                onClaimWinningsStateChange: (state) => console.log(state),
-              });
-            }}
-            disabled={record.hasClaimed || !record.isWinner}
-          >
-            {record.hasClaimed
-              ? "Claimed"
-              : record.isWinner
-              ? "Claim"
-              : "Unclaimable"}
-          </Button>
-        </Flex>
+            <Text style={{ color: "white" }}>
+              {record.isWinner ? (
+                <span style={{ color: "green" }}>
+                  Won: {ethers.formatEther(record.ownWonAmount)}
+                </span>
+              ) : (
+                <span style={{ color: "red" }}>Lost</span>
+              )}
+            </Text>
+            <Button
+              type="primary"
+              onClick={() => {
+                if (!record.isWinner && record.hasClaimed) return;
+                ClaimWinnings({
+                  roundNumber: parseInt(record.roundNumber),
+                  onClaimWinningsStateChange: (state) => console.log(state),
+                });
+              }}
+              disabled={record.hasClaimed || !record.isWinner}
+            >
+              {record.hasClaimed
+                ? "Claimed"
+                : record.isWinner
+                ? "Claim"
+                : "Unclaimable"}
+            </Button>
+          </Flex>
         </Flex>
       ),
     },
@@ -484,7 +491,6 @@ export default function UserBetModal({
           },
           isWinner: participation.isWinner,
         });
-
       } catch (error) {
         console.error("Error handling round data:", error);
       }
@@ -515,7 +521,7 @@ export default function UserBetModal({
       title={null}
       footer={null}
       closable={true}
-      closeIcon={<div className="text-white">x</div>}
+      closeIcon={<IoIosClose className="text-white text-[32px]" />}
       onCancel={() => setOpen(false)}
       className="w-[auto_!important] max-w-[100vw_!important] lg:p-[40px_50px_!important] p-[0_!important]"
       styles={{
@@ -530,80 +536,103 @@ export default function UserBetModal({
       wrapClassName="m-0"
       rootClassName="m-0"
     >
-      <Flex justify="center" className={styles.Title}>
-        <Text
-          style={{
-            fontSize: "32px",
-            fontWeight: "700",
-            color: "white",
-            textAlign: "center",
-          }}
-          className="pb-2 md:pb-4"
-        >
-          My Bets
-        </Text>
-      </Flex>
-
-      <div className="hidden xl:block">
-        <Table
-          className="w-fit"
-          dataSource={dataSource}
-          columns={columns}
-          pagination={
-            {
-              pageSize: pageSize,
-              current: currentPage,
-              total: dataSource.length,
-              onChange: (page) => setCurrentPage(page),
-            } as any
-          }
-        />
-      </div>
-      <div className="hidden sm:hidden md:block xl:hidden">
-        <Table
-          className="w-fit"
-          dataSource={dataSource}
-          columns={tabletColumns}
-          pagination={
-            {
-              pageSize: pageSize,
-              current: currentPage,
-              total: dataSource.length,
-              onChange: (page) => setCurrentPage(page),
-            } as any
-          }
-        />
-      </div>
-      <div className="hidden sm:block md:hidden">
-        <Table
-          className="w-fit"
-          dataSource={dataSource}
-          columns={mobileMediumColumns}
-          pagination={
-            {
-              pageSize: pageSize,
-              current: currentPage,
-              total: dataSource.length,
-              onChange: (page) => setCurrentPage(page),
-            } as any
-          }
-        />
-      </div>
-      <div className="block sm:hidden">
-        <Table
-          className="w-fit"
-          dataSource={dataSource}
-          columns={mobileSmallColumns}
-          pagination={
-            {
-              pageSize: pageSize,
-              current: currentPage,
-              total: dataSource.length,
-              onChange: (page) => setCurrentPage(page),
-            } as any
-          }
-        />
-      </div>
+      {isConnected ? (
+        <>
+          <Flex justify="center" className={styles.Title}>
+            <Text
+              style={{
+                fontSize: "32px",
+                fontWeight: "700",
+                color: "white",
+                textAlign: "center",
+              }}
+              className="pb-2 md:pb-4"
+            >
+              My Bets
+            </Text>
+          </Flex>
+          <div className="hidden xl:block">
+            <Table
+              className="w-fit"
+              dataSource={dataSource}
+              columns={columns}
+              pagination={
+                {
+                  pageSize: pageSize,
+                  current: currentPage,
+                  total: dataSource.length,
+                  onChange: (page) => setCurrentPage(page),
+                } as any
+              }
+            />
+          </div>
+          <div className="hidden sm:hidden md:block xl:hidden">
+            <Table
+              className="w-fit"
+              dataSource={dataSource}
+              columns={tabletColumns}
+              pagination={
+                {
+                  pageSize: pageSize,
+                  current: currentPage,
+                  total: dataSource.length,
+                  onChange: (page) => setCurrentPage(page),
+                } as any
+              }
+            />
+          </div>
+          <div className="hidden sm:block md:hidden">
+            <Table
+              className="w-fit"
+              dataSource={dataSource}
+              columns={mobileMediumColumns}
+              pagination={
+                {
+                  pageSize: pageSize,
+                  current: currentPage,
+                  total: dataSource.length,
+                  onChange: (page) => setCurrentPage(page),
+                } as any
+              }
+            />
+          </div>
+          <div className="block sm:hidden">
+            <Table
+              className="w-fit"
+              dataSource={dataSource}
+              columns={mobileSmallColumns}
+              pagination={
+                {
+                  pageSize: pageSize,
+                  current: currentPage,
+                  total: dataSource.length,
+                  onChange: (page) => setCurrentPage(page),
+                } as any
+              }
+            />
+          </div>{" "}
+        </>
+      ) : (
+        <div className="flex justify-center items-center h-[500px]">
+          <Flex vertical align="center" gap={16}>
+            <Text style={{ color: "white", fontSize: "20px" }}>
+              Connect your wallet to view your bets
+            </Text>
+            <ConnectButton.Custom>
+              {({ openConnectModal }) => (
+                <Button
+                  type="primary"
+                  icon={<FaWallet />}
+                  onClick={openConnectModal}
+                  size="large"
+                >
+                  Connect Wallet
+                </Button>
+              )}
+            </ConnectButton.Custom>
+          </Flex>
+        </div>
+      )}
     </Modal>
   );
 }
