@@ -53,6 +53,8 @@ export const ANT_CUSTOM_THEME: ThemeConfig = {
       filterDropdownMenuBg: "#141127",
       fixedHeaderSortActiveBg: "#141127",
       headerFilterHoverBg: "#141100",
+      rowHoverBg: "transparent",
+      headerSortActiveBg: "transparent",
     },
     Pagination: {
       itemBg: "#141127",
