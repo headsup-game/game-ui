@@ -13,15 +13,22 @@ import {
 import Container from "app/components/Container/Container";
 import CardSet from "@components/CardSet";
 import { Card, Color, Rank, Suit } from "interfaces/card";
-import { useState, useRef, ReactNode, FC } from "react";
+import { useState, useRef, ReactNode, FC, useContext } from "react";
 import GameCards from "app/game/GameCards";
 import { Players } from "interfaces/players";
-import { FaArrowRight, FaEthereum, FaHandHoldingUsd, FaHandSparkles } from "react-icons/fa";
+import {
+  FaArrowRight,
+  FaEthereum,
+  FaHandHoldingUsd,
+  FaHandSparkles,
+} from "react-icons/fa";
 import { TbCardsFilled } from "react-icons/tb";
 import UserBetModal from "app/components/UserWinModal/UserBetModal";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { useAccount } from "wagmi";
 import { motion } from "framer-motion";
+import { PokerConfettiContext } from "@components/PokerCardsConfetti";
+import { GiPokerHand } from "react-icons/gi";
 
 interface GradientTextProps {
   children: ReactNode;
@@ -47,8 +54,8 @@ export const GradientText: FC<GradientTextProps> = ({
 const { Title, Text } = Typography;
 
 export default function HowToPlay() {
+  const confettiContext = useContext(PokerConfettiContext);
   const [currentStep, setCurrentStep] = useState(0);
-  const [openTour, setOpenTour] = useState(false);
   const [selectedPlayer, setSelectedPlayer] = useState<Players>(2);
   const [step2InputValue, setStep2InputValue] = useState(0.001);
 
@@ -88,7 +95,6 @@ export default function HowToPlay() {
   };
 
   return (
-
     <Container className="min-h-screen">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -113,117 +119,168 @@ export default function HowToPlay() {
           How to Place a Bet
         </h2>
         <div className="space-y-8 max-w-[800px] mx-auto">
-        <Steps
-          current={currentStep}
-          onChange={setCurrentStep}
-          items={[
-            {
-              title: "Select Team",
-              description: "Choose Apes or Punks",
-            },
-            {
-              title: "Enter Amount",
-              description: "Specify your bet amount",
-            },
-            {
-              title: "Confirm",
-              description: "Approve transaction",
-            },
-          ]}
-        />
-        <div className="mt-4 space-y-6">
-          {currentStep === 0 && (
-            <div className="flex flex-col gap-4">
-              <GameCards
-                redCardsInput={[
-                  { rank: Rank.Ace, suit: Suit.Spades, color: Color.BLACK },
-                  { rank: Rank.Ace, suit: Suit.Hearts, color: Color.RED },
-                ]}
-                blueCardsInput={[
-                  { rank: Rank.King, suit: Suit.Diamonds, color: Color.RED },
-                  { rank: Rank.King, suit: Suit.Clubs, color: Color.BLACK },
-                ]}
-                redCardsTotalAmount="5.5"
-                blueCardsTotalAmout="4.8"
-                redCardsNumberOfBets={10}
-                blueCardsNumberOfBets={8}
-                selectedPlayer={selectedPlayer}
-                handlePlayerSelection={(player) => setSelectedPlayer(player)}
-                apesPayout={2.5}
-                punksPayout={2.5}
-                apesSelfBet="0"
-                punksSelfBet="0"
-              />
-              <Button
-                type="primary"
-                className="bg-[#6F04FF] hover:bg-[#5A03CC] max-w-[500px] w-full mx-auto"
-                onClick={() => setCurrentStep(currentStep + 1)}
-                ref={connectRef}
-                disabled={selectedPlayer === 2}
-              >
-                {selectedPlayer === 2 ? (
-                  "Select a Team"
-                ) : (
-                  <div className="flex justify-center items-center gap-2">
-                    Next <FaArrowRight />
-                  </div>
-                )}
-              </Button>
-            </div>
-          )}
-          {currentStep === 1 && (
-            <div className="bg-[#3A375A] rounded-lg p-4 max-w-[400px] mx-auto">
-              <h3 className="text-xl font-semibold text-white mb-3">
-                Place Your Bet
-              </h3>
-              <Flex vertical gap={8}>
-                {/* Amount Input */}
-                <InputNumber
-                  min={0.001}
-                  step={0.001}
-                  precision={3}
-                  value={step2InputValue}
-                  defaultValue={0.001}
-                  prefix={<FaEthereum />}
-                  onChange={(value) => {
-                    setStep2InputValue(value as number);
-                  }}
-                  className="[&_input]:text-[white_!important]"
-                  style={{
-                    width: "100%",
-                    backgroundColor: "#141127",
-                    borderColor: "#6F04FF",
-                    color: "white",
-                  }}
+          <Steps
+            current={currentStep}
+            onChange={setCurrentStep}
+            items={[
+              {
+                title: "Select Team",
+                description: "Choose Apes or Punks",
+              },
+              {
+                title: "Enter Amount",
+                description: "Specify your bet amount",
+              },
+              {
+                title: "Confirm",
+                description: "Approve transaction",
+              },
+            ]}
+          />
+          <div className="mt-4 space-y-6">
+            {currentStep === 0 && (
+              <div className="flex flex-col gap-4">
+                <GameCards
+                  redCardsInput={[
+                    { rank: Rank.Ace, suit: Suit.Spades, color: Color.BLACK },
+                    { rank: Rank.Ace, suit: Suit.Hearts, color: Color.RED },
+                  ]}
+                  blueCardsInput={[
+                    { rank: Rank.King, suit: Suit.Diamonds, color: Color.RED },
+                    { rank: Rank.King, suit: Suit.Clubs, color: Color.BLACK },
+                  ]}
+                  redCardsTotalAmount="5.5"
+                  blueCardsTotalAmout="4.8"
+                  redCardsNumberOfBets={10}
+                  blueCardsNumberOfBets={8}
+                  selectedPlayer={selectedPlayer}
+                  handlePlayerSelection={(player) => setSelectedPlayer(player)}
+                  apesPayout={2.5}
+                  punksPayout={2.5}
+                  apesSelfBet="0"
+                  punksSelfBet="0"
                 />
+                <Button
+                  type="primary"
+                  className="bg-[#6F04FF] hover:bg-[#5A03CC] max-w-[500px] w-full mx-auto"
+                  onClick={() => setCurrentStep(currentStep + 1)}
+                  ref={connectRef}
+                  disabled={selectedPlayer === 2}
+                >
+                  {selectedPlayer === 2 ? (
+                    "Select a Team"
+                  ) : (
+                    <div className="flex justify-center items-center gap-2">
+                      Next <FaArrowRight />
+                    </div>
+                  )}
+                </Button>
+              </div>
+            )}
+            {currentStep === 1 && (
+              <div className="bg-[#3A375A] rounded-lg p-4 max-w-[400px] mx-auto">
+                <h3 className="text-xl font-semibold text-white mb-3">
+                  Place Your Bet
+                </h3>
+                <Flex vertical gap={8}>
+                  {/* Amount Input */}
+                  <InputNumber
+                    min={0.001}
+                    step={0.001}
+                    precision={3}
+                    value={step2InputValue}
+                    defaultValue={0.001}
+                    prefix={<FaEthereum />}
+                    onChange={(value) => {
+                      setStep2InputValue(value as number);
+                    }}
+                    className="[&_input]:text-[white_!important]"
+                    style={{
+                      width: "100%",
+                      backgroundColor: "#141127",
+                      borderColor: "#6F04FF",
+                      color: "white",
+                    }}
+                  />
 
-                {/* Quick Amount Buttons */}
-                <Flex align="center" gap={6} className="w-fit">
-                  {[0.01, 0.05, 0.1].map((amount) => (
+                  {/* Quick Amount Buttons */}
+                  <Flex align="center" gap={6} className="w-fit">
+                    {[0.01, 0.05, 0.1].map((amount) => (
+                      <Button
+                        size="small"
+                        key={amount}
+                        className="bg-[#6F04FF] hover:bg-[#5A03CC] [&_span]:text-white"
+                        style={{
+                          border: "1px solid #cecece",
+                          borderRadius: "6px",
+                          color: "white",
+                          borderColor: "#8d6cef24",
+                          background: "#8d6cef24",
+                        }}
+                        onClick={() => {
+                          setStep2InputValue(amount as number);
+                        }}
+                      >
+                        {amount} ETH
+                      </Button>
+                    ))}
+                  </Flex>
+
+                  <div className="border-t border-[#6F04FF] pt-4">
+                    <p className="text-white">Minimum bet: 0.001 ETH</p>
+                    <div style={{ marginTop: 8 }}>
+                      <p className="text-white">
+                        Potential win:{" "}
+                        <span
+                          style={{
+                            color: "#00E000",
+                            fontWeight: "bold",
+                            textShadow: "0 0 5px currentColor",
+                          }}
+                        >
+                          {
+                            (step2InputValue * 2.5).toFixed(3) // Potential win calculation
+                          }
+                          ETH
+                        </span>
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex justify-between mt-4">
                     <Button
-                      size="small"
-                      key={amount}
-                      className="bg-[#6F04FF] hover:bg-[#5A03CC] [&_span]:text-white"
-                      style={{
-                        background: "transparent",
-                        border: "1px solid #cecece",
-                        borderRadius: "6px",
-                        color: "white",
-                      }}
-                      onClick={() => {
-                        setStep2InputValue(amount as number);
-                      }}
+                      onClick={() => setCurrentStep(currentStep - 1)}
+                      className="bg-transparent border-[#6F04FF] text-[#6F04FF] hover:bg-[#6F04FF]/10"
                     >
-                      {amount} ETH
+                      Go Back
                     </Button>
-                  ))}
+                    <Button
+                      type="primary"
+                      className="bg-[#6F04FF] hover:bg-[#5A03CC]"
+                      onClick={() => setCurrentStep(currentStep + 1)}
+                      ref={betRef}
+                    >
+                      Next <FaArrowRight />
+                    </Button>
+                  </div>
                 </Flex>
-
-                <div className="border-t border-[#6F04FF] pt-4">
-                  <p className="text-white">Minimum bet: 0.001 ETH</p>
-                  <div style={{ marginTop: 8 }}>
+              </div>
+            )}
+            {currentStep === 2 && (
+              <div className="bg-[#3A375A] max-w-[400px] mx-auto rounded-lg p-4">
+                <h3 className="text-xl font-bold text-white mb-3">
+                  Confirm Transaction
+                </h3>
+                <Flex vertical gap={8}>
+                  <div className="border-l-4 border-[#6F04FF] pl-4 text-[14px]">
                     <p className="text-white">
-                      Potential win:{" "}
+                      Team: {selectedPlayer === Players.Apes ? "Apes" : "Punks"}
+                    </p>
+                    <p className="text-white">
+                      Bet Amount: {step2InputValue} ETH
+                    </p>
+                    <p className="text-white">
+                      Potential Win:{" "}
                       <span
                         style={{
                           color: "#00E000",
@@ -231,86 +288,39 @@ export default function HowToPlay() {
                           textShadow: "0 0 5px currentColor",
                         }}
                       >
-                        {
-                          (step2InputValue * 2.5).toFixed(3) // Potential win calculation
-                        }
-                        ETH
+                        {(step2InputValue * 2.5).toFixed(3)} ETH
                       </span>
                     </p>
                   </div>
-                </div>
-
-                <div className="flex justify-between mt-4">
+                  <Button
+                    type="primary"
+                    className="bg-[#6F04FF] hover:bg-[#5A03CC]"
+                    ref={claimRef}
+                    onClick={() => {
+                      message
+                        .loading("Confirming transaction...", 2)
+                        .then(() =>
+                          message.success("Transaction confirmed!", 2)
+                        )
+                        .then(() => {
+                          confettiContext?.triggerPokerConfetti(100); // Trigger confetti
+                          setCurrentStep(0); // Reset to first step
+                          setSelectedPlayer(Players.None); // Reset selected player
+                        });
+                    }}
+                  >
+                    Confirm Bet
+                  </Button>
                   <Button
                     onClick={() => setCurrentStep(currentStep - 1)}
                     className="bg-transparent border-[#6F04FF] text-[#6F04FF] hover:bg-[#6F04FF]/10"
                   >
                     Go Back
                   </Button>
-                  <Button
-                    type="primary"
-                    className="bg-[#6F04FF] hover:bg-[#5A03CC]"
-                    onClick={() => setCurrentStep(currentStep + 1)}
-                    ref={betRef}
-                  >
-                    Next <FaArrowRight />
-                  </Button>
-                </div>
-              </Flex>
-            </div>
-          )}
-          {currentStep === 2 && (
-            <div className="bg-[#3A375A] max-w-[400px] mx-auto rounded-lg p-4">
-              <h3 className="text-xl font-bold text-white mb-3">
-                Confirm Transaction
-              </h3>
-              <Flex vertical gap={8}>
-                <div className="border-l-4 border-[#6F04FF] pl-4 text-[14px]">
-                  <p className="text-white">
-                    Team: {selectedPlayer === Players.Apes ? "Apes" : "Punks"}
-                  </p>
-                  <p className="text-white">
-                    Bet Amount: {step2InputValue} ETH
-                  </p>
-                  <p className="text-white">
-                    Potential Win:{" "}
-                    <span
-                      style={{
-                        color: "#00E000",
-                        fontWeight: "bold",
-                        textShadow: "0 0 5px currentColor",
-                      }}
-                    >
-                      {(step2InputValue * 2.5).toFixed(3)} ETH
-                    </span>
-                  </p>
-                </div>
-                <Button
-                  type="primary"
-                  className="bg-[#6F04FF] hover:bg-[#5A03CC]"
-                  ref={claimRef}
-                  onClick={() => {
-                    message
-                      .loading("Confirming transaction...", 2)
-                      .then(() => message.success("Transaction confirmed!", 2))
-                      .then(() => {
-                        setCurrentStep(0); // Reset to first step
-                        setSelectedPlayer(Players.None); // Reset selected player
-                      });
-                  }}
-                >
-                  Confirm Bet
-                </Button>
-                <Button
-                  onClick={() => setCurrentStep(currentStep - 1)}
-                  className="bg-transparent border-[#6F04FF] text-[#6F04FF] hover:bg-[#6F04FF]/10"
-                >
-                  Go Back
-                </Button>
-              </Flex>
-            </div>
-          )}
-        </div>
+                </Flex>
+              </div>
+            )}
+          </div>
         </div>
       </motion.section>
 
@@ -327,7 +337,9 @@ export default function HowToPlay() {
         </h2>
         <div className="space-y-4 max-w-[800px] mx-auto">
           <div className="bg-[#3A375A] p-4 rounded">
-            <h3 className="text-white font-bold text-[18px]">1. View Your Bets</h3>
+            <h3 className="text-white font-bold text-[18px]">
+              1. View Your Bets
+            </h3>
             <p className="mb-2 text-small text-[#cecece]">
               Check your active and past bets to see your winnings
             </p>
@@ -365,15 +377,16 @@ export default function HowToPlay() {
             ) : (
               <Button
                 type="primary"
-                className="bg-[#6F04FF] hover:bg-[#5A03CC]"
-                onClick={() => setShowUserBetModal(true)}
+                icon={<GiPokerHand className="text-[24px]" />}
               >
                 View My Bets
               </Button>
             )}
           </div>
           <div className="bg-[#3A375A] p-4 rounded">
-            <h3 className="text-white font-bold text-[18px] ">2. Claiming Process</h3>
+            <h3 className="text-white font-bold text-[18px] ">
+              2. Claiming Process
+            </h3>
             <p className="mb-2 text-[#cecece]">
               For winning bets, you&apos;ll see a &quot;Claim&quot; button that
               allows you to collect your winnings
@@ -391,7 +404,9 @@ export default function HowToPlay() {
             </div>
           </div>
           <div className="bg-[#3A375A] p-4 rounded">
-            <h3 className="text-white font-bold text-[18px]">3. Track Your History</h3>
+            <h3 className="text-white font-bold text-[18px]">
+              3. Track Your History
+            </h3>
             <p className="mb-2 text-[#cecece]">
               Keep track of your betting history and claimed winnings
             </p>
@@ -418,7 +433,7 @@ export default function HowToPlay() {
       >
         <h2 className="text-3xl font-bold text-white mb-8 flex justify-center items-center">
           <TbCardsFilled className="mr-2 text-purple-400" />
-            Let&apos;s Learn Poker Together!
+          Let&apos;s Learn Poker Together!
         </h2>
 
         <div className="space-y-8 max-w-[800px] mx-auto">
