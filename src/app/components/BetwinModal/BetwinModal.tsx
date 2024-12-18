@@ -5,16 +5,19 @@ import { GameState } from "interfaces/gameState";
 import GameTimer from "app/game/GameTimer";
 import CardSet from "@components/CardSet";
 import { Color, Rank, Suit, getCardNamesForPokerHandRank, getRankValue, getSortedCardsByRank } from "interfaces/card";
+import { IoIosClose } from "react-icons/io";
 const { Text } = Typography;
 
 const BetwinModal = ({
   open,
   setOpen,
-  gameState
+  gameState,
+  timer
 }: {
   open: boolean;
   setOpen: (open: boolean) => void;
   gameState: GameState;
+  timer: number;
 }) => {
   return (
     <Modal
@@ -22,8 +25,8 @@ const BetwinModal = ({
       centered
       title={null}
       footer={null}
-      closable={false}
-      closeIcon={null}
+      closable={true}
+      closeIcon={<IoIosClose className="text-white text-[32px]" />}
       onCancel={() => setOpen(false)}
       className={styles.BetwinModal}
       width={630}
@@ -196,7 +199,7 @@ const BetwinModal = ({
           gap={8}
           style={{ marginTop: 10 }}
         >
-          <Flex justify="center"><GameTimer timerMessage={gameState.currentMessage} timer={gameState.currentTimerEndDateTime} /></Flex>
+          <Flex justify="center"><GameTimer timerMessage={gameState.currentMessage} timer={timer} /></Flex>
         </Flex>
       </Flex>
     </Modal>

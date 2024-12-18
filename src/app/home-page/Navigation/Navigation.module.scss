@@ -1,6 +1,8 @@
 .Menu {
   background: #141127 !important;
   height: 48px !important;
+  max-width: 1300px;
+  margin: 0 auto;
   & :global(.ant-menu-item) {
     padding: 19px 24px 19px !important;
     line-height: 1;
@@ -15,5 +17,9 @@
 
 .Navigation {
   background: #141127 !important;
-  height: 48px !important;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  padding-left: 5%;
 }

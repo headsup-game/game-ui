@@ -5,8 +5,8 @@ export type ParticipantFilter = {
 }
 
 export const GET_CURRENT_ROUND_QUERY =
-  gql`query GetCurrentRound($limit: Int!, $participantFilter: ParticipantFilter) {
-      rounds(orderBy: "epoch", orderDirection: "desc", limit: $limit) {
+  gql`query GetCurrentRound($limit: Int!, $participantFilter: ParticipantFilter, $where: RoundFilter) {
+      rounds(orderBy: "epoch", orderDirection: "desc", limit: $limit, where: $where) {
         items {
           epoch
           roundExpiredAfterTimestamp

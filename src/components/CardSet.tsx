@@ -56,14 +56,11 @@ const CardSet: React.FC<CardSetProps> = React.memo(({
   }, [JSON.stringify(cards), initFaceDown]);
 
   return (
-    <Flex align="center" justify="space-evenly" gap={'1em'}>
+    <div className="flex justify-center items-center gap-[1em]">
       {cards.slice(0, numberOfCards).map((card, index) => !isSmall ? (
         <FlipCard
           key={index}
-          style={{
-            width: `calc(100% / ${numberOfCards})`,
-          }}
-          initFaceDown={card?.faceDown || false}
+          initFaceDown={card?.faceDown}
           animationDelay={card?.animationDelay} // Pass animation delay to FlipCard component
           frontContent={
             <PlayingCard
@@ -72,9 +69,6 @@ const CardSet: React.FC<CardSetProps> = React.memo(({
               value={card?.rank}
               suit={card?.suit}
               cardWidth={cardWidth}
-              styles={{
-                width: cardWidth == null ? "100%" : `${cardWidth}px`,
-              }}
             />
           }
         />
@@ -85,12 +79,9 @@ const CardSet: React.FC<CardSetProps> = React.memo(({
           color={card?.color}
           value={card?.rank}
           suit={card?.suit}
-          styles={{
-            width: cardWidth == null ? "100%" : `${cardWidth}px`,
-          }}
         />
       ))}
-    </Flex>
+    </div>
   );
 }, (prevProps, nextProps) => isCardSetEqual(prevProps, nextProps));
 

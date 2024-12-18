@@ -86,13 +86,11 @@ const GameCards: React.FC<GameCardsProps> = React.memo(({
   }, [JSON.stringify(redCardsInput), JSON.stringify(blueCardsInput)]);
 
   return (
-    <Row
-      align={"middle"}
-      justify={"space-between"}
-      className={styles.GameCards}
+    <div
+      className={"gap-8 grid grid-flow-row md:grid-flow-col"}
     >
       {/* Red Card */}
-      <Col span={12}>
+      <div className="flex gap-4">
         <Flex vertical align="center" gap={10}>
           <Flex>
             <Text style={{ fontSize: '20px', fontWeight: '700', marginBottom: '0px', color: '#FEBEBE' }}>APES</Text>
@@ -126,8 +124,8 @@ const GameCards: React.FC<GameCardsProps> = React.memo(({
             Win% - {redWinPercentage.toFixed(2)}
           </Flex>
         </Flex>
-      </Col>
-      <Col span={12}>
+      </div>
+      <div className="flex gap-4">
         <Flex vertical align="center" gap={10}>
           <Flex>
             <Text style={{ fontSize: '20px', fontWeight: '700', marginBottom: '0px', color: '#C7BEFE' }}>PUNKS</Text>
@@ -164,8 +162,8 @@ const GameCards: React.FC<GameCardsProps> = React.memo(({
             Win% - {blueWinPercentage.toFixed(2)}
           </Flex>
         </Flex>
-      </Col>
-    </Row>
+      </div>
+    </div>
   );
 }, (prevProps, nextProps) => isGameCardsEqual(prevProps, nextProps));
 
