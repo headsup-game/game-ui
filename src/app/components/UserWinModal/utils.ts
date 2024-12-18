@@ -1,8 +1,19 @@
 import { Card, Color, Suit, Rank } from 'interfaces/card';
 
 // Return empty cards array for draw situations
-function getDrawCards(): { cards: Card[] } {
-  return { cards: [] };
+function getDrawCards(): Card[] {
+  return [
+    {
+      rank: Rank.None,
+      suit: Suit.None,
+      color: Color.VIOLET,
+    },
+    {
+      rank: Rank.None,
+      suit: Suit.None,
+      color: Color.VIOLET,
+    }
+  ]
 }
 
 // Remove __typename from GraphQL response
