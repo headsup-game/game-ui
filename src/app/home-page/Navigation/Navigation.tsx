@@ -94,6 +94,8 @@ const Navigation = () => {
 									);
 								}
 
+								console.log('chain', chain);
+
 								return (
 									<button
 										onClick={openAccountModal}

@@ -1,5 +1,5 @@
 import { getDefaultConfig, Chain} from '@rainbow-me/rainbowkit';
-import { blastSepolia } from 'viem/chains';
+import { sonic } from 'viem/chains';
 
 // const blast_sepolia = {
 //   id: 168_587_773,
@@ -29,7 +29,7 @@ import { blastSepolia } from 'viem/chains';
 export const config = getDefaultConfig({
   appName: 'Headsup',
   projectId: 'YOUR_PROJECT_ID',
-  chains: [blastSepolia],
+  chains: [sonic],
   ssr: true, // If your dApp uses server side rendering (SSR)
 });
 
