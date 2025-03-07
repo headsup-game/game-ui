@@ -1,8 +1,12 @@
 import { gql } from '@apollo/client';
 
+export type ParticipantFilter = {
+  userId: string
+}
+
 export const GET_CURRENT_ROUND_QUERY =
-  gql`query GetCurrentRound {
-      rounds(orderBy: "epoch", orderDirection: "desc", limit: 2) {
+  gql`query GetCurrentRound($limit: Int!, $participantFilter: ParticipantFilter, $where: RoundFilter) {
+      rounds(orderBy: "epoch", orderDirection: "desc", limit: $limit, where: $where) {
         items {
           epoch
           roundExpiredAfterTimestamp
@@ -49,10 +53,13 @@ export const GET_CURRENT_ROUND_QUERY =
           closeTimestamp
           blindCloseTimestamp
           betCloseTimestamp
-          participants {
+          resultTrxTimestamp
+          participants(where: $participantFilter) {
             items {
+              amount
               position
               isWinner
+              userId
             }
           }
           apesCards {
@@ -81,6 +88,5 @@ export const GET_CURRENT_ROUND_QUERY =
           }
         }
       }
-    }
-  `;
+    }`;
 

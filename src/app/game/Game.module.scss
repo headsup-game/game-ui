@@ -1,8 +1,21 @@
 .GameContainer {
   border-radius: var(--spacing-6, 24px);
   background: #060215;
-  margin: 30px 0 54px;
-  padding: 34px;
+  /* margin: 30px 0 54px; */
+  margin-bottom: 20px;
+  padding: 16px;
+  gap: 16px;
+  justify-content: center;
+  align-items: center;
+}
+
+.GameCardsContainer{
+  // max-width: 700px !important;
+  // height: 100% !important;
+}
+
+.GameUserBetContainer{
+  min-width: 300px;
 }
 
 .GameActionsContainer {
@@ -27,13 +40,14 @@
   left: 11%;
   right: 11%;
   color: #fff;
-  font-size: 32px;
+  font-size: 24px;
   font-weight: 800;
   line-height: 120%;
   /* 38.4px */
 }
 
 .BetForm {
+  width: 100%;
   margin: 10px 0 0 !important;
   color: #fff !important;
 
@@ -58,22 +72,18 @@
 .BetFormItem {
   color: #fff !important;
   font-size: 14px !important;
-  font-weight: 700;
-  line-height: 24px !important;
+  /* font-weight: 700; */
+  line-height: 14px !important;
   /* 171.429% */
 }
 
 .BetFormRadio {
   display: flex !important;
   align-items: center;
-  gap: var(--spacing-2, 22px);
+  gap: var(--spacing-2, 8px);
 
-  & :global(.ant-radio-button-wrapper-checked) {
-    border-color: #fff !important;
-    transition: border 0.25s ease-in-out;
-  }
-
-  & > label {
+  &>label {
+    width: 100%;
     color: #fff !important;
     border: 1px solid #fff;
     background: transparent;
@@ -83,7 +93,7 @@
     border-end-end-radius: 8px !important;
     border-start-start-radius: 8px !important;
     border-end-start-radius: 8px !important;
-    height: 40px;
+    height: 36px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -91,6 +101,36 @@
     &::before {
       content: "" !important;
       width: 0 !important;
+    }
+  }
+}
+
+.BetFormRoundsRadio {
+  display: flex !important;
+  align-items: center;
+  gap: var(--spacing-2, 6px);
+  border-inline-start: 0px !important;
+
+  &>label {
+    width: 100%;
+    border-color: rgba(141, 108, 239, 0.14);
+    border-inline-start: 0px !important;
+    background: rgba(141, 108, 239, 0.14);
+    height: auto;
+    /* width: 40px; */
+    font-size: 14px;
+    border-start-end-radius: 8px !important;
+    border-end-end-radius: 8px !important;
+    border-start-start-radius: 8px !important;
+    border-end-start-radius: 8px !important;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    &::before {
+      content: "" !important;
+      width: 0 !important;
+      border-inline-start: 0px !important;
     }
   }
 }
@@ -130,7 +170,7 @@
     transition: border 0.25s ease-in-out;
   }
 
-  & > label {
+  &>label {
     color: #fff !important;
     border: 1px solid #fff;
     transition: border 0.25s ease-in-out;
@@ -162,10 +202,8 @@
     color: #fff !important;
     height: 40px;
     border-radius: var(--radius-md, 8px);
-    background: var(
-      --color-background-button-primary-normal,
-      #7047eb
-    ) !important;
+    background: var(--color-background-button-primary-normal,
+        #7047eb) !important;
 
     &:disabled {
       opacity: 0.5 !important;
@@ -184,21 +222,35 @@
 }
 
 .RecentBetsTitle {
+  text-align: center;
   color: #fff !important;
-  font-size: 32px;
+  /* font-size: 32px; */
   font-style: normal;
   font-weight: 700;
   line-height: normal;
-  margin-bottom: 24px !important;
+  /* margin-bottom: 24px !important; */
 }
 
 .GameTimer {
-  margin-top: 10px;
+  margin-top: 16px;
+  margin-bottom: 6px;
   border-radius: 15%;
   color: #fff;
-  font-size: 20px;
+  font-size: 18px; 
   font-weight: var(--radius-3xl, 400);
-  line-height: 55.008px;
+  /* line-height: 55.008px; */
+  /* 133.333% */
+}
+
+.GameName {
+  opacity: 0.6;
+  margin-top: 16px;
+  margin-bottom: 6px;
+  border-radius: 15%;
+  color: #fff;
+  font-size: 18px;
+  font-weight: var(--radius-3xl, 700);
+  /* line-height: 55.008px; */
   /* 133.333% */
 }
 
@@ -208,7 +260,7 @@
   margin-top: 0px;
   gap: 16px;
 
-  & > :global(.ant-col) {
+  &> :global(.ant-col) {
     width: calc(100% / 5 - 16px) !important;
   }
 }
@@ -227,30 +279,28 @@
 
 .WinPercentageStrip {
   color: #fff;
-  border-radius: 37.373px;
-  padding: 6px 12px;
+  /* width: 60%; */
+  border-radius: 20px;
+  /* border-radius: 37.373px; */
   font-size: 14px;
-  font-weight: 700;
+  padding: 6px 12px;
+  font-weight: 300;
   line-height: 17.939px;
   /* 128.136% */
 }
 
 .WinPercentageStripRed {
-  background: linear-gradient(
-      0deg,
+  background: linear-gradient(0deg,
       rgba(255, 72, 72, 0.12) 0%,
-      rgba(255, 72, 72, 0.12) 100%
-    ),
+      rgba(255, 72, 72, 0.12) 100%),
     rgba(255, 255, 255, 0.05);
   transition: all 0.25s ease-in-out;
 }
 
 .WinPercentageStripBlue {
-  background: linear-gradient(
-      0deg,
+  background: linear-gradient(0deg,
       rgba(72, 101, 255, 0.12) 0%,
-      rgba(72, 101, 255, 0.12) 100%
-    ),
+      rgba(72, 101, 255, 0.12) 100%),
     rgba(255, 255, 255, 0.05);
   transition: all 0.25s ease-in-out;
 }
@@ -288,7 +338,7 @@
 .GameCardsPoolAmount {
   color: #fff;
   text-align: center;
-  font-size: 23.919px;
+  font-size: 1em;
   font-weight: 400;
   line-height: 1.15;
 }
@@ -298,4 +348,44 @@
   font-size: 12px;
   font-weight: 400;
   line-height: 1.15;
+}
+
+.disabledOverlay {
+  position: relative;
+  user-select: none;
+  cursor: not-allowed;
+  
+  &::after {
+    content: "Betting Closed";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(4px);
+    color: white;
+    font-size: 1.5rem;
+    font-weight: bold;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 10;
+  }
+
+  &.disabled::after {
+    opacity: 1;
+  }
+}
+
+.blurElement {
+  transition: all 0.3s ease;
+  
+  &.disabled {
+    filter: blur(2px);
+    opacity: 0.7;
+    transform: scale(0.98);
+  }
 }

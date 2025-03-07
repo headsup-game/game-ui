@@ -3,17 +3,31 @@ import FlipCard from "./FlipCard";
 import { Card } from "interfaces/card";
 import PlayingCard from "app/components/PlayingCard/PlayingCard";
 import { Flex } from "antd";
+import { isEqual } from "lodash";
 
 interface CardSetProps {
   numberOfCards: number;
   cards: Card[];
   initFaceDown?: boolean;
+  width?: number
+  isSmall: boolean
+  cardWidth?: number
 }
 
-const CardSet: React.FC<CardSetProps> = ({
+const isCardSetEqual = (prevProps: CardSetProps, nextProps: CardSetProps): boolean => {
+  return (
+    prevProps.numberOfCards === nextProps.numberOfCards &&
+    prevProps.initFaceDown === nextProps.initFaceDown &&
+    isEqual(prevProps.cards, nextProps.cards)
+  );
+}
+
+const CardSet: React.FC<CardSetProps> = React.memo(({
   numberOfCards,
+  isSmall,
   initFaceDown,
   cards,
+  cardWidth
 }) => {
   const [isLoaded, setIsLoaded] = useState(false);
 
@@ -39,32 +53,38 @@ const CardSet: React.FC<CardSetProps> = ({
     }));
 
     setIsLoaded(true); // Set isLoaded to true after initial load
-  }, [cards, initFaceDown]);
+  }, [JSON.stringify(cards), initFaceDown]);
 
   return (
-    <Flex align="center" className="card-set" gap={14}>
-      {cards.slice(0, numberOfCards).map((card, index) => (
+    <div className="flex justify-center items-center gap-[1em]">
+      {cards.slice(0, numberOfCards).map((card, index) => !isSmall ? (
         <FlipCard
           key={index}
-          style={{
-            width: `calc(100% / ${numberOfCards})`,
-          }}
-          initFaceDown={card?.faceDown || false}
+          initFaceDown={card?.faceDown}
           animationDelay={card?.animationDelay} // Pass animation delay to FlipCard component
           frontContent={
             <PlayingCard
+              isSmall={isSmall}
               color={card?.color}
               value={card?.rank}
               suit={card?.suit}
-              styles={{
-                width: "100%",
-              }}
+              cardWidth={cardWidth}
             />
           }
         />
+      ) : (
+        <PlayingCard
+          key={index}
+          isSmall={isSmall}
+          color={card?.color}
+          value={card?.rank}
+          suit={card?.suit}
+        />
       ))}
-    </Flex>
+    </div>
   );
-};
+}, (prevProps, nextProps) => isCardSetEqual(prevProps, nextProps));
+
+CardSet.displayName = "CardSet";
 
 export default CardSet;
