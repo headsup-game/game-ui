@@ -41,15 +41,15 @@ export default function UserBetModal({ open, setOpen }: UserBetModalProps) {
   const { data: queryData, refetch } = useQuery(GET_USER_WINNINGS_QUERY, {
     variables: { address },
     notifyOnNetworkStatusChange: true,
-    pollInterval: 5000,
+    pollInterval: 12000,
     skip: !address,
   });
 
   // Transform and set data when query completes
   useEffect(() => {
     if (queryData) {
-      const transformedData = transformRoundData(queryData);
-      setDataSource(transformedData);
+      const transformedData: any[] = transformRoundData(queryData);
+      setDataSource(transformedData.filter((item) => item != null));
     }
   }, [queryData]);
 

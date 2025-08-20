@@ -38,7 +38,8 @@ export function transformRoundData(data: any) {
   
   return participations.map(participation => {
     const { round } = participation;
-    
+    if (!round || !round.communityCards || !round.apesCards || !round.punksCards) return null;
+
     const communityCards = transformCards(round.communityCards, Color.VIOLET);
     const apesCards = transformCards(round.apesCards, Color.RED);
     const punksCards = transformCards(round.punksCards, Color.RED);
