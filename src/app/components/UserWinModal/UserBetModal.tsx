@@ -2,8 +2,13 @@
 
 import { Button, Flex, Modal, Table, Typography } from "antd";
 import styles from "./UserWinModal.module.scss";
-import { useEffect, useState, useMemo } from "react";
-import { useAccount } from "wagmi";
+import { useEffect, useState, useMemo, useCallback } from "react";
+import {
+  useAccount,
+  useSimulateContract,
+  useWriteContract,
+  useWaitForTransactionReceipt,
+} from "wagmi";
 import { useQuery } from "@apollo/client";
 import { GET_USER_WINNINGS_QUERY } from "graphQueries/getUserWinnings";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
@@ -12,6 +17,8 @@ import { FaWallet } from "react-icons/fa";
 import useColumnDefinitions from "./useColumnDefinitions";
 import { transformRoundData } from "./utils";
 import { DataType } from "./dataType";
+import * as constants from "utils/constants";
+import { contractABI } from "utils/abi";
 
 const { Text } = Typography;
 
@@ -31,18 +38,12 @@ export default function UserBetModal({ open, setOpen }: UserBetModalProps) {
   const { isConnected, address } = useAccount();
 
   // Query user's betting data
-  const { data: queryData } = useQuery(GET_USER_WINNINGS_QUERY, {
+  const { data: queryData, refetch } = useQuery(GET_USER_WINNINGS_QUERY, {
     variables: { address },
     notifyOnNetworkStatusChange: true,
+    pollInterval: 5000,
     skip: !address,
   });
-
-  const {
-    desktopColumns,
-    tabletColumns,
-    mobileMediumColumns,
-    mobileSmallColumns,
-  } = useColumnDefinitions();
 
   // Transform and set data when query completes
   useEffect(() => {
@@ -51,6 +52,32 @@ export default function UserBetModal({ open, setOpen }: UserBetModalProps) {
       setDataSource(transformedData);
     }
   }, [queryData]);
+
+  // Compute claimables
+  const claimableRounds = useMemo(
+    () =>
+      dataSource
+        .filter((r) => r.isWinner && !r.hasClaimed)
+        .map((r) => parseInt(r.roundNumber, 10))
+        .filter((n) => !Number.isNaN(n)),
+    [dataSource]
+  );
+  const claimableCount = claimableRounds.length;
+
+  // Re-fetch handler to be invoked after any claim interaction/response
+  const handleClaimEvent = useCallback(
+    async (_msg?: string) => {
+      await refetch();
+    },
+    [refetch]
+  );
+
+  const {
+    desktopColumns,
+    tabletColumns,
+    mobileMediumColumns,
+    mobileSmallColumns,
+  } = useColumnDefinitions(handleClaimEvent);
 
   // Pagination config
   const paginationConfig = useMemo(
@@ -62,6 +89,56 @@ export default function UserBetModal({ open, setOpen }: UserBetModalProps) {
     }),
     [currentPage, dataSource.length]
   );
+
+  // Claim All hooks/state
+  const [isClaimAllLoading, setIsClaimAllLoading] = useState(false);
+  const [hashAll, setHashAll] = useState<string | null>(null);
+
+  const { refetch: simulateClaimAll } = useSimulateContract({
+    address: constants.CONTRACT_ADDRESS as `0x${string}`,
+    abi: contractABI,
+    functionName: constants.CONTRACT_METHOD_CLAIM_WINNINGS,
+    // Contract supports claiming multiple rounds in a single call
+    args: [claimableRounds],
+    account: address,
+    query: { enabled: false },
+  });
+
+  const { writeContractAsync } = useWriteContract();
+  const { status: txAllStatus, error: txAllError } =
+    useWaitForTransactionReceipt({
+      hash: hashAll as `0x${string}`,
+    });
+
+  useEffect(() => {
+    if (!hashAll) return;
+    // Refetch on any receipt status change (success or error)
+    if (txAllStatus === "success" || txAllStatus === "error") {
+      refetch();
+    }
+  }, [txAllStatus, hashAll, refetch]);
+
+  const handleClaimAll = async () => {
+    if (!isConnected || claimableCount === 0) return;
+    setIsClaimAllLoading(true);
+    // Refetch on interaction start
+    await refetch();
+
+    try {
+      const { data, error } = await simulateClaimAll();
+      if (error || !data?.request) {
+        await refetch();
+        setIsClaimAllLoading(false);
+        return;
+      }
+      const txHash = await writeContractAsync(data.request);
+      setHashAll(txHash);
+    } catch (_e) {
+      await refetch();
+    } finally {
+      setIsClaimAllLoading(false);
+    }
+  };
 
   // Render table based on screen size
   const renderTable = (columns: any) => (
@@ -118,13 +195,13 @@ export default function UserBetModal({ open, setOpen }: UserBetModalProps) {
         },
       }}
     >
-      <Flex justify="center" className={styles.Title}>
+      <Flex justify="space-between" align="center" className={styles.Title}>
         <Text
           style={{
             fontSize: "32px",
             fontWeight: "700",
             color: "white",
-            textAlign: "center",
+            textAlign: "left",
           }}
           className="pb-2 md:pb-4"
         >
@@ -141,6 +218,17 @@ export default function UserBetModal({ open, setOpen }: UserBetModalProps) {
         {renderTable(mobileMediumColumns)}
       </div>
       <div className="block sm:hidden">{renderTable(mobileSmallColumns)}</div>
+      <div className="w-full flex justify-center items-center">
+        <Button
+          type="primary"
+          onClick={handleClaimAll}
+          disabled={claimableCount === 0}
+          loading={isClaimAllLoading}
+          className="mx-auto"
+        >
+          Claim All ({claimableCount})
+        </Button>
+      </div>
     </Modal>
   );
 }
