@@ -394,6 +394,6 @@ function getCurrentMessage(state: RoundState) {
     case RoundState.BettingStoppedCommunityCardsRevealedAndCalculatingResults:
       return "Calculating results in ";
     default:
-      return "Next round starting in ";
+      return "Next round starting soon...";
   }
 }

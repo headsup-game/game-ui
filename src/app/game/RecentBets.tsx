@@ -17,6 +17,19 @@ import { AlignType } from "rc-table/lib/interface";
 
 const { Title } = Typography;
 
+const GET_USER_DATA = gql`
+  query GetUserData($address: String!) {
+    users(where: { account: $address }, limit: 1) {
+      items {
+        account
+        totalPoints
+        totalWonAmount
+        totalBetAmount
+      }
+    }
+  }
+`;
+
 const RecentBets = React.memo(() => {
   const normalize = (v?: string) => (v || "").toUpperCase();
   const isResolvedWinner = (w?: string) => {
@@ -326,6 +339,19 @@ const RecentBets = React.memo(() => {
     }[]
   >([]);
 
+  const { data: userTotalsData } = useQuery(GET_USER_DATA, {
+    variables: { address: address ?? "" },
+    skip: !address,
+    fetchPolicy: "cache-and-network",
+    pollInterval: 12000,
+  });
+
+  const userTotals = userTotalsData?.users?.items?.[0];
+  const totalPLWei = userTotals
+    ? toBigInt(userTotals.totalWonAmount) - toBigInt(userTotals.totalBetAmount)
+    : BigInt(0);
+  const totalPLText = formatPL(totalPLWei);
+
   // Function to handle data from the query
   const handleRoundData = (data: { rounds: RoundPage }) => {
     const dataSource: {
@@ -377,45 +403,60 @@ const RecentBets = React.memo(() => {
           null;
 
         // compute P/L
-                let ownPLWei = BigInt(0);
-                let ownPLText = "0.0000";
-                if (ownBet && isResolvedWinner(gameState.roundWinnerMessageShort)) {
-                  const userAmountWei = toBigInt(ownBet.amount); // wei
-                  const winner = normalize(round.winner);
-                  const betOnApes = normalize(ownBet.position) === "APES";
-        
-                  const apesPoolWei = toWei(totalApesBets);
-                  const punksPoolWei = toWei(totalPunksBets);
-        
-                  const userWon = normalize(ownBet.position) === winner;
-        
-                  if (userWon) {
-                    const winnerPoolWei = betOnApes ? apesPoolWei : punksPoolWei;
-                    const loserPoolWei = betOnApes ? punksPoolWei : apesPoolWei;
-        
-                    // If rewardAmount is provided by the API, use it; otherwise distribute loser pool to winners (no-rake fallback).
-                    const rewardAmountWei = round.rewardAmount
-                      ? toBigInt(round.rewardAmount)
-                      : winnerPoolWei + loserPoolWei;
-        
-                    // user reward share
-                    const userRewardWei =
-                      (rewardAmountWei * userAmountWei) /
-                      (winnerPoolWei === BigInt(0) ? BigInt(1) : winnerPoolWei);
-        
-                    ownPLWei = userRewardWei - userAmountWei; // profit over stake
-                  } else {
-                    ownPLWei = -userAmountWei; // lost stake
-                  }
-        
-                  ownPLText = formatPL(ownPLWei);
-                } else if (!ownBet) {
-                  ownPLText = "-";
-                } else {
-                  // round not settled yet
-                  ownPLText = "0.0000";
-                  ownPLWei = BigInt(0);
-                }
+        let ownPLWei = BigInt(0);
+        let ownPLText = "0.0000";
+
+        // Prefer using per-participation winningAmount when available
+        const ownBetWinningAmount =
+          ownBet && (ownBet as any)?.winningAmount != null
+            ? toBigInt((ownBet as any).winningAmount)
+            : null;
+
+        if (ownBetWinningAmount != null) {
+          // Net P/L = winningAmount - amount
+          const userAmountWei = toBigInt(ownBet?.amount);
+          ownPLWei = ownBetWinningAmount - userAmountWei;
+          ownPLText = formatPL(ownPLWei);
+        } else if (
+          ownBet &&
+          isResolvedWinner(gameState.roundWinnerMessageShort)
+        ) {
+          const userAmountWei = toBigInt(ownBet.amount); // wei
+          const winner = normalize(round.winner);
+          const betOnApes = normalize(ownBet.position) === "APES";
+
+          const apesPoolWei = toWei(totalApesBets);
+          const punksPoolWei = toWei(totalPunksBets);
+
+          const userWon = normalize(ownBet.position) === winner;
+
+          if (userWon) {
+            const winnerPoolWei = betOnApes ? apesPoolWei : punksPoolWei;
+            const loserPoolWei = betOnApes ? punksPoolWei : apesPoolWei;
+
+            // If rewardAmount is provided by the API, use it; otherwise distribute loser pool to winners (no-rake fallback).
+            const rewardAmountWei = round.rewardAmount
+              ? toBigInt(round.rewardAmount)
+              : winnerPoolWei + loserPoolWei;
+
+            // user reward share
+            const userRewardWei =
+              (rewardAmountWei * userAmountWei) /
+              (winnerPoolWei === BigInt(0) ? BigInt(1) : winnerPoolWei);
+
+            ownPLWei = userRewardWei - userAmountWei; // profit over stake
+          } else {
+            ownPLWei = -userAmountWei; // lost stake
+          }
+
+          ownPLText = formatPL(ownPLWei);
+        } else if (!ownBet) {
+          ownPLText = "-";
+        } else {
+          // round not settled yet
+          ownPLText = "0.0000";
+          ownPLWei = BigInt(0);
+        }
 
         dataSource.push({
           winner: gameState.roundWinnerMessageShort,
@@ -437,8 +478,9 @@ const RecentBets = React.memo(() => {
             : null,
           ownWonAmount: ownPLText,
           ownWonAmountValue:
-            Number(ethers.formatEther(ownPLWei < BigInt(0) ? -ownPLWei : ownPLWei)) *
-            (ownPLWei < BigInt(0) ? -1 : 1),
+            Number(
+              ethers.formatEther(ownPLWei < BigInt(0) ? -ownPLWei : ownPLWei)
+            ) * (ownPLWei < BigInt(0) ? -1 : 1),
         });
       } catch (error) {
         console.error("Error handling round data:", error);
@@ -473,43 +515,56 @@ const RecentBets = React.memo(() => {
           round.participants?.items.find((bet) => bet.userId == address) ||
           null;
 
-        // compute P/L (same as desktop)
-                let ownPLWei = BigInt(0);
-                let ownPLText = "0.0000";
-                if (ownBet && isResolvedWinner(gameState.roundWinnerMessageShort)) {
-                  const userAmountWei = toBigInt(ownBet.amount);
-                  const totalApesBets = gameState.apesData.totalBetAmounts || "0.0";
-                  const totalPunkBets = gameState.punksData.totalBetAmounts || "0.0";
-                  const apesPoolWei = toWei(totalApesBets);
-                  const punksPoolWei = toWei(totalPunkBets);
-        
-                  const winner = normalize(round.winner);
-                  const betOnApes = normalize(ownBet.position) === "APES";
-                  const userWon = normalize(ownBet.position) === winner;
-        
-                  if (userWon) {
-                    const winnerPoolWei = betOnApes ? apesPoolWei : punksPoolWei;
-                    const loserPoolWei = betOnApes ? punksPoolWei : apesPoolWei;
-        
-                    const rewardAmountWei = round.rewardAmount
-                      ? toBigInt(round.rewardAmount)
-                      : winnerPoolWei + loserPoolWei;
-        
-                    const userRewardWei =
-                      (rewardAmountWei * userAmountWei) /
-                      (winnerPoolWei === BigInt(0) ? BigInt(1) : winnerPoolWei);
-        
-                    ownPLWei = userRewardWei - userAmountWei;
-                  } else {
-                    ownPLWei = -userAmountWei;
-                  }
-                  ownPLText = formatPL(ownPLWei);
-                } else if (!ownBet) {
-                  ownPLText = "-";
-                } else {
-                  ownPLText = "0.0000";
-                  ownPLWei = BigInt(0);
-                }
+        // compute P/L (prefer winningAmount if present)
+        let ownPLWei = BigInt(0);
+        let ownPLText = "0.0000";
+
+        const ownBetWinningAmount =
+          ownBet && (ownBet as any)?.winningAmount != null
+            ? toBigInt((ownBet as any).winningAmount)
+            : null;
+
+        if (ownBetWinningAmount != null) {
+          const userAmountWei = toBigInt(ownBet?.amount);
+          ownPLWei = ownBetWinningAmount - userAmountWei;
+          ownPLText = formatPL(ownPLWei);
+        } else if (
+          ownBet &&
+          isResolvedWinner(gameState.roundWinnerMessageShort)
+        ) {
+          const userAmountWei = toBigInt(ownBet.amount);
+          const totalApesBets = gameState.apesData.totalBetAmounts || "0.0";
+          const totalPunkBets = gameState.punksData.totalBetAmounts || "0.0";
+          const apesPoolWei = toWei(totalApesBets);
+          const punksPoolWei = toWei(totalPunkBets);
+
+          const winner = normalize(round.winner);
+          const betOnApes = normalize(ownBet.position) === "APES";
+          const userWon = normalize(ownBet.position) === winner;
+
+          if (userWon) {
+            const winnerPoolWei = betOnApes ? apesPoolWei : punksPoolWei;
+            const loserPoolWei = betOnApes ? punksPoolWei : apesPoolWei;
+
+            const rewardAmountWei = round.rewardAmount
+              ? toBigInt(round.rewardAmount)
+              : winnerPoolWei + loserPoolWei;
+
+            const userRewardWei =
+              (rewardAmountWei * userAmountWei) /
+              (winnerPoolWei === BigInt(0) ? BigInt(1) : winnerPoolWei);
+
+            ownPLWei = userRewardWei - userAmountWei;
+          } else {
+            ownPLWei = -userAmountWei;
+          }
+          ownPLText = formatPL(ownPLWei);
+        } else if (!ownBet) {
+          ownPLText = "-";
+        } else {
+          ownPLText = "0.0000";
+          ownPLWei = BigInt(0);
+        }
 
         // Add mobile data
         mobileDataSource.push({
@@ -527,8 +582,9 @@ const RecentBets = React.memo(() => {
             : null,
           ownWonAmount: ownPLText,
           ownWonAmountValue:
-            Number(ethers.formatEther(ownPLWei < BigInt(0) ? -ownPLWei : ownPLWei)) *
-            (ownPLWei < BigInt(0) ? -1 : 1),
+            Number(
+              ethers.formatEther(ownPLWei < BigInt(0) ? -ownPLWei : ownPLWei)
+            ) * (ownPLWei < BigInt(0) ? -1 : 1),
         });
       } catch (error) {
         console.error("Error handling round data:", error);
@@ -584,6 +640,21 @@ const RecentBets = React.memo(() => {
         <Title level={5} className={styles.RecentBetsTitle}>
           Recent Rounds
         </Title>
+        <div style={{ fontSize: 12 }}>
+          <span
+            style={{
+              color:
+                totalPLWei > BigInt(0)
+                  ? "#22c55e"
+                  : totalPLWei < BigInt(0)
+                  ? "#ef4444"
+                  : "#6C6C89",
+              fontWeight: 600,
+            }}
+          >
+            Total P/L: {totalPLText}
+          </span>
+        </div>
       </Flex>
 
       <ConfigProvider>

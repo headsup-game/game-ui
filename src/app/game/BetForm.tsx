@@ -274,7 +274,7 @@ const BetForm: React.FC<BetFormProps> = React.memo(
             ))}
           </Radio.Group>
         </Form.Item>
-        <Form.Item
+       <Form.Item
           help="test"
           label={
             <span>
@@ -308,6 +308,8 @@ const BetForm: React.FC<BetFormProps> = React.memo(
             onBettingStateChange={handleLogs}
             minimumAllowedBetAmount={minimumAllowedBetAmount}
             forceDisabled={isBettingOver(gameState)}
+            // NEW: pass selected rounds to enable auto-play
+            rounds={rounds}
           />
         </Form.Item>
       </Form>

@@ -89,7 +89,7 @@ export default function useColumnDefinitions(
       render: (bet: DataType["bet"]) =>
         bet?.points ? (
           <span>
-            {ethers.formatEther(bet.points)} (x{bet.multiplier})
+            {ethers.formatEther(bet.points)} (x{parseInt(bet.multiplier) / 10000})
           </span>
         ) : (
           <span>No Bets</span>
