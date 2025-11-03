@@ -10,8 +10,8 @@ import "./globals.css";
 import { PokerConfettiProvider } from "@components/PokerCardsConfetti";
 
 export const metadata: Metadata = {
-  title: "Play Poker with your friends and win big!",
-  description: "Play Poker with your friends and win big!",
+  title: "Play Poker with $DARK on PulseChain!",
+  description: "Play Poker with $DARK tokens and win big on PulseChain!",
 };
 
 export default function RootLayout({

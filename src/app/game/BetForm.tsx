@@ -2,12 +2,13 @@
 
 import { Button, Col, Flex, Form, InputNumber, Radio } from "antd";
 import styles from "./Game.module.scss";
-import { FaEthereum } from "react-icons/fa";
 import React, { useCallback, useEffect, useState } from "react";
 import { Bet } from "@components/bet";
-import { useAccount, useBalance } from "wagmi";
+import { useAccount } from "wagmi";
 import { Players } from "interfaces/players";
 import { GameState, RoundState } from "interfaces/gameState";
+import { useDarkBalance } from "hooks/useDarkBalance";
+import { DARK_TOKEN_SYMBOL } from "utils/tokenConstants";
 
 interface BetFormProps {
   roundId: number;
@@ -35,6 +36,7 @@ const BetForm: React.FC<BetFormProps> = React.memo(
     const [rounds, setRounds] = useState(1);
     const [logMessages, setLogMessages] = useState<string[]>([]);
     const [multiplier, setMultiplier] = useState(0);
+    const { formattedBalance, isLoading: isLoadingBalance } = useDarkBalance();
 
     const isBettingOver = (gameState: GameState) => {
       return (
@@ -203,7 +205,16 @@ const BetForm: React.FC<BetFormProps> = React.memo(
 
         {/* Bet Amount */}
         <Form.Item
-          label="Enter Bet Amount in ETH"
+          label={
+            <span>
+              Enter Bet Amount in {DARK_TOKEN_SYMBOL}
+              {isConnected && (
+                <span style={{ marginLeft: '8px', color: '#6C6C89', fontSize: '12px' }}>
+                  (Balance: {isLoadingBalance ? '...' : formattedBalance} {DARK_TOKEN_SYMBOL})
+                </span>
+              )}
+            </span>
+          }
           name="amount"
           className={styles.BetFormItem}
           style={{
@@ -214,7 +225,7 @@ const BetForm: React.FC<BetFormProps> = React.memo(
             min={0}
             step={0.001}
             precision={3}
-            prefix={<FaEthereum color="#fff" />}
+            prefix={<span style={{ color: '#fff' }}>{DARK_TOKEN_SYMBOL}</span>}
             style={{
               width: "100%",
             }}
@@ -288,7 +299,7 @@ const BetForm: React.FC<BetFormProps> = React.memo(
                   textShadow: "0 0 5px currentColor",
                 }}
               >
-                {(betAmount * rounds).toFixed(3)} ETH
+                {(betAmount * rounds).toFixed(3)} {DARK_TOKEN_SYMBOL}
               </span>
             </span>
           }

@@ -7,12 +7,14 @@ import {
 } from "wagmi";
 import * as constants from "utils/constants";
 import { contractABI } from "utils/abi";
-import { parseEther } from "viem";
+import { parseUnits } from "viem";
 import { Button, Typography, message } from "antd";
 import styles from "../app/game/Game.module.scss";
 import { Players } from "interfaces/players";
 import { NoticeType } from "antd/es/message/interface";
-// Dummy change
+import { erc20Abi, DARK_TOKEN_ADDRESS, DARK_TOKEN_DECIMALS } from "utils/tokenConstants";
+import { useDarkAllowance } from "hooks/useDarkAllowance";
+
 const { Text } = Typography;
 
 type BetStatusMessage = {
@@ -53,6 +55,21 @@ export const Bet: React.FC<BetProps> = ({
     useState<BetStatusMessage | null>(null);
   const [remainingAutoRounds, setRemainingAutoRounds] = React.useState(0);
   const lastBetRoundRef = React.useRef<number | null>(null);
+  
+  // NEW: Token allowance state
+  const [needsApproval, setNeedsApproval] = useState(false);
+  const [isApproving, setIsApproving] = useState(false);
+  const { allowance, refetch: refetchAllowance } = useDarkAllowance();
+
+  // Convert bet amount to token units
+  const betAmountInTokenUnits = parseUnits(betAmount.toString(), DARK_TOKEN_DECIMALS);
+
+  // Check if approval is needed
+  useEffect(() => {
+    if (allowance !== undefined && betAmountInTokenUnits) {
+      setNeedsApproval(allowance < betAmountInTokenUnits);
+    }
+  }, [allowance, betAmountInTokenUnits]);
 
   const startAutoPlayIfNeeded = React.useCallback(() => {
     // Set up remaining rounds after the initial manual click
@@ -61,16 +78,28 @@ export const Bet: React.FC<BetProps> = ({
     lastBetRoundRef.current = roundNumber;
   }, [rounds, roundNumber]);
 
-  // Call simulation hook with disabled state
+  // Approval simulation
+  const { refetch: simulateApproval } = useSimulateContract({
+    address: DARK_TOKEN_ADDRESS as `0x${string}`,
+    abi: erc20Abi,
+    functionName: "approve",
+    args: [
+      constants.CONTRACT_ADDRESS as `0x${string}`,
+      constants.MAX_UINT256,
+    ],
+    account: address,
+    query: { enabled: false },
+  });
+
+  // Bet simulation (now without value parameter)
   const { refetch: simulateContract } = useSimulateContract({
     address: constants.CONTRACT_ADDRESS as `0x${string}`,
     abi: contractABI,
     functionName:
       playerId === 0
-        ? constants.CONTRACT_METHOD_APES_BET // Apes
-        : constants.CONTRACT_METHOD_PUNKS_BET, // Punks
-    args: [roundNumber ?? 0],
-    value: parseEther(betAmount.toString()),
+        ? constants.CONTRACT_METHOD_APES_BET
+        : constants.CONTRACT_METHOD_PUNKS_BET,
+    args: [roundNumber ?? 0, betAmountInTokenUnits],
     account: address,
     query: { enabled: false },
   });
@@ -113,7 +142,7 @@ export const Bet: React.FC<BetProps> = ({
         type: "success",
         content: (
           <>
-            Bet on {playerName} success with hash:
+            {isApproving ? "Approval" : "Bet"} on {playerName} success with hash:
             <Text copyable={{ text: transactionData?.transactionHash }}>
               {transactionData?.transactionHash.slice(0, 6)}
             </Text>
@@ -121,12 +150,19 @@ export const Bet: React.FC<BetProps> = ({
         ),
         duration: 3,
       });
+      
+      // Refetch allowance after approval
+      if (isApproving) {
+        setIsApproving(false);
+        refetchAllowance();
+      }
     } else if (transactionStatus === "error") {
       setBetStatusMessage({
         type: "error",
-        content: `Error while placing bet on ${playerName}`,
+        content: `Error while ${isApproving ? "approving" : "placing bet on"} ${playerName}`,
         duration: 3,
       });
+      setIsApproving(false);
     }
   }, [
     onBettingStateChange,
@@ -134,15 +170,68 @@ export const Bet: React.FC<BetProps> = ({
     transactionData,
     transactionError,
     playerName,
+    isApproving,
+    refetchAllowance,
   ]);
+
+  // Handle token approval
+  const handleApproval = useCallback(async () => {
+    setIsApproving(true);
+    setRequestInProgress(true);
+    
+    try {
+      setBetStatusMessage({
+        type: "loading",
+        content: `Approving $DARK token for betting...`,
+        duration: 0,
+      });
+
+      const { data: localSimulateData, error: simulateError } = await simulateApproval();
+
+      if (simulateError != null || !localSimulateData?.request) {
+        setBetStatusMessage({
+          type: "error",
+          content: `Token approval failed: ${simulateError?.message}`,
+          duration: 3,
+        });
+        return;
+      }
+
+      const writeResult = await writeContractAsync(localSimulateData.request);
+
+      if (writeResult) {
+        setHash(writeResult);
+        setBetStatusMessage({
+          type: "loading",
+          content: `Approval transaction submitted, waiting for confirmation...`,
+          duration: 0,
+        });
+      }
+    } catch (error) {
+      console.error("Error approving token", error);
+      setBetStatusMessage({
+        type: "error",
+        content: `Token approval failed`,
+        duration: 3,
+      });
+    } finally {
+      setRequestInProgress(false);
+    }
+  }, [simulateApproval, writeContractAsync]);
 
   // handler called when bet button is clicked
   const handleBetOnPlayer = useCallback(async () => {
+    // Check if approval is needed first
+    if (needsApproval) {
+      await handleApproval();
+      return;
+    }
+
     setRequestInProgress(true);
     try {
       setBetStatusMessage({
         type: "loading",
-        content: `Placing bet on ${playerName} called`,
+        content: `Placing bet on ${playerName}...`,
         duration: 0,
       });
 
@@ -208,14 +297,16 @@ export const Bet: React.FC<BetProps> = ({
     address,
     simulateContract,
     writeContractAsync,
+    needsApproval,
+    handleApproval,
   ]);
   // When the user clicks, place the bet for the current round and prime auto-play
   const handleClick = React.useCallback(async () => {
     await handleBetOnPlayer();
-    if (rounds > 1) {
+    if (rounds > 1 && !needsApproval) {
       startAutoPlayIfNeeded();
     }
-  }, [handleBetOnPlayer, rounds, startAutoPlayIfNeeded]);
+  }, [handleBetOnPlayer, rounds, startAutoPlayIfNeeded, needsApproval]);
 
   // Auto place for subsequent rounds when the round number changes
   React.useEffect(() => {
@@ -224,7 +315,8 @@ export const Bet: React.FC<BetProps> = ({
       lastBetRoundRef.current !== null &&
       roundNumber !== lastBetRoundRef.current &&
       !forceDisabled &&
-      isConnected;
+      isConnected &&
+      !needsApproval;
 
     if (canAutoBet) {
       // Attempt to place the same bet automatically for the new round
@@ -236,6 +328,7 @@ export const Bet: React.FC<BetProps> = ({
     forceDisabled,
     isConnected,
     handleBetOnPlayer,
+    needsApproval,
   ]);
 
   const isBlockingNav =
@@ -303,7 +396,7 @@ export const Bet: React.FC<BetProps> = ({
         disabled={disabled || !isConnected || forceDisabled}
         onClick={handleClick}
       >
-        Bet on {playerName}
+        {needsApproval ? `Approve $DARK` : `Bet on ${playerName}`}
       </Button>
     </>
   );
