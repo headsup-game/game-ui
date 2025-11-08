@@ -7,12 +7,13 @@ import {
 } from "wagmi";
 import * as constants from "utils/constants";
 import { contractABI } from "utils/abi";
-import { parseEther } from "viem";
+import { parseUnits } from "viem";
 import { Button, Typography, message } from "antd";
 import styles from "../app/game/Game.module.scss";
 import { Players } from "interfaces/players";
 import { NoticeType } from "antd/es/message/interface";
-// Dummy change
+import { useTokenApproval } from "../hooks/useTokenApproval";
+import { useTokenBalance } from "../hooks/useTokenBalance";
 const { Text } = Typography;
 
 type BetStatusMessage = {
@@ -54,12 +55,33 @@ export const Bet: React.FC<BetProps> = ({
   const [remainingAutoRounds, setRemainingAutoRounds] = React.useState(0);
   const lastBetRoundRef = React.useRef<number | null>(null);
 
+  // Token approval and balance hooks
+  const { isApproved, approve, isApproving, allowance } = useTokenApproval();
+  const { balance, formattedBalance } = useTokenBalance();
+
   const startAutoPlayIfNeeded = React.useCallback(() => {
     // Set up remaining rounds after the initial manual click
     const n = Math.max(1, Math.floor(rounds));
     setRemainingAutoRounds(n - 1); // we've already placed one for the current round
     lastBetRoundRef.current = roundNumber;
   }, [rounds, roundNumber]);
+
+  // Convert bet amount to token units (with 18 decimals)
+  const betAmountInTokenUnits = parseUnits(
+    betAmount.toString(),
+    constants.TOKEN_DECIMALS
+  );
+
+  // Check if user has sufficient approval
+  const hasApproval = React.useMemo(() => {
+    return isApproved(betAmountInTokenUnits);
+  }, [isApproved, allowance, betAmountInTokenUnits]);
+
+  // Check if user has sufficient balance
+  const hasSufficientBalance = React.useMemo(() => {
+    if (balance === undefined) return true; // Balance not loaded yet, don't block
+    return balance >= betAmountInTokenUnits;
+  }, [balance, betAmountInTokenUnits]);
 
   // Call simulation hook with disabled state
   const { refetch: simulateContract } = useSimulateContract({
@@ -69,8 +91,7 @@ export const Bet: React.FC<BetProps> = ({
       playerId === 0
         ? constants.CONTRACT_METHOD_APES_BET // Apes
         : constants.CONTRACT_METHOD_PUNKS_BET, // Punks
-    args: [roundNumber ?? 0],
-    value: parseEther(betAmount.toString()),
+    args: [roundNumber ?? 0, betAmountInTokenUnits],
     account: address,
     query: { enabled: false },
   });
@@ -101,10 +122,12 @@ export const Bet: React.FC<BetProps> = ({
       setDisabled(true);
     } else if (betAmount < minimumAllowedBetAmount) {
       setDisabled(true);
+    } else if (!hasSufficientBalance) {
+      setDisabled(true);
     } else {
       setDisabled(false);
     }
-  }, [playerId, betAmount, minimumAllowedBetAmount]);
+  }, [playerId, betAmount, minimumAllowedBetAmount, balance, betAmountInTokenUnits, hasApproval, hasSufficientBalance, isConnected, allowance]);
 
   // wait for transaction status changes
   useEffect(() => {
@@ -140,6 +163,34 @@ export const Bet: React.FC<BetProps> = ({
   const handleBetOnPlayer = useCallback(async () => {
     setRequestInProgress(true);
     try {
+      // Check if approval is needed first
+      if (!isApproved(betAmountInTokenUnits)) {
+        setBetStatusMessage({
+          type: "loading",
+          content: `Requesting ${constants.TOKEN_SYMBOL} token approval...`,
+          duration: 0,
+        });
+
+        try {
+          await approve();
+          setBetStatusMessage({
+            type: "success",
+            content: `${constants.TOKEN_SYMBOL} token approved successfully!`,
+            duration: 2,
+          });
+          // Wait a bit for the approval to be confirmed
+          await new Promise(resolve => setTimeout(resolve, 2000));
+        } catch (approvalError) {
+          console.log("Approval error:", approvalError);
+          setBetStatusMessage({
+            type: "error",
+            content: `${constants.TOKEN_SYMBOL} approval failed or rejected`,
+            duration: 3,
+          });
+          return;
+        }
+      }
+
       setBetStatusMessage({
         type: "loading",
         content: `Placing bet on ${playerName} called`,
@@ -204,10 +255,13 @@ export const Bet: React.FC<BetProps> = ({
     playerName,
     roundNumber,
     betAmount,
+    betAmountInTokenUnits,
     playerId,
     address,
     simulateContract,
     writeContractAsync,
+    isApproved,
+    approve,
   ]);
   // When the user clicks, place the bet for the current round and prime auto-play
   const handleClick = React.useCallback(async () => {
