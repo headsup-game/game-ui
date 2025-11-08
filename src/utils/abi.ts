@@ -1,3 +1,3 @@
-import ContractABIJson from './abi.json';
+import ContractABIJson from './headsup.json';
 
 export const contractABI = ContractABIJson;

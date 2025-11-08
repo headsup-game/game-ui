@@ -39,3 +39,37 @@ export const CurrencyFormatter = (
   // Format the number and return the result
   return format.format(value);
 };
+
+/**
+ * Formats a token amount string to a human-readable format with specified decimals
+ *
+ * @param {string} amount - The token amount as a string
+ * @param {number} [decimals=4] - The number of decimal places to display. Defaults to 4.
+ * @returns {string} - The formatted token amount string
+ */
+export const formatTokenAmount = (
+  amount: string,
+  decimals: number = 4
+): string => {
+  const numericAmount = parseFloat(amount);
+  if (isNaN(numericAmount)) return '0';
+  return numericAmount.toFixed(decimals);
+};
+
+/**
+ * Formats profit/loss for DARK token display
+ *
+ * @param {string} pnl - The profit/loss amount as a string
+ * @param {number} [decimals=4] - The number of decimal places to display. Defaults to 4.
+ * @returns {string} - The formatted P/L string with + or - prefix
+ */
+export const formatTokenPL = (
+  pnl: string,
+  decimals: number = 4
+): string => {
+  const numericPnl = parseFloat(pnl);
+  if (isNaN(numericPnl)) return '0.0000';
+
+  const sign = numericPnl >= 0 ? '+' : '';
+  return `${sign}${numericPnl.toFixed(decimals)}`;
+};

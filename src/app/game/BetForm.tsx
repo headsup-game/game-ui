@@ -2,12 +2,16 @@
 
 import { Button, Col, Flex, Form, InputNumber, Radio } from "antd";
 import styles from "./Game.module.scss";
-import { FaEthereum } from "react-icons/fa";
+import { FaCoins } from "react-icons/fa";
 import React, { useCallback, useEffect, useState } from "react";
 import { Bet } from "@components/bet";
-import { useAccount, useBalance } from "wagmi";
+import { useAccount } from "wagmi";
+import { useTokenBalance } from "hooks/useTokenBalance";
+import { useTokenDecimals } from "hooks/useTokenDecimals";
+import { useNetworkCheck } from "hooks/useNetworkCheck";
 import { Players } from "interfaces/players";
 import { GameState, RoundState } from "interfaces/gameState";
+import { TOKEN_SYMBOL } from "utils/constants";
 
 interface BetFormProps {
   roundId: number;
@@ -30,6 +34,9 @@ const BetForm: React.FC<BetFormProps> = React.memo(
     gameState,
   }) => {
     const { isConnected, address } = useAccount();
+    const { formattedBalance } = useTokenBalance();
+    const { decimals } = useTokenDecimals();
+    const { isCorrectNetwork, switchToCorrectNetwork } = useNetworkCheck();
     const [BetForm] = Form.useForm();
     const [betAmount, setBetAmount] = useState(0.001);
     const [rounds, setRounds] = useState(1);
@@ -102,7 +109,43 @@ const BetForm: React.FC<BetFormProps> = React.memo(
       >
         {/* Side */}
         {isConnected ? (
-          !isBettingOver(gameState) ? (
+          <>
+            {!isCorrectNetwork && (
+              <Flex
+                align="center"
+                justify="center"
+                style={{
+                  lineHeight: "14px",
+                  marginBottom: "10px",
+                  fontSize: "14px",
+                  color: "#ff4d4d",
+                  fontWeight: "bold",
+                }}
+              >
+                ⚠️ Wrong Network!
+                <Button
+                  size="small"
+                  type="link"
+                  onClick={switchToCorrectNetwork}
+                  style={{ color: "#4d9fff", padding: "0 8px" }}
+                >
+                  Switch to Base Sepolia
+                </Button>
+              </Flex>
+            )}
+            <Flex
+              align="center"
+              justify="center"
+              style={{
+                lineHeight: "14px",
+                marginBottom: "10px",
+                fontSize: "12px",
+                color: "#888",
+              }}
+            >
+              Balance: {formattedBalance} {TOKEN_SYMBOL}
+            </Flex>
+            {!isBettingOver(gameState) ? (
             <Flex
               align="center"
               justify="center"
@@ -143,7 +186,8 @@ const BetForm: React.FC<BetFormProps> = React.memo(
             >
               Betting is currently closed
             </Flex>
-          )
+          )}
+          </>
         ) : (
           <Flex
             align="center"
@@ -203,7 +247,7 @@ const BetForm: React.FC<BetFormProps> = React.memo(
 
         {/* Bet Amount */}
         <Form.Item
-          label="Enter Bet Amount in ETH"
+          label={`Enter Bet Amount in ${TOKEN_SYMBOL}`}
           name="amount"
           className={styles.BetFormItem}
           style={{
@@ -214,7 +258,7 @@ const BetForm: React.FC<BetFormProps> = React.memo(
             min={0}
             step={0.001}
             precision={3}
-            prefix={<FaEthereum color="#fff" />}
+            prefix={<FaCoins color="#FFD700" />}
             style={{
               width: "100%",
             }}
@@ -288,7 +332,7 @@ const BetForm: React.FC<BetFormProps> = React.memo(
                   textShadow: "0 0 5px currentColor",
                 }}
               >
-                {(betAmount * rounds).toFixed(3)} ETH
+                {(betAmount * rounds).toFixed(3)} {TOKEN_SYMBOL}
               </span>
             </span>
           }

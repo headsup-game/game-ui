@@ -9,6 +9,7 @@ import { red } from "colorette";
 import { TexasHoldem } from "poker-odds-calc";
 import { Players } from "interfaces/players";
 import { isEqual } from "lodash";
+import { TOKEN_SYMBOL } from "utils/constants";
 const { Text } = Typography;
 
 interface GameCardsProps {
@@ -98,7 +99,7 @@ const GameCards: React.FC<GameCardsProps> = React.memo(({
           <Flex
             className={`${styles.WinPercentageStrip} ${styles.WinPercentageStripRed}`}
           >
-            Bets - {redCardsTotalAmount}ETH | Payout - {apesPayout == Infinity ? '∞' : apesPayout.toFixed(2)}x
+            Bets - {redCardsTotalAmount} {TOKEN_SYMBOL} | Payout - {apesPayout == Infinity ? '∞' : apesPayout.toFixed(2)}x
           </Flex>
           {/* Card Container */}
           <Flex
@@ -135,7 +136,7 @@ const GameCards: React.FC<GameCardsProps> = React.memo(({
             vertical
             className={`${styles.WinPercentageStrip} ${styles.WinPercentageStripBlue}`}
           >
-            Bets - {blueCardsTotalAmout}ETH | Payout - {punksPayout == Infinity ? '∞' : punksPayout.toFixed(2)}x
+            Bets - {blueCardsTotalAmout} {TOKEN_SYMBOL} | Payout - {punksPayout == Infinity ? '∞' : punksPayout.toFixed(2)}x
           </Flex>
           <Flex
             className={`${styles.GameCardsContainer} ${styles.WinPercentageStripBlue

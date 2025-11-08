@@ -12,8 +12,9 @@ import CardSet from "@components/CardSet";
 import { Card } from "interfaces/card";
 import { Pagination } from "antd";
 import { useAccount } from "wagmi";
-import { ethers } from "ethers";
+import { formatUnits, parseUnits } from "viem";
 import { AlignType } from "rc-table/lib/interface";
+import { TOKEN_DECIMALS } from "utils/constants";
 
 const { Title } = Typography;
 
@@ -38,7 +39,7 @@ const RecentBets = React.memo(() => {
   };
   const toWei = (amount?: string) => {
     try {
-      return ethers.parseEther((amount || "0").toString());
+      return parseUnits((amount || "0").toString(), TOKEN_DECIMALS);
     } catch {
       return BigInt(0);
     }
@@ -48,7 +49,6 @@ const RecentBets = React.memo(() => {
       if (typeof val === "bigint") return val;
       if (typeof val === "string") return BigInt(val);
       if (typeof val === "number") return BigInt(val);
-      // ethers BigNumberish handling
       return BigInt(val as any);
     } catch {
       return BigInt(0);
@@ -57,8 +57,8 @@ const RecentBets = React.memo(() => {
   const formatPL = (wei: bigint) => {
     const sign = wei > BigInt(0) ? "+" : wei < BigInt(0) ? "-" : "";
     const abs = wei < BigInt(0) ? -wei : wei;
-    const eth = Number(ethers.formatEther(abs));
-    return `${sign}${eth.toFixed(4)}`;
+    const tokenAmount = Number(formatUnits(abs, TOKEN_DECIMALS));
+    return `${sign}${tokenAmount.toFixed(4)}`;
   };
 
   // State for table columns and data source
@@ -469,7 +469,7 @@ const RecentBets = React.memo(() => {
           totalPunkBets: totalPunksBets,
           ownBets: ownBet
             ? {
-                amount: ethers.formatEther(ownBet.amount),
+                amount: formatUnits(ownBet.amount, TOKEN_DECIMALS),
                 position: ownBet.position,
                 isWinner:
                   isResolvedWinner(round.winner) &&
@@ -479,7 +479,7 @@ const RecentBets = React.memo(() => {
           ownWonAmount: ownPLText,
           ownWonAmountValue:
             Number(
-              ethers.formatEther(ownPLWei < BigInt(0) ? -ownPLWei : ownPLWei)
+              formatUnits(ownPLWei < BigInt(0) ? -ownPLWei : ownPLWei, TOKEN_DECIMALS)
             ) * (ownPLWei < BigInt(0) ? -1 : 1),
         });
       } catch (error) {
@@ -576,14 +576,14 @@ const RecentBets = React.memo(() => {
           winner: gameState.roundWinnerMessageShort,
           ownBets: ownBet
             ? {
-                amount: ethers.formatEther(ownBet.amount),
+                amount: formatUnits(ownBet.amount, TOKEN_DECIMALS),
                 position: ownBet.position,
               }
             : null,
           ownWonAmount: ownPLText,
           ownWonAmountValue:
             Number(
-              ethers.formatEther(ownPLWei < BigInt(0) ? -ownPLWei : ownPLWei)
+              formatUnits(ownPLWei < BigInt(0) ? -ownPLWei : ownPLWei, TOKEN_DECIMALS)
             ) * (ownPLWei < BigInt(0) ? -1 : 1),
         });
       } catch (error) {

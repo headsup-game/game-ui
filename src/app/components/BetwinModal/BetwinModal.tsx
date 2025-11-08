@@ -6,6 +6,7 @@ import GameTimer from "app/game/GameTimer";
 import CardSet from "@components/CardSet";
 import { Color, Rank, Suit, getCardNamesForPokerHandRank, getRankValue, getSortedCardsByRank } from "interfaces/card";
 import { IoIosClose } from "react-icons/io";
+import { TOKEN_SYMBOL } from "utils/constants";
 const { Text } = Typography;
 
 const BetwinModal = ({
@@ -93,7 +94,7 @@ const BetwinModal = ({
             <Flex
               className={`${styles.WinPercentageStrip} ${styles.WinPercentageStripRed}`}
             >
-              Bets - {gameState.apesData.totalBetAmounts}ETH
+              Bets - {gameState.apesData.totalBetAmounts} {TOKEN_SYMBOL}
             </Flex>
             {/* Card Container */}
             <Flex
@@ -120,7 +121,7 @@ const BetwinModal = ({
             <Flex
               className={`${styles.WinPercentageStrip} ${styles.WinPercentageStripRed}`}
             >
-              Bets - {gameState.punksData.totalBetAmounts}ETH
+              Bets - {gameState.punksData.totalBetAmounts} {TOKEN_SYMBOL}
             </Flex>
             {/* Card Container */}
             <Flex
