@@ -104,7 +104,8 @@ const BetForm: React.FC<BetFormProps> = React.memo(
         colon
         initialValues={{
           amount: betAmount || 0,
-          rounds: rounds || 1,
+          // COMMENTED OUT: rounds field (multi-round betting disabled)
+          // rounds: rounds || 1,
         }}
       >
         {/* Side */}
@@ -294,8 +295,8 @@ const BetForm: React.FC<BetFormProps> = React.memo(
           </Flex>
         </Flex>
 
-        {/* Play for rounds */}
-        <Form.Item
+        {/* COMMENTED OUT: Play for rounds */}
+        {/* <Form.Item
           label="Play for (x rounds):"
           name="rounds"
           className={styles.BetFormItem}
@@ -317,8 +318,9 @@ const BetForm: React.FC<BetFormProps> = React.memo(
               </Radio.Button>
             ))}
           </Radio.Group>
-        </Form.Item>
-       <Form.Item
+        </Form.Item> */}
+       {/* COMMENTED OUT: Total Amount display for multi-round betting */}
+       {/* <Form.Item
           help="test"
           label={
             <span>
@@ -337,6 +339,9 @@ const BetForm: React.FC<BetFormProps> = React.memo(
             </span>
           }
           className={styles.BetFormItem}
+        > */}
+       <Form.Item
+          className={styles.BetFormItem}
         >
           <Bet
             playerId={selectedPlayer}
@@ -352,8 +357,9 @@ const BetForm: React.FC<BetFormProps> = React.memo(
             onBettingStateChange={handleLogs}
             minimumAllowedBetAmount={minimumAllowedBetAmount}
             forceDisabled={isBettingOver(gameState)}
-            // NEW: pass selected rounds to enable auto-play
-            rounds={rounds}
+            // COMMENTED OUT: Multi-round auto-play disabled
+            // rounds={rounds}
+            rounds={1}
           />
         </Form.Item>
       </Form>

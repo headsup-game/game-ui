@@ -406,7 +406,7 @@ const RecentBets = React.memo(() => {
         let ownPLWei = BigInt(0);
         let ownPLText = "0.0000";
 
-        // Prefer using per-participation winningAmount when available
+        // Use per-participation winningAmount from subgraph only
         const ownBetWinningAmount =
           ownBet && (ownBet as any)?.winningAmount != null
             ? toBigInt((ownBet as any).winningAmount)
@@ -417,44 +417,47 @@ const RecentBets = React.memo(() => {
           const userAmountWei = toBigInt(ownBet?.amount);
           ownPLWei = ownBetWinningAmount - userAmountWei;
           ownPLText = formatPL(ownPLWei);
-        } else if (
-          ownBet &&
-          isResolvedWinner(gameState.roundWinnerMessageShort)
-        ) {
-          const userAmountWei = toBigInt(ownBet.amount); // wei
-          const winner = normalize(round.winner);
-          const betOnApes = normalize(ownBet.position) === "APES";
+        }
+        // COMMENTED OUT: Client-side fallback calculation (use subgraph winningAmount only)
+        // else if (
+        //   ownBet &&
+        //   isResolvedWinner(gameState.roundWinnerMessageShort)
+        // ) {
+        //   const userAmountWei = toBigInt(ownBet.amount); // wei
+        //   const winner = normalize(round.winner);
+        //   const betOnApes = normalize(ownBet.position) === "APES";
 
-          const apesPoolWei = toWei(totalApesBets);
-          const punksPoolWei = toWei(totalPunksBets);
+        //   const apesPoolWei = toWei(totalApesBets);
+        //   const punksPoolWei = toWei(totalPunksBets);
 
-          const userWon = normalize(ownBet.position) === winner;
+        //   const userWon = normalize(ownBet.position) === winner;
 
-          if (userWon) {
-            const winnerPoolWei = betOnApes ? apesPoolWei : punksPoolWei;
-            const loserPoolWei = betOnApes ? punksPoolWei : apesPoolWei;
+        //   if (userWon) {
+        //     const winnerPoolWei = betOnApes ? apesPoolWei : punksPoolWei;
+        //     const loserPoolWei = betOnApes ? punksPoolWei : apesPoolWei;
 
-            // If rewardAmount is provided by the API, use it; otherwise distribute loser pool to winners (no-rake fallback).
-            const rewardAmountWei = round.rewardAmount
-              ? toBigInt(round.rewardAmount)
-              : winnerPoolWei + loserPoolWei;
+        //     // If rewardAmount is provided by the API, use it; otherwise distribute loser pool to winners (no-rake fallback).
+        //     const rewardAmountWei = round.rewardAmount
+        //       ? toBigInt(round.rewardAmount)
+        //       : winnerPoolWei + loserPoolWei;
 
-            // user reward share
-            const userRewardWei =
-              (rewardAmountWei * userAmountWei) /
-              (winnerPoolWei === BigInt(0) ? BigInt(1) : winnerPoolWei);
+        //     // user reward share
+        //     const userRewardWei =
+        //       (rewardAmountWei * userAmountWei) /
+        //       (winnerPoolWei === BigInt(0) ? BigInt(1) : winnerPoolWei);
 
-            ownPLWei = userRewardWei - userAmountWei; // profit over stake
-          } else {
-            ownPLWei = -userAmountWei; // lost stake
-          }
+        //     ownPLWei = userRewardWei - userAmountWei; // profit over stake
+        //   } else {
+        //     ownPLWei = -userAmountWei; // lost stake
+        //   }
 
-          ownPLText = formatPL(ownPLWei);
-        } else if (!ownBet) {
+        //   ownPLText = formatPL(ownPLWei);
+        // }
+        else if (!ownBet) {
           ownPLText = "-";
         } else {
-          // round not settled yet
-          ownPLText = "0.0000";
+          // winningAmount not available yet (round not settled or indexer not updated)
+          ownPLText = "-";
           ownPLWei = BigInt(0);
         }
 
@@ -515,7 +518,7 @@ const RecentBets = React.memo(() => {
           round.participants?.items.find((bet) => bet.userId == address) ||
           null;
 
-        // compute P/L (prefer winningAmount if present)
+        // compute P/L - use winningAmount from subgraph only
         let ownPLWei = BigInt(0);
         let ownPLText = "0.0000";
 
@@ -528,41 +531,45 @@ const RecentBets = React.memo(() => {
           const userAmountWei = toBigInt(ownBet?.amount);
           ownPLWei = ownBetWinningAmount - userAmountWei;
           ownPLText = formatPL(ownPLWei);
-        } else if (
-          ownBet &&
-          isResolvedWinner(gameState.roundWinnerMessageShort)
-        ) {
-          const userAmountWei = toBigInt(ownBet.amount);
-          const totalApesBets = gameState.apesData.totalBetAmounts || "0.0";
-          const totalPunkBets = gameState.punksData.totalBetAmounts || "0.0";
-          const apesPoolWei = toWei(totalApesBets);
-          const punksPoolWei = toWei(totalPunkBets);
+        }
+        // COMMENTED OUT: Client-side fallback calculation (use subgraph winningAmount only)
+        // else if (
+        //   ownBet &&
+        //   isResolvedWinner(gameState.roundWinnerMessageShort)
+        // ) {
+        //   const userAmountWei = toBigInt(ownBet.amount);
+        //   const totalApesBets = gameState.apesData.totalBetAmounts || "0.0";
+        //   const totalPunkBets = gameState.punksData.totalBetAmounts || "0.0";
+        //   const apesPoolWei = toWei(totalApesBets);
+        //   const punksPoolWei = toWei(totalPunkBets);
 
-          const winner = normalize(round.winner);
-          const betOnApes = normalize(ownBet.position) === "APES";
-          const userWon = normalize(ownBet.position) === winner;
+        //   const winner = normalize(round.winner);
+        //   const betOnApes = normalize(ownBet.position) === "APES";
+        //   const userWon = normalize(ownBet.position) === winner;
 
-          if (userWon) {
-            const winnerPoolWei = betOnApes ? apesPoolWei : punksPoolWei;
-            const loserPoolWei = betOnApes ? punksPoolWei : apesPoolWei;
+        //   if (userWon) {
+        //     const winnerPoolWei = betOnApes ? apesPoolWei : punksPoolWei;
+        //     const loserPoolWei = betOnApes ? punksPoolWei : apesPoolWei;
 
-            const rewardAmountWei = round.rewardAmount
-              ? toBigInt(round.rewardAmount)
-              : winnerPoolWei + loserPoolWei;
+        //     const rewardAmountWei = round.rewardAmount
+        //       ? toBigInt(round.rewardAmount)
+        //       : winnerPoolWei + loserPoolWei;
 
-            const userRewardWei =
-              (rewardAmountWei * userAmountWei) /
-              (winnerPoolWei === BigInt(0) ? BigInt(1) : winnerPoolWei);
+        //     const userRewardWei =
+        //       (rewardAmountWei * userAmountWei) /
+        //       (winnerPoolWei === BigInt(0) ? BigInt(1) : winnerPoolWei);
 
-            ownPLWei = userRewardWei - userAmountWei;
-          } else {
-            ownPLWei = -userAmountWei;
-          }
-          ownPLText = formatPL(ownPLWei);
-        } else if (!ownBet) {
+        //     ownPLWei = userRewardWei - userAmountWei;
+        //   } else {
+        //     ownPLWei = -userAmountWei;
+        //   }
+        //   ownPLText = formatPL(ownPLWei);
+        // }
+        else if (!ownBet) {
           ownPLText = "-";
         } else {
-          ownPLText = "0.0000";
+          // winningAmount not available yet (round not settled or indexer not updated)
+          ownPLText = "-";
           ownPLWei = BigInt(0);
         }
 
