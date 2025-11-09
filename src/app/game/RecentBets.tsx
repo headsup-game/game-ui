@@ -24,8 +24,12 @@ const GET_USER_DATA = gql`
       items {
         account
         totalPoints
-        totalWonAmount
-        totalBetAmount
+        participantions {
+          items {
+            amount
+            winningAmount
+          }
+        }
       }
     }
   }
@@ -347,8 +351,16 @@ const RecentBets = React.memo(() => {
   });
 
   const userTotals = userTotalsData?.users?.items?.[0];
-  const totalPLWei = userTotals
-    ? toBigInt(userTotals.totalWonAmount) - toBigInt(userTotals.totalBetAmount)
+
+  // Calculate unrealized P/L from all participations (claimed or unclaimed)
+  const totalPLWei = userTotals?.participantions?.items
+    ? userTotals.participantions.items.reduce((acc: bigint, participation: any) => {
+        const winningAmount = participation.winningAmount != null
+          ? toBigInt(participation.winningAmount)
+          : BigInt(0);
+        const betAmount = toBigInt(participation.amount);
+        return acc + (winningAmount - betAmount);
+      }, BigInt(0))
     : BigInt(0);
   const totalPLText = formatPL(totalPLWei);
 
