@@ -8,6 +8,7 @@ import {
 import * as constants from "utils/constants";
 import { contractABI } from "utils/abi";
 import { Button } from "antd";
+import { useTokenBalance } from "../hooks/useTokenBalance";
 
 type ClaimWinningProps = {
   roundNumber: number;
@@ -25,6 +26,7 @@ export const ClaimWinnings: React.FC<ClaimWinningProps> = ({
   const { isConnected, address } = useAccount();
   const [hash, setHash] = useState<string | null>(null);
   const [isClaiming, setIsClaiming] = useState(false);
+  const { refetch: refetchBalance } = useTokenBalance();
 
   // Call simulation hook with disabled state
   const { refetch: simulateContract } = useSimulateContract({
@@ -49,6 +51,7 @@ export const ClaimWinnings: React.FC<ClaimWinningProps> = ({
   // wait for transaction status changes
   useEffect(() => {
     if (transactionStatus === "success") {
+      refetchBalance();
       onClaimWinningsStateChange(
         `Winning claim for round:${roundNumber} successful with gas:${transactionData?.gasUsed}`
       );
@@ -63,6 +66,7 @@ export const ClaimWinnings: React.FC<ClaimWinningProps> = ({
     roundNumber,
     transactionData,
     transactionError,
+    refetchBalance,
   ]);
 
   // handler called when bet button is clicked

@@ -57,7 +57,7 @@ export const Bet: React.FC<BetProps> = ({
 
   // Token approval and balance hooks
   const { isApproved, approve, isApproving, allowance } = useTokenApproval();
-  const { balance, formattedBalance } = useTokenBalance();
+  const { balance, formattedBalance, refetch: refetchBalance } = useTokenBalance();
 
   const startAutoPlayIfNeeded = React.useCallback(() => {
     // Set up remaining rounds after the initial manual click
@@ -132,6 +132,7 @@ export const Bet: React.FC<BetProps> = ({
   // wait for transaction status changes
   useEffect(() => {
     if (transactionStatus === "success") {
+      refetchBalance();
       setBetStatusMessage({
         type: "success",
         content: (
@@ -157,6 +158,7 @@ export const Bet: React.FC<BetProps> = ({
     transactionData,
     transactionError,
     playerName,
+    refetchBalance,
   ]);
 
   // handler called when bet button is clicked

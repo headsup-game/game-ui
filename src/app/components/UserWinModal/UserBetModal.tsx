@@ -19,6 +19,7 @@ import { transformRoundData } from "./utils";
 import { DataType } from "./dataType";
 import * as constants from "utils/constants";
 import { contractABI } from "utils/abi";
+import { useTokenBalance } from "hooks/useTokenBalance";
 
 const { Text } = Typography;
 
@@ -36,6 +37,7 @@ export default function UserBetModal({ open, setOpen }: UserBetModalProps) {
 
   // Hooks
   const { isConnected, address } = useAccount();
+  const { refetch: refetchBalance } = useTokenBalance();
 
   // Query user's betting data
   const { data: queryData, refetch } = useQuery(GET_USER_WINNINGS_QUERY, {
@@ -115,8 +117,9 @@ export default function UserBetModal({ open, setOpen }: UserBetModalProps) {
     // Refetch on any receipt status change (success or error)
     if (txAllStatus === "success" || txAllStatus === "error") {
       refetch();
+      refetchBalance();
     }
-  }, [txAllStatus, hashAll, refetch]);
+  }, [txAllStatus, hashAll, refetch, refetchBalance]);
 
   const handleClaimAll = async () => {
     if (!isConnected || claimableCount === 0) return;
