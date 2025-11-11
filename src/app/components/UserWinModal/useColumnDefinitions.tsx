@@ -1,17 +1,20 @@
 "use client";
 
 import { useState } from "react";
-import { ethers } from "ethers";
+import { formatUnits } from "viem";
 import { Button, Flex, Typography } from "antd";
 import { AlignType } from "rc-table/lib/interface";
 import { Card } from "interfaces/card";
 import CardSet from "@components/CardSet";
 import { ClaimWinnings } from "@components/claimWinnings";
 import { DataType } from "./dataType";
+import { TOKEN_DECIMALS, TOKEN_SYMBOL } from "utils/constants";
 
 const { Text } = Typography;
 
-export default function useColumnDefinitions() {
+export default function useColumnDefinitions(
+  onClaimEvent?: (state: string) => void
+) {
   const [desktopColumns, setDesktopColumns] = useState([
     {
       title: "Round#",
@@ -72,7 +75,7 @@ export default function useColumnDefinitions() {
         ),
     },
     {
-      title: "Bet in ETH (Multiplier)",
+      title: `Bet in ${TOKEN_SYMBOL} (Multiplier)`,
       dataIndex: "bet",
       align: "center" as AlignType,
       key: "bet",
@@ -87,14 +90,14 @@ export default function useColumnDefinitions() {
       render: (bet: DataType["bet"]) =>
         bet?.points ? (
           <span>
-            {ethers.formatEther(bet.points)} (x{bet.multiplier})
+            {formatUnits(BigInt(bet.points), TOKEN_DECIMALS)} (x{parseInt(bet.multiplier) / 10000})
           </span>
         ) : (
           <span>No Bets</span>
         ),
     },
     {
-      title: "Won in ETH",
+      title: "Won in Points",
       dataIndex: "ownWonAmount",
       align: "center" as AlignType,
       width: "10%",
@@ -107,7 +110,7 @@ export default function useColumnDefinitions() {
       render: (ownWonAmount: string, record: DataType) =>
         record.isWinner ? (
           <span style={{ color: "green" }}>
-            Won: {ethers.formatEther(ownWonAmount)}
+            Won: {formatUnits(BigInt(ownWonAmount), TOKEN_DECIMALS)}
           </span>
         ) : (
           <span style={{ color: "red" }}>Lost</span>
@@ -131,23 +134,15 @@ export default function useColumnDefinitions() {
           ? record.isWinner
           : !record.isWinner,
       render: (roundNumber: string, round: DataType) => (
-        <Button
-          type="primary"
-          onClick={() => {
-            if (!round.isWinner && round.hasClaimed) return;
-            ClaimWinnings({
-              roundNumber: parseInt(roundNumber),
-              onClaimWinningsStateChange: (state) => console.log(state),
-            });
+        <ClaimWinnings
+          roundNumber={parseInt(roundNumber)}
+          hasClaimed={round.hasClaimed}
+          isWinner={round.isWinner}
+          onClaimWinningsStateChange={(state) => {
+            console.log(state);
+            onClaimEvent?.(state);
           }}
-          disabled={round.hasClaimed || !round.isWinner}
-        >
-          {round.hasClaimed
-            ? "Claimed"
-            : round.isWinner
-            ? "Claim"
-            : "Unclaimable"}
-        </Button>
+        />
       ),
     },
   ]);
@@ -178,7 +173,7 @@ export default function useColumnDefinitions() {
             cardWidth={40}
           />
           <Text style={{ color: "white" }}>
-            Bet: {ethers.formatEther(record.bet.points)} (x
+            Bet: {formatUnits(BigInt(record.bet.points), TOKEN_DECIMALS)} (x
             {record.bet.multiplier})
           </Text>
         </Flex>
@@ -205,33 +200,26 @@ export default function useColumnDefinitions() {
           <Text style={{ color: "white" }}>
             {record.isWinner ? (
               <span style={{ color: "green" }}>
-                Won: {ethers.formatEther(record.ownWonAmount)}
+                Won: {formatUnits(BigInt(record.ownWonAmount), TOKEN_DECIMALS)}
               </span>
             ) : (
               <span style={{ color: "red" }}>Lost</span>
             )}
           </Text>
-          <Button
-            type="primary"
-            onClick={() => {
-              if (!record.isWinner && record.hasClaimed) return;
-              ClaimWinnings({
-                roundNumber: parseInt(record.roundNumber),
-                onClaimWinningsStateChange: (state) => console.log(state),
-              });
+          <ClaimWinnings
+            roundNumber={parseInt(record.roundNumber)}
+            hasClaimed={record.hasClaimed}
+            isWinner={record.isWinner}
+            onClaimWinningsStateChange={(state) => {
+              console.log(state);
+              onClaimEvent?.(state);
             }}
-            disabled={record.hasClaimed || !record.isWinner}
-          >
-            {record.hasClaimed
-              ? "Claimed"
-              : record.isWinner
-              ? "Claim"
-              : "Unclaimable"}
-          </Button>
+          />
         </Flex>
       ),
     },
   ]);
+
   const [mobileMediumColumns, setMobileMediumColumns] = useState([
     {
       title: "Game Info",
@@ -252,7 +240,7 @@ export default function useColumnDefinitions() {
             cardWidth={40}
           />
           <Text style={{ color: "white" }}>
-            Bet: {ethers.formatEther(record.bet.points)} (x
+            Bet: {formatUnits(BigInt(record.bet.points), TOKEN_DECIMALS)} (x
             {record.bet.multiplier})
           </Text>
         </Flex>
@@ -279,33 +267,26 @@ export default function useColumnDefinitions() {
           <Text style={{ color: "white" }}>
             {record.isWinner ? (
               <span style={{ color: "green" }}>
-                Won: {ethers.formatEther(record.ownWonAmount)}
+                Won: {formatUnits(BigInt(record.ownWonAmount), TOKEN_DECIMALS)}
               </span>
             ) : (
               <span style={{ color: "red" }}>Lost</span>
             )}
           </Text>
-          <Button
-            type="primary"
-            onClick={() => {
-              if (!record.isWinner && record.hasClaimed) return;
-              ClaimWinnings({
-                roundNumber: parseInt(record.roundNumber),
-                onClaimWinningsStateChange: (state) => console.log(state),
-              });
+          <ClaimWinnings
+            roundNumber={parseInt(record.roundNumber)}
+            hasClaimed={record.hasClaimed}
+            isWinner={record.isWinner}
+            onClaimWinningsStateChange={(state) => {
+              console.log(state);
+              onClaimEvent?.(state);
             }}
-            disabled={record.hasClaimed || !record.isWinner}
-          >
-            {record.hasClaimed
-              ? "Claimed"
-              : record.isWinner
-              ? "Claim"
-              : "Unclaimable"}
-          </Button>
+          />
         </Flex>
       ),
     },
   ]);
+
   const [mobileSmallColumns, setMobileSmallColumns] = useState([
     {
       title: "Game Info",
@@ -336,41 +317,38 @@ export default function useColumnDefinitions() {
             cardWidth={40}
           />
           <Text style={{ color: "white" }}>
-            Bet: {ethers.formatEther(record.bet.points)} (x
+            Bet: {formatUnits(BigInt(record.bet.points), TOKEN_DECIMALS)} (x
             {record.bet.multiplier})
           </Text>
           <Flex vertical align="center" gap={8}>
             <Text style={{ color: "white" }}>
               {record.isWinner ? (
                 <span style={{ color: "green" }}>
-                  Won: {ethers.formatEther(record.ownWonAmount)}
+                  Won: {formatUnits(BigInt(record.ownWonAmount), TOKEN_DECIMALS)}
                 </span>
               ) : (
                 <span style={{ color: "red" }}>Lost</span>
               )}
             </Text>
-            <Button
-              type="primary"
-              onClick={() => {
-                if (!record.isWinner && record.hasClaimed) return;
-                ClaimWinnings({
-                  roundNumber: parseInt(record.roundNumber),
-                  onClaimWinningsStateChange: (state) => console.log(state),
-                });
+            <ClaimWinnings
+              roundNumber={parseInt(record.roundNumber)}
+              hasClaimed={record.hasClaimed}
+              isWinner={record.isWinner}
+              onClaimWinningsStateChange={(state) => {
+                console.log("state", state);
+                onClaimEvent?.(state);
               }}
-              disabled={record.hasClaimed || !record.isWinner}
-            >
-              {record.hasClaimed
-                ? "Claimed"
-                : record.isWinner
-                ? "Claim"
-                : "Unclaimable"}
-            </Button>
+            />
           </Flex>
         </Flex>
       ),
     },
   ]);
 
-  return { desktopColumns, tabletColumns, mobileMediumColumns, mobileSmallColumns };
+  return {
+    desktopColumns,
+    tabletColumns,
+    mobileMediumColumns,
+    mobileSmallColumns,
+  };
 }

@@ -5,6 +5,7 @@ import { ApolloProvider as ApolloHooksProvider } from '@apollo/client';
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { WagmiProvider } from "wagmi";
 import { RainbowKitProvider } from "@rainbow-me/rainbowkit";
+import { baseSepolia } from 'viem/chains';
 
 import { ConfigProvider } from "antd";
 import { ANT_CUSTOM_THEME } from "utils/AntThemeConfig";
@@ -22,7 +23,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
         <AntdRegistry>
           <ConfigProvider theme={ANT_CUSTOM_THEME}>
             <ApolloHooksProvider client={apolloClient}>
-              <RainbowKitProvider>{children}</RainbowKitProvider>
+              <RainbowKitProvider initialChain={baseSepolia}>{children}</RainbowKitProvider>
             </ApolloHooksProvider>
           </ConfigProvider>
         </AntdRegistry>

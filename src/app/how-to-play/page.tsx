@@ -20,6 +20,7 @@ import { useAccount } from "wagmi";
 import { motion } from "framer-motion";
 import { PokerConfettiContext } from "@components/PokerCardsConfetti";
 import { GiPokerHand } from "react-icons/gi";
+import { TOKEN_SYMBOL } from "utils/constants";
 
 const { Title, Text } = Typography;
 
@@ -195,13 +196,13 @@ export default function HowToPlay() {
                           setStep2InputValue(amount as number);
                         }}
                       >
-                        {amount} ETH
+                        {amount} {TOKEN_SYMBOL}
                       </Button>
                     ))}
                   </Flex>
 
                   <div className="border-t border-[#6F04FF] pt-4">
-                    <p className="text-white">Minimum bet: 0.001 ETH</p>
+                    <p className="text-white">Minimum bet: 0.001 {TOKEN_SYMBOL}</p>
                     <div style={{ marginTop: 8 }}>
                       <p className="text-white">
                         Potential win:{" "}
@@ -214,8 +215,8 @@ export default function HowToPlay() {
                         >
                           {
                             (step2InputValue * 2.5).toFixed(3) // Potential win calculation
-                          }
-                          ETH
+                          }{" "}
+                          {TOKEN_SYMBOL}
                         </span>
                       </p>
                     </div>
@@ -251,7 +252,7 @@ export default function HowToPlay() {
                       Team: {selectedPlayer === Players.Apes ? "Apes" : "Punks"}
                     </p>
                     <p className="text-white">
-                      Bet Amount: {step2InputValue} ETH
+                      Bet Amount: {step2InputValue} {TOKEN_SYMBOL}
                     </p>
                     <p className="text-white">
                       Potential Win:{" "}
@@ -262,7 +263,7 @@ export default function HowToPlay() {
                           textShadow: "0 0 5px currentColor",
                         }}
                       >
-                        {(step2InputValue * 2.5).toFixed(3)} ETH
+                        {(step2InputValue * 2.5).toFixed(3)} {TOKEN_SYMBOL}
                       </span>
                     </p>
                   </div>

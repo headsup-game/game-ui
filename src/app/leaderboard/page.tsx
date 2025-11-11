@@ -7,10 +7,11 @@ import React, { useEffect, useState } from "react";
 import { AlignType } from "rc-table/lib/interface";
 import { useAccount, useEnsName } from "wagmi";
 import { gql, useQuery } from "@apollo/client";
-import { ethers } from "ethers";
+import { formatUnits } from "viem";
 import { client } from "apolloClient";
 import { useMotionValue, motion } from "framer-motion";
 import { ColumnsType } from "antd/es/table";
+import { TOKEN_DECIMALS, TOKEN_SYMBOL } from "utils/constants";
 
 const { Title, Text } = Typography;
 
@@ -189,7 +190,7 @@ export default function Leaderboard() {
       render: (address?: string) =>
         address ? (
           <motion.div {...animation}>
-            <ENSName address={ethers.formatEther(address) as `0x${string}`} />
+            <ENSName address={address as `0x${string}`} />
           </motion.div>
         ) : (
           <motion.span {...animation}>0x000...0000</motion.span>
@@ -214,7 +215,7 @@ export default function Leaderboard() {
       }),
       render: (points?: string) =>
         points ? (
-          <motion.span {...animation}>{ethers.formatEther(points)}</motion.span>
+          <motion.span {...animation}>{formatUnits(BigInt(points), TOKEN_DECIMALS)}</motion.span>
         ) : (
           <motion.span {...animation}>0</motion.span>
         ),
@@ -239,11 +240,11 @@ export default function Leaderboard() {
       render: (totalBets?: string) =>
         totalBets ? (
           <motion.span {...animation} style={{ textAlign: "right" }}>
-            {ethers.formatEther(totalBets)} ETH
+            {formatUnits(BigInt(totalBets), TOKEN_DECIMALS)} {TOKEN_SYMBOL}
           </motion.span>
         ) : (
           <motion.span {...animation} style={{ textAlign: "right" }}>
-            0.0 ETH
+            0.0 {TOKEN_SYMBOL}
           </motion.span>
         ),
     },
@@ -280,7 +281,7 @@ export default function Leaderboard() {
           {data.address ? (
             <>
               <ENSName
-                address={ethers.formatEther(data.address) as `0x${string}`}
+                address={data.address as `0x${string}`}
               />
               <div
                 style={{
@@ -288,7 +289,7 @@ export default function Leaderboard() {
                   color: data.address !== address ? "#6C6C89" : "#F9FAFB",
                 }}
               >
-                Points: {ethers.formatEther(data?.points) || "0"}
+                Points: {formatUnits(BigInt(data?.points || "0"), TOKEN_DECIMALS)}
               </div>
             </>
           ) : (
@@ -316,7 +317,7 @@ export default function Leaderboard() {
       }),
       render: (totalBets?: string) => (
         <motion.span {...animation} style={{ textAlign: "right" }}>
-          {ethers.formatEther(totalBets || "0.0")} ETH
+          {formatUnits(BigInt(totalBets || "0"), TOKEN_DECIMALS)} {TOKEN_SYMBOL}
         </motion.span>
       ),
     },

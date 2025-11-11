@@ -4,6 +4,7 @@ import { Position, Round } from "gql/graphql";
 import { ethers } from "ethers";
 import { Address } from "viem";
 import Ranker from 'handranker';
+import { TOKEN_DECIMALS } from "utils/constants";
 
 export enum RoundState {
   Initialized,
@@ -204,10 +205,10 @@ export function getGameStateFromRound(previousRound: Round | null, currentRound:
             },
           ]
           : defaultPlayerACards,
-      totalBetAmounts: ethers.formatEther(round.apesPot),
+      totalBetAmounts: ethers.formatUnits(round.apesPot, TOKEN_DECIMALS),
       totalNumberOfBets: BigInt(round.totalApesBets),
       payoutMultiplier: Number(round.totalAmount) == (0 | NaN) ? 0 : Number(round.totalAmount) / Number(round.apesPot),
-      totalSelfBetAmount: totalSelfApesAmount ? ethers.formatEther(totalSelfApesAmount) : "0.0",
+      totalSelfBetAmount: totalSelfApesAmount ? ethers.formatUnits(totalSelfApesAmount, TOKEN_DECIMALS) : "0.0",
     },
     punksData: {
       id: 1,
@@ -230,10 +231,10 @@ export function getGameStateFromRound(previousRound: Round | null, currentRound:
             },
           ]
           : defaultPlayerBCards,
-      totalBetAmounts: ethers.formatEther(round.punksPot),
+      totalBetAmounts: ethers.formatUnits(round.punksPot, TOKEN_DECIMALS),
       totalNumberOfBets: BigInt(round.totalPunksBets),
       payoutMultiplier: Number(round.totalAmount) == (0 | NaN) ? 0 : Number(round.totalAmount) / Number(round.punksPot),
-      totalSelfBetAmount: totalSelfPunksAmount ? ethers.formatEther(totalSelfPunksAmount) : "0.0",
+      totalSelfBetAmount: totalSelfPunksAmount ? ethers.formatUnits(totalSelfPunksAmount, TOKEN_DECIMALS) : "0.0",
     },
     communityCards:
       round.communityCards == null
@@ -286,7 +287,7 @@ export function getGameStateFromRound(previousRound: Round | null, currentRound:
     currentMessage: getCurrentMessage(state),
     blindBetingCloseTimestamp: Number(round.blindCloseTimestamp),
     bettingEndTimestamp: Number(round.closeTimestamp),
-    totalAmountPool: ethers.formatEther(round.totalAmount)
+    totalAmountPool: ethers.formatUnits(round.totalAmount, TOKEN_DECIMALS)
   };
 }
 
@@ -394,6 +395,6 @@ function getCurrentMessage(state: RoundState) {
     case RoundState.BettingStoppedCommunityCardsRevealedAndCalculatingResults:
       return "Calculating results in ";
     default:
-      return "Next round starting in ";
+      return "Next round starting soon...";
   }
 }

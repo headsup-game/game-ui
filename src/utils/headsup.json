@@ -61,6 +61,11 @@
             "name": "entropyProvider",
             "type": "address",
             "internalType": "address"
+          },
+          {
+            "name": "tokenAddress",
+            "type": "address",
+            "internalType": "address"
           }
         ]
       }
@@ -86,7 +91,7 @@
   },
   {
     "type": "function",
-    "name": "ENTROPY_CALLBACK_GAS_LIMIT",
+    "name": "EXECUTE_CALLBACK_GAS_LIMIT",
     "inputs": [],
     "outputs": [
       {
@@ -145,6 +150,19 @@
         "name": "",
         "type": "uint256",
         "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "REVEAL_CALLBACK_GAS_LIMIT",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint32",
+        "internalType": "uint32"
       }
     ],
     "stateMutability": "view"
@@ -393,10 +411,15 @@
         "name": "epoch",
         "type": "uint256",
         "internalType": "uint256"
+      },
+      {
+        "name": "amount",
+        "type": "uint256",
+        "internalType": "uint256"
       }
     ],
     "outputs": [],
-    "stateMutability": "payable"
+    "stateMutability": "nonpayable"
   },
   {
     "type": "function",
@@ -421,7 +444,7 @@
       }
     ],
     "outputs": [],
-    "stateMutability": "payable"
+    "stateMutability": "nonpayable"
   },
   {
     "type": "function",
@@ -431,10 +454,15 @@
         "name": "epoch",
         "type": "uint256",
         "internalType": "uint256"
+      },
+      {
+        "name": "amount",
+        "type": "uint256",
+        "internalType": "uint256"
       }
     ],
     "outputs": [],
-    "stateMutability": "payable"
+    "stateMutability": "nonpayable"
   },
   {
     "type": "function",
@@ -570,7 +598,7 @@
         "internalType": "uint256"
       },
       {
-        "name": "totalBalance",
+        "name": "ethBalance",
         "type": "uint256",
         "internalType": "uint256"
       }
@@ -909,6 +937,34 @@
             "internalType": "uint256"
           }
         ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getTokenInfo",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "tokenAddress",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "decimals",
+        "type": "uint8",
+        "internalType": "uint8"
+      },
+      {
+        "name": "symbol",
+        "type": "string",
+        "internalType": "string"
+      },
+      {
+        "name": "name",
+        "type": "string",
+        "internalType": "string"
       }
     ],
     "stateMutability": "view"
@@ -1496,6 +1552,32 @@
     ],
     "outputs": [],
     "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "token",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "address",
+        "internalType": "contract IERC20"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "tokenDecimals",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint8",
+        "internalType": "uint8"
+      }
+    ],
+    "stateMutability": "view"
   },
   {
     "type": "function",
@@ -2152,11 +2234,6 @@
   },
   {
     "type": "error",
-    "name": "AmountMisMatch",
-    "inputs": []
-  },
-  {
-    "type": "error",
     "name": "BelowMinimumEntropyBalance",
     "inputs": [
       {
@@ -2312,6 +2389,11 @@
   {
     "type": "error",
     "name": "InvalidPositionRequested",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "InvalidTokenAddress",
     "inputs": []
   },
   {

@@ -1,15 +1,15 @@
 import { createPublicClient, createWalletClient, custom, http } from 'viem';
-import { blastSepolia } from 'viem/chains';
+import { monadTestnet } from 'viem/chains';
 
 export const publicClient = createPublicClient({
-  chain: blastSepolia,
+  chain: monadTestnet,
   transport: http(),
 });
 
 let walletClient;
 if (typeof window !== 'undefined' && window.ethereum) {
   walletClient = createWalletClient({
-    chain: blastSepolia,
+    chain: monadTestnet,
     transport: custom(window.ethereum),
   });
 }

@@ -7,38 +7,42 @@ import {
 } from "wagmi";
 import * as constants from "utils/constants";
 import { contractABI } from "utils/abi";
-import { parseEther } from "viem";
+import { parseUnits } from "viem";
 import { Button, Typography, message } from "antd";
 import styles from "../app/game/Game.module.scss";
 import { Players } from "interfaces/players";
 import { NoticeType } from "antd/es/message/interface";
-// Dummy change
+import { useTokenApproval } from "../hooks/useTokenApproval";
+import { useTokenBalance } from "../hooks/useTokenBalance";
 const { Text } = Typography;
 
 type BetStatusMessage = {
-  content: ReactNode,
-  duration: number
-  type: NoticeType
-}
+  content: ReactNode;
+  duration: number;
+  type: NoticeType;
+};
 
 type BetProps = {
-  playerId: number | null;
-  betAmount: number;
-  roundNumber: number;
   playerName: string;
-  onBettingStateChange: (state: string) => void;
+  playerId: number;
+  roundNumber: number;
+  betAmount: number;
   minimumAllowedBetAmount: number;
-  forceDisabled: boolean;
+  forceDisabled?: boolean;
+  onBettingStateChange: (state: string) => void;
+  // NEW: how many rounds to auto-play including the current one
+  rounds?: number;
 };
 
 export const Bet: React.FC<BetProps> = ({
-  playerId,
-  betAmount,
-  roundNumber,
   playerName,
-  onBettingStateChange,
+  playerId,
+  roundNumber,
+  betAmount,
   minimumAllowedBetAmount,
-  forceDisabled,
+  forceDisabled = false,
+  onBettingStateChange,
+  rounds = 1,
 }) => {
   const { isConnected, address } = useAccount();
   const [hash, setHash] = useState<string | null>(null);
@@ -46,7 +50,38 @@ export const Bet: React.FC<BetProps> = ({
   const [disabled, setDisabled] = useState(true);
   const [messageApi, contextHolder] = message.useMessage();
   const betMessageKey = "betMessageKey";
-  const [betStatusMessage, setBetStatusMessage] = useState<BetStatusMessage | null>(null);
+  const [betStatusMessage, setBetStatusMessage] =
+    useState<BetStatusMessage | null>(null);
+  const [remainingAutoRounds, setRemainingAutoRounds] = React.useState(0);
+  const lastBetRoundRef = React.useRef<number | null>(null);
+
+  // Token approval and balance hooks
+  const { isApproved, approve, isApproving, allowance } = useTokenApproval();
+  const { balance, formattedBalance, refetch: refetchBalance } = useTokenBalance();
+
+  const startAutoPlayIfNeeded = React.useCallback(() => {
+    // Set up remaining rounds after the initial manual click
+    const n = Math.max(1, Math.floor(rounds));
+    setRemainingAutoRounds(n - 1); // we've already placed one for the current round
+    lastBetRoundRef.current = roundNumber;
+  }, [rounds, roundNumber]);
+
+  // Convert bet amount to token units (with 18 decimals)
+  const betAmountInTokenUnits = parseUnits(
+    betAmount.toString(),
+    constants.TOKEN_DECIMALS
+  );
+
+  // Check if user has sufficient approval
+  const hasApproval = React.useMemo(() => {
+    return isApproved(betAmountInTokenUnits);
+  }, [isApproved, allowance, betAmountInTokenUnits]);
+
+  // Check if user has sufficient balance
+  const hasSufficientBalance = React.useMemo(() => {
+    if (balance === undefined) return true; // Balance not loaded yet, don't block
+    return balance >= betAmountInTokenUnits;
+  }, [balance, betAmountInTokenUnits]);
 
   // Call simulation hook with disabled state
   const { refetch: simulateContract } = useSimulateContract({
@@ -56,10 +91,9 @@ export const Bet: React.FC<BetProps> = ({
       playerId === 0
         ? constants.CONTRACT_METHOD_APES_BET // Apes
         : constants.CONTRACT_METHOD_PUNKS_BET, // Punks
-    args: [roundNumber ?? 0],
-    value: parseEther(betAmount.toString()),
+    args: [roundNumber ?? 0, betAmountInTokenUnits],
     account: address,
-    query: { enabled: false }
+    query: { enabled: false },
   });
 
   // call write contract hook to get writeContractAsync action to be called after simulation
@@ -88,27 +122,34 @@ export const Bet: React.FC<BetProps> = ({
       setDisabled(true);
     } else if (betAmount < minimumAllowedBetAmount) {
       setDisabled(true);
+    } else if (!hasSufficientBalance) {
+      setDisabled(true);
     } else {
       setDisabled(false);
     }
-  }, [playerId, betAmount, minimumAllowedBetAmount]);
+  }, [playerId, betAmount, minimumAllowedBetAmount, balance, betAmountInTokenUnits, hasApproval, hasSufficientBalance, isConnected, allowance]);
 
   // wait for transaction status changes
   useEffect(() => {
     if (transactionStatus === "success") {
+      refetchBalance();
       setBetStatusMessage({
-        type: 'success',
-        content:
-          <>Bet on {playerName} success with hash:
-            <Text copyable={{ text: transactionData?.transactionHash }}>{transactionData?.transactionHash.slice(0, 6)}</Text>
-          </>,
+        type: "success",
+        content: (
+          <>
+            Bet on {playerName} success with hash:
+            <Text copyable={{ text: transactionData?.transactionHash }}>
+              {transactionData?.transactionHash.slice(0, 6)}
+            </Text>
+          </>
+        ),
         duration: 3,
       });
     } else if (transactionStatus === "error") {
       setBetStatusMessage({
-        type: 'error',
+        type: "error",
         content: `Error while placing bet on ${playerName}`,
-        duration: 3
+        duration: 3,
       });
     }
   }, [
@@ -116,17 +157,46 @@ export const Bet: React.FC<BetProps> = ({
     transactionStatus,
     transactionData,
     transactionError,
-    playerName
+    playerName,
+    refetchBalance,
   ]);
 
   // handler called when bet button is clicked
   const handleBetOnPlayer = useCallback(async () => {
     setRequestInProgress(true);
     try {
+      // Check if approval is needed first
+      if (!isApproved(betAmountInTokenUnits)) {
+        setBetStatusMessage({
+          type: "loading",
+          content: `Requesting ${constants.TOKEN_SYMBOL} token approval...`,
+          duration: 0,
+        });
+
+        try {
+          await approve();
+          setBetStatusMessage({
+            type: "success",
+            content: `${constants.TOKEN_SYMBOL} token approved successfully!`,
+            duration: 2,
+          });
+          // Wait a bit for the approval to be confirmed
+          await new Promise(resolve => setTimeout(resolve, 2000));
+        } catch (approvalError) {
+          console.log("Approval error:", approvalError);
+          setBetStatusMessage({
+            type: "error",
+            content: `${constants.TOKEN_SYMBOL} approval failed or rejected`,
+            duration: 3,
+          });
+          return;
+        }
+      }
+
       setBetStatusMessage({
-        type: 'loading',
+        type: "loading",
         content: `Placing bet on ${playerName} called`,
-        duration: 0
+        duration: 0,
       });
 
       // Simulate contract
@@ -134,9 +204,11 @@ export const Bet: React.FC<BetProps> = ({
         await simulateContract();
 
       setBetStatusMessage({
-        type: simulateError != null ? 'error' : 'loading',
-        content: `Place bet on ${playerName} ${simulateError != null ? 'failed' : 'started'}`,
-        duration: simulateError != null ? 3 : 0
+        type: simulateError != null ? "error" : "loading",
+        content: `Place bet on ${playerName} ${
+          simulateError != null ? "failed" : "started"
+        }`,
+        duration: simulateError != null ? 3 : 0,
       });
 
       if (simulateError != null || !localSimulateData?.request) {
@@ -146,28 +218,134 @@ export const Bet: React.FC<BetProps> = ({
       // Write contract
       const writeResult = await writeContractAsync(localSimulateData.request);
 
-      const content: ReactNode = writeResult == null ? `Error placing bet on ${playerName}`
-        : `Placed bet on ${playerName}, waiting for transaction confirmation`;
+      const content: ReactNode =
+        writeResult == null
+          ? `Error placing bet on ${playerName}`
+          : `Placed bet on ${playerName}, waiting for transaction confirmation`;
 
       setBetStatusMessage({
-        type: writeResult != null ? 'loading' : 'error',
+        type: writeResult != null ? "loading" : "error",
         content: content,
-        duration: writeResult != null ? 0 : 3
-      })
+        duration: writeResult != null ? 0 : 3,
+      });
       if (writeResult) {
         setHash(writeResult);
       }
+      // Detect if this invocation is for a new (auto) round
+      const isAutoForNewRound =
+        lastBetRoundRef.current !== null &&
+        lastBetRoundRef.current !== roundNumber;
+
+      // Update the last bet round after a successful send
+      lastBetRoundRef.current = roundNumber;
+
+      // If this was triggered by auto for a new round, decrement
+      if (isAutoForNewRound) {
+        setRemainingAutoRounds((prev) => Math.max(prev - 1, 0));
+      }
     } catch (error) {
-      console.log('Error placing bet on player', error);
+      console.log("Error placing bet on player", error);
       setBetStatusMessage({
-        type: 'error',
+        type: "error",
         content: `Place bet on ${playerName} failed`,
-        duration: 3
-      })
+        duration: 3,
+      });
     } finally {
       setRequestInProgress(false);
     }
-  }, [playerName, roundNumber, betAmount, playerId, address, simulateContract, writeContractAsync]);
+  }, [
+    playerName,
+    roundNumber,
+    betAmount,
+    betAmountInTokenUnits,
+    playerId,
+    address,
+    simulateContract,
+    writeContractAsync,
+    isApproved,
+    approve,
+  ]);
+  // When the user clicks, place the bet for the current round and prime auto-play
+  const handleClick = React.useCallback(async () => {
+    await handleBetOnPlayer();
+    if (rounds > 1) {
+      startAutoPlayIfNeeded();
+    }
+  }, [handleBetOnPlayer, rounds, startAutoPlayIfNeeded]);
+
+  // Auto place for subsequent rounds when the round number changes
+  React.useEffect(() => {
+    const canAutoBet =
+      remainingAutoRounds > 0 &&
+      lastBetRoundRef.current !== null &&
+      roundNumber !== lastBetRoundRef.current &&
+      !forceDisabled &&
+      isConnected;
+
+    if (canAutoBet) {
+      // Attempt to place the same bet automatically for the new round
+      handleBetOnPlayer();
+    }
+  }, [
+    roundNumber,
+    remainingAutoRounds,
+    forceDisabled,
+    isConnected,
+    handleBetOnPlayer,
+  ]);
+
+  const isBlockingNav =
+    remainingAutoRounds > 0 && !forceDisabled && isConnected;
+
+  React.useEffect(() => {
+    if (!isBlockingNav) return;
+
+    // 1) Block tab close/refresh
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      e.returnValue = "";
+    };
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    // 2) Block in-app link clicks
+    const handleDocumentClick = (e: MouseEvent) => {
+      const target = e.target as HTMLElement | null;
+      const link = target?.closest?.("a[href]") as HTMLAnchorElement | null;
+      if (!link) return;
+
+      const href = link.getAttribute("href") || "";
+      // allow hash-only links and new-tab links
+      if (href.startsWith("#") || link.target === "_blank") return;
+
+      e.preventDefault();
+      messageApi.warning(
+        "Auto-play in progress. Navigation is disabled until it finishes."
+      );
+    };
+    document.addEventListener("click", handleDocumentClick);
+
+    // 3) Block back/forward
+    const pushState = () => {
+      try {
+        history.pushState(null, "", window.location.href);
+      } catch {}
+    };
+    pushState();
+
+    const handlePopState = () => {
+      pushState();
+      messageApi.warning(
+        "Auto-play in progress. Navigation is disabled until it finishes."
+      );
+    };
+    window.addEventListener("popstate", handlePopState);
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+      document.removeEventListener("click", handleDocumentClick);
+      window.removeEventListener("popstate", handlePopState);
+    };
+  }, [isBlockingNav, messageApi]);
 
   return (
     <>
@@ -179,7 +357,7 @@ export const Bet: React.FC<BetProps> = ({
         className={styles.BetFormCTA}
         loading={requestInProgress}
         disabled={disabled || !isConnected || forceDisabled}
-        onClick={handleBetOnPlayer}
+        onClick={handleClick}
       >
         Bet on {playerName}
       </Button>

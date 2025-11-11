@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import FlipCard from "./FlipCard";
 import { Card } from "interfaces/card";
 import PlayingCard from "app/components/PlayingCard/PlayingCard";
-import { Flex } from "antd";
 import { isEqual } from "lodash";
 
 interface CardSetProps {
