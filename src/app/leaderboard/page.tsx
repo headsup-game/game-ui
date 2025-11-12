@@ -165,7 +165,6 @@ export default function Leaderboard() {
     fetchData();
 
     const interval = setInterval(() => {
-      console.log("refetching leaderboard");
       fetchData();
     }, 5000);
 

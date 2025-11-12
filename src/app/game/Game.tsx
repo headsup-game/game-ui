@@ -46,6 +46,7 @@ const Game = () => {
   const [forcedCloseBetwinModal, setForcedCloseBetwinModal] = useState(true);
   const [showUserBetModal, setShowUserBetModal] = useState(false);
   const [selectedPlayer, setSelectedPlayer] = useState<Players>(Players.None);
+  const [previousRoundNumber, setPreviousRoundNumber] = useState<BigInt | null>(null);
   const { isConnected, address } = useAccount();
 
   const handleRoundData = (data: { rounds: RoundPage }) => {
@@ -58,13 +59,21 @@ const Game = () => {
         address
       );
 
+      // Reset selectedPlayer when a new round starts (round number changes)
+      const isNewRound = previousRoundNumber !== null && 
+        previousRoundNumber !== currentRoundState.roundNumber;
+      const shouldResetSelection = isNewRound && 
+        currentRoundState.state !== RoundState.ResultsDeclaredAndEnded &&
+        currentRoundState.state <= RoundState.BlindBettingClosedAndHoleCardsRevealed;
+
       setGameState(currentRoundState);
+      setPreviousRoundNumber(currentRoundState.roundNumber);
 
       setShowModal(
         currentRoundState.state == RoundState.ResultsDeclaredAndEnded
       );
       setSelectedPlayer(
-        currentRoundState.state == RoundState.ResultsDeclaredAndEnded
+        currentRoundState.state == RoundState.ResultsDeclaredAndEnded || shouldResetSelection
           ? Players.None
           : selectedPlayer
       );

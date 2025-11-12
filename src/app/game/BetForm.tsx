@@ -84,7 +84,14 @@ const BetForm: React.FC<BetFormProps> = React.memo(
     const handlePlayerChange = useCallback((e) => {
       const selectedPlayer = e.target.value;
       handlePlayerSelection(selectedPlayer);
-    }, []);
+    }, [handlePlayerSelection]);
+
+    // Reset form when round changes
+    useEffect(() => {
+      if (selectedPlayer === Players.None) {
+        BetForm.setFieldsValue({ side: undefined });
+      }
+    }, [roundId, selectedPlayer, BetForm]);
 
     const handleLogs = useCallback(
       (state: string) => {
@@ -217,7 +224,7 @@ const BetForm: React.FC<BetFormProps> = React.memo(
           <Radio.Group
             className={styles.BetFormRadio}
             onChange={handlePlayerChange}
-            value={selectedPlayer == Players.None ? null : selectedPlayer}
+            value={selectedPlayer === Players.None ? undefined : selectedPlayer}
             buttonStyle="outline"
             disabled={isBettingOver(gameState)}
           >
@@ -237,7 +244,7 @@ const BetForm: React.FC<BetFormProps> = React.memo(
               value={Players.Punks}
               style={{
                 background: "blue",
-                borderColor: selectedPlayer == Players.Punks ? "white" : "blue",
+                borderColor: selectedPlayer === Players.Punks ? "white" : "blue",
               }}
               disabled={isBettingOver(gameState)}
             >
