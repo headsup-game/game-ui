@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Button, ConfigProvider, Flex, Table, Typography } from "antd";
+import { Button, ConfigProvider, Flex, Table, Typography, Tooltip } from "antd";
 import Container from "app/components/Container/Container";
 import styles from "./Game.module.scss";
 import { gql, useQuery } from "@apollo/client";
@@ -17,6 +17,206 @@ import { AlignType } from "rc-table/lib/interface";
 import { TOKEN_DECIMALS } from "utils/constants";
 
 const { Title } = Typography;
+
+const formatAmount = (wei: bigint) => {
+  const tokenAmount = Number(formatUnits(wei, TOKEN_DECIMALS));
+  let str = tokenAmount.toString();
+
+  // If it's scientific notation (very small), render as-is
+  if (str.includes("e") || str.includes("E")) return str;
+
+  // Split into integer and decimals
+  let [intPart, decPart = ""] = str.split(".");
+
+  if (!decPart) return intPart;
+
+  // Find the longest sequence of consecutive zeros after the first two decimal digits, followed by a non-zero digit
+  // E.g. 12.34000000005 -> 12.34 + 0<sub>8</sub>5
+  // We'll search from the third decimal onward for stretches of zero followed by a digit
+
+  // We'll only abbreviate if 3+ zeros in a row, followed by at least one nonzero digit
+  let pattern = /^(..)(0{3,})(\d.*)$/; // 2 initial decimals, then zeros, then last digit(s)
+  const match = decPart.match(pattern);
+
+  if (match) {
+    // intPart . first 2 decimals + 0(sub N) + rest after zeros
+    return (
+      <>
+        {intPart}.{match[1]}
+        0<sub>{match[2].length}</sub>
+        {match[3]}
+      </>
+    );
+  } else {
+    // no stretching zeros or only at end, just show all decimals (without artificial trimming)
+    return (
+      <>
+        {intPart}.{decPart}
+      </>
+    );
+  }
+};
+
+// Tooltip component for P/L breakdown
+const PLBreakdownTooltip = ({ breakdown }: { 
+  breakdown: {
+    grossWinningAmount: bigint;
+    rakeGiven: bigint;
+    operatorFeeGiven: bigint;
+    netWinningAmount: bigint;
+    betAmount: bigint;
+  };
+}) => {
+
+  const grossAmount = formatAmount(breakdown.grossWinningAmount);
+  const rakeAmount = formatAmount(breakdown.rakeGiven);
+  const operatorFeeAmount = formatAmount(breakdown.operatorFeeGiven);
+  const totalDeduction = breakdown.rakeGiven + breakdown.operatorFeeGiven;
+  const totalDeductionAmount = formatAmount(totalDeduction);
+  const netAmount = formatAmount(breakdown.netWinningAmount);
+  
+  // Calculate P/L: net winning amount - bet amount
+  const plWei = breakdown.netWinningAmount - breakdown.betAmount;
+  const plAmount = formatAmount(plWei <= BigInt(0) ? -plWei : plWei);
+  const plSign = plWei >= BigInt(0) ? '+' : plWei <= BigInt(0) ? '-' : '';
+
+  const hasFees = breakdown.rakeGiven > BigInt(0) || breakdown.operatorFeeGiven > BigInt(0);
+
+  return (
+    <div style={{
+      padding: '12px 16px',
+      backgroundColor: '#ffffff',
+      borderRadius: '8px',
+      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+      minWidth: '200px',
+    }}>
+      {/* Gross Winning Amount */}
+      <div style={{
+        display: 'flex',
+        gap: '8px',
+        justifyContent: 'space-between',
+        padding: '8px 0',
+        borderBottom: hasFees ? '1px solid #f0f0f0' : 'none',
+      }}>
+        <span style={{ fontSize: '12px', fontWeight: 600, color: '#6C6C89', textTransform: 'uppercase' }}>
+          GROSS WINNING AMOUNT
+        </span>
+        <span style={{ fontSize: '12px', fontWeight: 500, color: '#000' }}>
+          {grossAmount}
+        </span>
+      </div>
+
+      {/* Fees Section */}
+      {hasFees && (
+        <>
+          {/* Fees Header */}
+          <div style={{
+            padding: '8px 0 4px 0',
+            borderBottom: '1px solid #f0f0f0',
+          }}>
+            <span style={{ fontSize: '12px', fontWeight: 600, color: '#6C6C89', textTransform: 'uppercase' }}>
+              FEES
+            </span>
+          </div>
+
+          {/* Rake */}
+          {breakdown.rakeGiven >= BigInt(0) && (
+            <div style={{
+              display: 'flex',
+              gap: '8px',
+              justifyContent: 'space-between',
+              padding: '4px 0',
+              paddingLeft: '12px',
+            }}>
+              <span style={{ fontSize: '12px', fontWeight: 500, color: '#6C6C89' }}>
+                Rake
+              </span>
+              <span style={{ fontSize: '12px', fontWeight: 500, color: '#ef4444' }}>
+                -{rakeAmount}
+              </span>
+            </div>
+          )}
+
+          {/* Operator Fee */}
+          {breakdown.operatorFeeGiven >= BigInt(0) && (
+            <div style={{
+              display: 'flex',
+              gap: '8px',
+              justifyContent: 'space-between',
+              padding: '4px 0',
+              paddingLeft: '12px',
+            }}>
+              <span style={{ fontSize: '12px', fontWeight: 500, color: '#6C6C89' }}>
+                Operator Fee
+              </span>
+              <span style={{ fontSize: '12px', fontWeight: 500, color: '#ef4444' }}>
+                -{operatorFeeAmount}
+              </span>
+            </div>
+          )}
+
+          {/* Total Deduction */}
+          {totalDeduction > BigInt(0) && (
+            <div style={{
+              display: 'flex',
+              gap: '8px',
+              justifyContent: 'space-between',
+              padding: '4px 0 8px 0',
+              paddingLeft: '12px',
+              borderBottom: '1px solid #f0f0f0',
+            }}>
+              <span style={{ fontSize: '12px', fontWeight: 600, color: '#6C6C89' }}>
+                Total Deduction
+              </span>
+              <span style={{ fontSize: '12px', fontWeight: 600, color: '#ef4444' }}>
+                -{totalDeductionAmount}
+              </span>
+            </div>
+          )}
+        </>
+      )}
+
+      {/* Net Winning Amount */}
+      <div style={{
+        display: 'flex',
+        gap: '8px',
+        justifyContent: 'space-between',
+        padding: '8px 0',
+      }}>
+        <span style={{ fontSize: '12px', fontWeight: 600, color: '#6C6C89', textTransform: 'uppercase' }}>
+          NET WINNING AMOUNT
+        </span>
+        <span style={{ fontSize: '12px', fontWeight: 700, color: '#000' }}>
+          {netAmount}
+        </span>
+      </div>
+
+      {/* P/L */}
+      <div style={{
+          display: 'flex',
+          gap: '8px',
+          justifyContent: 'space-between',
+          padding: '8px 0',
+          backgroundColor: '#f3e8ff',
+          margin: '8px -16px -12px -16px',
+          paddingLeft: '16px',
+          paddingRight: '16px',
+          borderRadius: '0 0 8px 8px',
+        }}>
+          <span style={{ fontSize: '12px', fontWeight: 600, color: '#6C6C89', textTransform: 'uppercase' }}>
+            P/L
+          </span>
+          <span style={{ 
+            fontSize: '12px', 
+            fontWeight: 700, 
+            color: plWei >= BigInt(0) ? '#22c55e' : plWei <= BigInt(0) ? '#ef4444' : '#000' 
+          }}>
+            {plSign}{plAmount}
+          </span>
+        </div>
+    </div>
+  );
+};
 
 const GET_USER_DATA = gql`
   query GetUserData($address: String!) {
@@ -194,21 +394,39 @@ const RecentBets = React.memo(() => {
       align: "center" as AlignType,
       width: "10%",
       key: "ownWonAmount",
-      render: (_: string, record: any) => (
-        <span
-          style={{
-            color:
-              record.ownWonAmountValue > 0
-                ? "#22c55e"
-                : record.ownWonAmountValue < 0
-                ? "#ef4444"
-                : "#6C6C89",
-            fontWeight: record.ownWonAmountValue !== 0 ? 700 : 400,
-          }}
-        >
-          {record.ownWonAmount}
-        </span>
-      ),
+      render: (_: string, record: any) => {
+        const hasBreakdown = record.breakdown && record.breakdown.netWinningAmount != null;
+        
+        const plContent = (
+          <span
+            style={{
+              color:
+                record.ownWonAmountValue > 0
+                  ? "#22c55e"
+                  : record.ownWonAmountValue < 0
+                  ? "#ef4444"
+                  : "#6C6C89",
+              fontWeight: record.ownWonAmountValue !== 0 ? 700 : 400,
+            }}
+          >
+            {record.ownWonAmount}
+          </span>
+        );
+
+        if (hasBreakdown) {
+          return (
+            <Tooltip
+              title={<PLBreakdownTooltip breakdown={record.breakdown} />}
+              placement="left"
+              overlayInnerStyle={{ padding: 0 }}
+            >
+              {plContent}
+            </Tooltip>
+          );
+        }
+
+        return plContent;
+      },
     },
   ]);
 
@@ -327,6 +545,14 @@ const RecentBets = React.memo(() => {
       ownWonAmount: string;
       // new: numeric value for coloring/sorting
       ownWonAmountValue?: number;
+      // breakdown data for tooltip
+      breakdown?: {
+        grossWinningAmount: bigint;
+        rakeGiven: bigint;
+        operatorFeeGiven: bigint;
+        netWinningAmount: bigint;
+        betAmount: bigint;
+      };
     }[]
   >([]);
   const [mobileDataSource, setMobileDataSource] = useState<
@@ -382,6 +608,13 @@ const RecentBets = React.memo(() => {
       winner: string;
       ownWonAmount: string;
       ownWonAmountValue?: number;
+      breakdown?: {
+        grossWinningAmount: bigint;
+        rakeGiven: bigint;
+        operatorFeeGiven: bigint;
+        netWinningAmount: bigint;
+        betAmount: bigint;
+      };
     }[] = [];
     for (const round of data.rounds.items) {
       try {
@@ -424,11 +657,37 @@ const RecentBets = React.memo(() => {
             ? toBigInt((ownBet as any).winningAmount)
             : null;
 
+        // Calculate breakdown for tooltip
+        let breakdown: {
+          grossWinningAmount: bigint;
+          rakeGiven: bigint;
+          operatorFeeGiven: bigint;
+          netWinningAmount: bigint;
+          betAmount: bigint;
+        } | undefined;
+
         if (ownBetWinningAmount != null) {
           // Net P/L = winningAmount - amount
           const userAmountWei = toBigInt(ownBet?.amount);
           ownPLWei = ownBetWinningAmount - userAmountWei;
           ownPLText = formatPL(ownPLWei);
+
+          // Calculate breakdown: gross = net + rake + operatorFee
+          const rakeGiven = ownBet && (ownBet as any)?.rakeGiven != null
+            ? toBigInt((ownBet as any).rakeGiven)
+            : BigInt(0);
+          const operatorFeeGiven = ownBet && (ownBet as any)?.operatorFeeGiven != null
+            ? toBigInt((ownBet as any).operatorFeeGiven)
+            : BigInt(0);
+          const grossWinningAmount = ownBetWinningAmount + rakeGiven + operatorFeeGiven;
+
+          breakdown = {
+            grossWinningAmount,
+            rakeGiven,
+            operatorFeeGiven,
+            netWinningAmount: ownBetWinningAmount,
+            betAmount: userAmountWei,
+          };
         }
         // COMMENTED OUT: Client-side fallback calculation (use subgraph winningAmount only)
         // else if (
@@ -496,6 +755,7 @@ const RecentBets = React.memo(() => {
             Number(
               formatUnits(ownPLWei < BigInt(0) ? -ownPLWei : ownPLWei, TOKEN_DECIMALS)
             ) * (ownPLWei < BigInt(0) ? -1 : 1),
+          breakdown,
         });
       } catch (error) {
         console.error("Error handling round data:", error);
@@ -655,7 +915,7 @@ const RecentBets = React.memo(() => {
 
   return (
     <div>
-      <Flex justify="space-between" align="flex-start">
+      <Flex justify="space-between" align="center">
         <Title level={5} className={styles.RecentBetsTitle}>
           Recent Rounds
         </Title>

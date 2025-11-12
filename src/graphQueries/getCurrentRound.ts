@@ -61,6 +61,8 @@ export const GET_CURRENT_ROUND_QUERY =
               isWinner
               userId
               winningAmount
+              rakeGiven
+              operatorFeeGiven
             }
           }
           apesCards {
