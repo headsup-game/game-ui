@@ -49,6 +49,40 @@ const BetForm: React.FC<BetFormProps> = React.memo(
       );
     };
 
+    // Check if user has already placed a bet for this round
+    const hasPlacedBet = React.useMemo(() => {
+      const apesBetAmount = parseFloat(gameState.apesData.totalSelfBetAmount || "0.0");
+      const punksBetAmount = parseFloat(gameState.punksData.totalSelfBetAmount || "0.0");
+      return apesBetAmount > 0 || punksBetAmount > 0;
+    }, [gameState.apesData.totalSelfBetAmount, gameState.punksData.totalSelfBetAmount]);
+
+    // Determine which player the user bet on based on confirmed bets
+    const confirmedBetPlayer = React.useMemo(() => {
+      const apesBetAmount = parseFloat(gameState.apesData.totalSelfBetAmount || "0.0");
+      const punksBetAmount = parseFloat(gameState.punksData.totalSelfBetAmount || "0.0");
+      if (apesBetAmount > 0) return Players.Apes;
+      if (punksBetAmount > 0) return Players.Punks;
+      return Players.None;
+    }, [gameState.apesData.totalSelfBetAmount, gameState.punksData.totalSelfBetAmount]);
+
+    // Get the confirmed bet amount
+    const confirmedBetAmount = React.useMemo(() => {
+      const apesBetAmount = parseFloat(gameState.apesData.totalSelfBetAmount || "0.0");
+      const punksBetAmount = parseFloat(gameState.punksData.totalSelfBetAmount || "0.0");
+      return apesBetAmount > 0 ? apesBetAmount : punksBetAmount > 0 ? punksBetAmount : 0;
+    }, [gameState.apesData.totalSelfBetAmount, gameState.punksData.totalSelfBetAmount]);
+
+    // Update selectedPlayer and betAmount when bet is confirmed
+    useEffect(() => {
+      if (hasPlacedBet && confirmedBetPlayer !== Players.None) {
+        handlePlayerSelection(confirmedBetPlayer);
+        if (confirmedBetAmount > 0) {
+          setBetAmount(confirmedBetAmount);
+          BetForm.setFieldsValue({ amount: confirmedBetAmount });
+        }
+      }
+    }, [hasPlacedBet, confirmedBetPlayer, confirmedBetAmount, handlePlayerSelection, BetForm]);
+
     // Calculate the multiplier on component mount and then every second
     useEffect(() => {
       const calculateMultiplier = (): number => {
@@ -105,7 +139,7 @@ const BetForm: React.FC<BetFormProps> = React.memo(
         form={BetForm}
         layout="vertical"
         className={`${styles.BetForm} ${styles.blurElement} ${
-          isBettingOver(gameState) ? styles.disabled : ""
+          isBettingOver(gameState) || hasPlacedBet ? styles.disabled : ""
         }`}
         requiredMark={false}
         colon
@@ -153,7 +187,7 @@ const BetForm: React.FC<BetFormProps> = React.memo(
             >
               Balance: {formattedBalance} {TOKEN_SYMBOL}
             </Flex>
-            {!isBettingOver(gameState) ? (
+            {!isBettingOver(gameState) && !hasPlacedBet ? (
             <Flex
               align="center"
               justify="center"
@@ -180,6 +214,19 @@ const BetForm: React.FC<BetFormProps> = React.memo(
               >
                 {multiplier.toFixed(2)}x
               </b>
+            </Flex>
+          ) : hasPlacedBet ? (
+            <Flex
+              align="center"
+              justify="center"
+              style={{
+                lineHeight: "14px",
+                marginBottom: "20px",
+                fontSize: "16px",
+                color: "#00ff00",
+              }}
+            >
+              ✓ Bet confirmed for this round
             </Flex>
           ) : (
             <Flex
@@ -224,18 +271,28 @@ const BetForm: React.FC<BetFormProps> = React.memo(
           <Radio.Group
             className={styles.BetFormRadio}
             onChange={handlePlayerChange}
-            value={selectedPlayer === Players.None ? undefined : selectedPlayer}
+            value={
+              hasPlacedBet && confirmedBetPlayer !== Players.None
+                ? confirmedBetPlayer
+                : selectedPlayer === Players.None
+                ? undefined
+                : selectedPlayer
+            }
             buttonStyle="outline"
-            disabled={isBettingOver(gameState)}
+            disabled={isBettingOver(gameState) || hasPlacedBet}
           >
             <Radio.Button
               key={Players.Apes}
               value={Players.Apes}
               style={{
                 background: "red",
-                borderColor: selectedPlayer === Players.Apes ? "white" : "red",
+                borderColor: 
+                  (hasPlacedBet && confirmedBetPlayer === Players.Apes) ||
+                  (!hasPlacedBet && selectedPlayer === Players.Apes)
+                    ? "white"
+                    : "red",
               }}
-              disabled={isBettingOver(gameState)}
+              disabled={isBettingOver(gameState) || hasPlacedBet}
             >
               Apes
             </Radio.Button>
@@ -244,9 +301,13 @@ const BetForm: React.FC<BetFormProps> = React.memo(
               value={Players.Punks}
               style={{
                 background: "blue",
-                borderColor: selectedPlayer === Players.Punks ? "white" : "blue",
+                borderColor:
+                  (hasPlacedBet && confirmedBetPlayer === Players.Punks) ||
+                  (!hasPlacedBet && selectedPlayer === Players.Punks)
+                    ? "white"
+                    : "blue",
               }}
-              disabled={isBettingOver(gameState)}
+              disabled={isBettingOver(gameState) || hasPlacedBet}
             >
               Punks
             </Radio.Button>
@@ -270,9 +331,9 @@ const BetForm: React.FC<BetFormProps> = React.memo(
             style={{
               width: "100%",
             }}
-            value={betAmount}
+            value={hasPlacedBet && confirmedBetAmount > 0 ? confirmedBetAmount : betAmount}
             onChange={(val) => setBetAmount(Number(val))}
-            disabled={isBettingOver(gameState)}
+            disabled={isBettingOver(gameState) || hasPlacedBet}
           />
         </Form.Item>
 
@@ -294,7 +355,7 @@ const BetForm: React.FC<BetFormProps> = React.memo(
                   BetForm.setFieldsValue({ amount: Number(item) });
                   setBetAmount(item);
                 }}
-                disabled={isBettingOver(gameState)}
+                disabled={isBettingOver(gameState) || hasPlacedBet}
               >
                 {item}
               </Button>
@@ -351,11 +412,19 @@ const BetForm: React.FC<BetFormProps> = React.memo(
           className={styles.BetFormItem}
         >
           <Bet
-            playerId={selectedPlayer}
-            betAmount={betAmount}
+            playerId={
+              hasPlacedBet && confirmedBetPlayer !== Players.None
+                ? confirmedBetPlayer
+                : selectedPlayer
+            }
+            betAmount={hasPlacedBet && confirmedBetAmount > 0 ? confirmedBetAmount : betAmount}
             roundNumber={roundId}
             playerName={
-              selectedPlayer === Players.None
+              hasPlacedBet && confirmedBetPlayer !== Players.None
+                ? confirmedBetPlayer === Players.Apes
+                  ? "Apes"
+                  : "Punks"
+                : selectedPlayer === Players.None
                 ? ""
                 : selectedPlayer == Players.Apes
                 ? "Apes"
@@ -363,7 +432,7 @@ const BetForm: React.FC<BetFormProps> = React.memo(
             }
             onBettingStateChange={handleLogs}
             minimumAllowedBetAmount={minimumAllowedBetAmount}
-            forceDisabled={isBettingOver(gameState)}
+            forceDisabled={isBettingOver(gameState) || hasPlacedBet}
             // COMMENTED OUT: Multi-round auto-play disabled
             // rounds={rounds}
             rounds={1}

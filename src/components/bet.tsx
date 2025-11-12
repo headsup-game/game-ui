@@ -54,6 +54,7 @@ export const Bet: React.FC<BetProps> = ({
     useState<BetStatusMessage | null>(null);
   const [remainingAutoRounds, setRemainingAutoRounds] = React.useState(0);
   const lastBetRoundRef = React.useRef<number | null>(null);
+  const lastShownSuccessHashRef = React.useRef<string | null>(null);
 
   // Token approval and balance hooks
   const { isApproved, approve, isApproving, allowance } = useTokenApproval();
@@ -131,20 +132,26 @@ export const Bet: React.FC<BetProps> = ({
 
   // wait for transaction status changes
   useEffect(() => {
-    if (transactionStatus === "success") {
-      refetchBalance();
-      setBetStatusMessage({
-        type: "success",
-        content: (
-          <>
-            Bet on {playerName} success with hash:
-            <Text copyable={{ text: transactionData?.transactionHash }}>
-              {transactionData?.transactionHash.slice(0, 6)}
-            </Text>
-          </>
-        ),
-        duration: 3,
-      });
+    const txHash = transactionData?.transactionHash;
+    
+    if (transactionStatus === "success" && txHash) {
+      // Only show success message once per transaction hash
+      if (lastShownSuccessHashRef.current !== txHash) {
+        lastShownSuccessHashRef.current = txHash;
+        refetchBalance();
+        setBetStatusMessage({
+          type: "success",
+          content: (
+            <>
+              Bet on {playerName} success with hash:
+              <Text copyable={{ text: txHash }}>
+                {txHash.slice(0, 6)}
+              </Text>
+            </>
+          ),
+          duration: 3,
+        });
+      }
     } else if (transactionStatus === "error") {
       setBetStatusMessage({
         type: "error",

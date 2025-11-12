@@ -45,7 +45,9 @@ const isGameCardsEqual = (
     prevProps.redCardsNumberOfBets == nextProps.redCardsNumberOfBets &&
     prevProps.redCardsTotalAmount == nextProps.redCardsTotalAmount &&
     prevProps.blueCardsNumberOfBets == nextProps.blueCardsNumberOfBets &&
-    prevProps.blueCardsTotalAmout == nextProps.blueCardsTotalAmout
+    prevProps.blueCardsTotalAmout == nextProps.blueCardsTotalAmout &&
+    prevProps.apesSelfBet == nextProps.apesSelfBet &&
+    prevProps.punksSelfBet == nextProps.punksSelfBet
   );
 };
 
@@ -66,6 +68,27 @@ const GameCards: React.FC<GameCardsProps> = React.memo(
     const [faceDown, setFaceDown] = useState<boolean>(true);
     const [redWinPercentage, setRedWinPercentage] = useState<number>(50);
     const [blueWinPercentage, setBlueWinPercentage] = useState<number>(50);
+
+    // Check if user has already placed a bet for this round
+    const hasPlacedBet = React.useMemo(() => {
+      const apesBetAmount = parseFloat(apesSelfBet || "0.0");
+      const punksBetAmount = parseFloat(punksSelfBet || "0.0");
+      return apesBetAmount > 0 || punksBetAmount > 0;
+    }, [apesSelfBet, punksSelfBet]);
+
+    // Determine which player the user bet on based on confirmed bets
+    const confirmedBetPlayer = React.useMemo(() => {
+      const apesBetAmount = parseFloat(apesSelfBet || "0.0");
+      const punksBetAmount = parseFloat(punksSelfBet || "0.0");
+      if (apesBetAmount > 0) return Players.Apes;
+      if (punksBetAmount > 0) return Players.Punks;
+      return Players.None;
+    }, [apesSelfBet, punksSelfBet]);
+
+    // Use confirmed bet player for selection if bet is placed, otherwise use selectedPlayer
+    const effectiveSelectedPlayer = hasPlacedBet && confirmedBetPlayer !== Players.None
+      ? confirmedBetPlayer
+      : selectedPlayer;
 
     useEffect(() => {
       setTimeout(() => {
@@ -137,11 +160,15 @@ const GameCards: React.FC<GameCardsProps> = React.memo(
               className={`${styles.GameCardsContainer} ${
                 styles.WinPercentageStripRed
               } ${
-                selectedPlayer === Players.Apes
+                effectiveSelectedPlayer === Players.Apes
                   ? styles.GameCardsContainerSelectedRed
                   : ""
-              }`}
-              onClick={() => handlePlayerSelection(Players.Apes)}
+              } ${hasPlacedBet ? styles.disabled : ""}`}
+              onClick={() => !hasPlacedBet && handlePlayerSelection(Players.Apes)}
+              style={{
+                cursor: hasPlacedBet ? "not-allowed" : "pointer",
+                opacity: hasPlacedBet ? 0.6 : 1,
+              }}
             >
               <Row gutter={14} style={{ width: "100%", margin: 0 }}>
                 <Col span={24}>
@@ -187,11 +214,15 @@ const GameCards: React.FC<GameCardsProps> = React.memo(
               className={`${styles.GameCardsContainer} ${
                 styles.WinPercentageStripBlue
               } ${
-                selectedPlayer === Players.Punks
+                effectiveSelectedPlayer === Players.Punks
                   ? styles.GameCardsContainerSelectedBlue
                   : ""
-              }`}
-              onClick={() => handlePlayerSelection(Players.Punks)}
+              } ${hasPlacedBet ? styles.disabled : ""}`}
+              onClick={() => !hasPlacedBet && handlePlayerSelection(Players.Punks)}
+              style={{
+                cursor: hasPlacedBet ? "not-allowed" : "pointer",
+                opacity: hasPlacedBet ? 0.6 : 1,
+              }}
             >
               <Row gutter={14} style={{ width: "100%", margin: 0 }}>
                 <Col span={24}>
