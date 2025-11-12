@@ -160,6 +160,20 @@ export default function Leaderboard() {
     handleLeaderboardData(data);
   };
 
+  // Fetch leaderboard data every 5 seconds
+  useEffect(() => {
+    fetchData();
+
+    const interval = setInterval(() => {
+      console.log("refetching leaderboard");
+      fetchData();
+    }, 5000);
+
+    return () => clearInterval(interval);
+    // It's important to include dependencies that, when changed, should refetch the leaderboard
+    // such as sortConfig and pageSize
+  }, []);
+
   const handleSortConfig = (orderBy: typeof sortConfig.orderBy) => {
     setSortConfig((prevSortConfig) => ({
       orderBy,
@@ -215,7 +229,9 @@ export default function Leaderboard() {
       }),
       render: (points?: string) =>
         points ? (
-          <motion.span {...animation}>{formatUnits(BigInt(points), TOKEN_DECIMALS)}</motion.span>
+          <motion.span {...animation}>
+            {formatUnits(BigInt(points), TOKEN_DECIMALS)}
+          </motion.span>
         ) : (
           <motion.span {...animation}>0</motion.span>
         ),
@@ -280,16 +296,15 @@ export default function Leaderboard() {
         <motion.div {...animation}>
           {data.address ? (
             <>
-              <ENSName
-                address={data.address as `0x${string}`}
-              />
+              <ENSName address={data.address as `0x${string}`} />
               <div
                 style={{
                   fontSize: "12px",
                   color: data.address !== address ? "#6C6C89" : "#F9FAFB",
                 }}
               >
-                Points: {formatUnits(BigInt(data?.points || "0"), TOKEN_DECIMALS)}
+                Points:{" "}
+                {formatUnits(BigInt(data?.points || "0"), TOKEN_DECIMALS)}
               </div>
             </>
           ) : (
