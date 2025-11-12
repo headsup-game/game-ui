@@ -1,7 +1,7 @@
 import { useAccount, useReadContract } from 'wagmi';
 import { erc20Abi } from '../utils/erc20Abi';
 import { DARK_TOKEN_ADDRESS, TOKEN_DECIMALS } from '../utils/constants';
-import { formatUnits } from 'viem';
+import { formatAmount } from 'utils/formatter-ui';
 
 export function useTokenBalance() {
   const { address } = useAccount();
@@ -17,7 +17,7 @@ export function useTokenBalance() {
   });
 
   const formattedBalance = balance
-    ? formatUnits(balance as bigint, TOKEN_DECIMALS)
+    ? formatAmount(balance as bigint, TOKEN_DECIMALS, true) as string
     : '0';
 
   return {

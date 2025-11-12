@@ -12,6 +12,7 @@ import { useNetworkCheck } from "hooks/useNetworkCheck";
 import { Players } from "interfaces/players";
 import { GameState, RoundState } from "interfaces/gameState";
 import { TOKEN_SYMBOL } from "utils/constants";
+import { formatAmount } from "utils/formatter-ui";
 
 interface BetFormProps {
   roundId: number;
@@ -185,7 +186,7 @@ const BetForm: React.FC<BetFormProps> = React.memo(
                 color: "#888",
               }}
             >
-              Balance: {formattedBalance} {TOKEN_SYMBOL}
+              Balance: {formatAmount(formattedBalance, 6)} {TOKEN_SYMBOL}
             </Flex>
             {!isBettingOver(gameState) && !hasPlacedBet ? (
             <Flex
@@ -212,7 +213,7 @@ const BetForm: React.FC<BetFormProps> = React.memo(
                   fontSize: "18px",
                 }}
               >
-                {multiplier.toFixed(2)}x
+                {formatAmount(multiplier, 6, true)}x
               </b>
             </Flex>
           ) : hasPlacedBet ? (

@@ -15,47 +15,9 @@ import { useAccount } from "wagmi";
 import { formatUnits, parseUnits } from "viem";
 import { AlignType } from "rc-table/lib/interface";
 import { TOKEN_DECIMALS } from "utils/constants";
+import { formatAmount } from "utils/formatter-ui";
 
 const { Title } = Typography;
-
-const formatAmount = (wei: bigint) => {
-  const tokenAmount = Number(formatUnits(wei, TOKEN_DECIMALS));
-  let str = tokenAmount.toString();
-
-  // If it's scientific notation (very small), render as-is
-  if (str.includes("e") || str.includes("E")) return str;
-
-  // Split into integer and decimals
-  let [intPart, decPart = ""] = str.split(".");
-
-  if (!decPart) return intPart;
-
-  // Find the longest sequence of consecutive zeros after the first two decimal digits, followed by a non-zero digit
-  // E.g. 12.34000000005 -> 12.34 + 0<sub>8</sub>5
-  // We'll search from the third decimal onward for stretches of zero followed by a digit
-
-  // We'll only abbreviate if 3+ zeros in a row, followed by at least one nonzero digit
-  let pattern = /^(..)(0{3,})(\d.*)$/; // 2 initial decimals, then zeros, then last digit(s)
-  const match = decPart.match(pattern);
-
-  if (match) {
-    // intPart . first 2 decimals + 0(sub N) + rest after zeros
-    return (
-      <>
-        {intPart}.{match[1]}
-        0<sub>{match[2].length}</sub>
-        {match[3]}
-      </>
-    );
-  } else {
-    // no stretching zeros or only at end, just show all decimals (without artificial trimming)
-    return (
-      <>
-        {intPart}.{decPart}
-      </>
-    );
-  }
-};
 
 // Tooltip component for P/L breakdown
 const PLBreakdownTooltip = ({ breakdown }: { 
@@ -261,8 +223,8 @@ const RecentBets = React.memo(() => {
   const formatPL = (wei: bigint) => {
     const sign = wei > BigInt(0) ? "+" : wei < BigInt(0) ? "-" : "";
     const abs = wei < BigInt(0) ? -wei : wei;
-    const tokenAmount = Number(formatUnits(abs, TOKEN_DECIMALS));
-    return `${sign}${tokenAmount.toFixed(4)}`;
+    const formatted = formatAmount(abs, TOKEN_DECIMALS, true) as string;
+    return `${sign}${formatted}`;
   };
 
   // State for table columns and data source
@@ -743,7 +705,7 @@ const RecentBets = React.memo(() => {
           totalPunkBets: totalPunksBets,
           ownBets: ownBet
             ? {
-                amount: formatUnits(ownBet.amount, TOKEN_DECIMALS),
+                amount: formatAmount(ownBet.amount, TOKEN_DECIMALS, true) as string,
                 position: ownBet.position,
                 isWinner:
                   isResolvedWinner(round.winner) &&
@@ -753,7 +715,7 @@ const RecentBets = React.memo(() => {
           ownWonAmount: ownPLText,
           ownWonAmountValue:
             Number(
-              formatUnits(ownPLWei < BigInt(0) ? -ownPLWei : ownPLWei, TOKEN_DECIMALS)
+              formatAmount(ownPLWei < BigInt(0) ? -ownPLWei : ownPLWei, TOKEN_DECIMALS, true) as string
             ) * (ownPLWei < BigInt(0) ? -1 : 1),
           breakdown,
         });
@@ -855,14 +817,14 @@ const RecentBets = React.memo(() => {
           winner: gameState.roundWinnerMessageShort,
           ownBets: ownBet
             ? {
-                amount: formatUnits(ownBet.amount, TOKEN_DECIMALS),
+                amount: formatAmount(ownBet.amount, TOKEN_DECIMALS, true) as string,
                 position: ownBet.position,
               }
             : null,
           ownWonAmount: ownPLText,
           ownWonAmountValue:
             Number(
-              formatUnits(ownPLWei < BigInt(0) ? -ownPLWei : ownPLWei, TOKEN_DECIMALS)
+              formatAmount(ownPLWei < BigInt(0) ? -ownPLWei : ownPLWei, TOKEN_DECIMALS, true) as string
             ) * (ownPLWei < BigInt(0) ? -1 : 1),
         });
       } catch (error) {

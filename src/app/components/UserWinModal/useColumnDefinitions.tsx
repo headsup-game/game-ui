@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { formatUnits } from "viem";
 import { Button, Flex, Typography } from "antd";
 import { AlignType } from "rc-table/lib/interface";
 import { Card } from "interfaces/card";
@@ -9,6 +8,7 @@ import CardSet from "@components/CardSet";
 import { ClaimWinnings } from "@components/claimWinnings";
 import { DataType } from "./dataType";
 import { TOKEN_DECIMALS, TOKEN_SYMBOL } from "utils/constants";
+import { formatAmount } from "utils/formatter-ui";
 
 const { Text } = Typography;
 
@@ -90,7 +90,7 @@ export default function useColumnDefinitions(
       render: (bet: DataType["bet"]) =>
         bet?.points ? (
           <span>
-            {formatUnits(BigInt(bet.points), TOKEN_DECIMALS)} (x{parseInt(bet.multiplier) / 10000})
+            {formatAmount(BigInt(bet.points), TOKEN_DECIMALS)} (x{formatAmount(parseInt(bet.multiplier) / 10000, 6, true)})
           </span>
         ) : (
           <span>No Bets</span>
@@ -110,7 +110,7 @@ export default function useColumnDefinitions(
       render: (ownWonAmount: string, record: DataType) =>
         record.isWinner ? (
           <span style={{ color: "green" }}>
-            Won: {formatUnits(BigInt(ownWonAmount), TOKEN_DECIMALS)}
+            Won: {formatAmount(BigInt(ownWonAmount), TOKEN_DECIMALS)}
           </span>
         ) : (
           <span style={{ color: "red" }}>Lost</span>
@@ -173,8 +173,8 @@ export default function useColumnDefinitions(
             cardWidth={40}
           />
           <Text style={{ color: "white" }}>
-            Bet: {formatUnits(BigInt(record.bet.points), TOKEN_DECIMALS)} (x
-            {record.bet.multiplier})
+            Bet: {formatAmount(BigInt(record.bet.points), TOKEN_DECIMALS)} (x
+            {formatAmount(parseInt(record.bet.multiplier) / 10000, 6, true)})
           </Text>
         </Flex>
       ),
@@ -200,7 +200,7 @@ export default function useColumnDefinitions(
           <Text style={{ color: "white" }}>
             {record.isWinner ? (
               <span style={{ color: "green" }}>
-                Won: {formatUnits(BigInt(record.ownWonAmount), TOKEN_DECIMALS)}
+                Won: {formatAmount(BigInt(record.ownWonAmount), TOKEN_DECIMALS)}
               </span>
             ) : (
               <span style={{ color: "red" }}>Lost</span>
@@ -240,8 +240,8 @@ export default function useColumnDefinitions(
             cardWidth={40}
           />
           <Text style={{ color: "white" }}>
-            Bet: {formatUnits(BigInt(record.bet.points), TOKEN_DECIMALS)} (x
-            {record.bet.multiplier})
+            Bet: {formatAmount(BigInt(record.bet.points), TOKEN_DECIMALS)} (x
+            {formatAmount(parseInt(record.bet.multiplier) / 10000, 6, true)})
           </Text>
         </Flex>
       ),
@@ -267,7 +267,7 @@ export default function useColumnDefinitions(
           <Text style={{ color: "white" }}>
             {record.isWinner ? (
               <span style={{ color: "green" }}>
-                Won: {formatUnits(BigInt(record.ownWonAmount), TOKEN_DECIMALS)}
+                Won: {formatAmount(BigInt(record.ownWonAmount), TOKEN_DECIMALS)}
               </span>
             ) : (
               <span style={{ color: "red" }}>Lost</span>
@@ -317,14 +317,14 @@ export default function useColumnDefinitions(
             cardWidth={40}
           />
           <Text style={{ color: "white" }}>
-            Bet: {formatUnits(BigInt(record.bet.points), TOKEN_DECIMALS)} (x
-            {record.bet.multiplier})
+            Bet: {formatAmount(BigInt(record.bet.points), TOKEN_DECIMALS)} (x
+            {formatAmount(parseInt(record.bet.multiplier) / 10000, 6, true)})
           </Text>
           <Flex vertical align="center" gap={8}>
             <Text style={{ color: "white" }}>
               {record.isWinner ? (
                 <span style={{ color: "green" }}>
-                  Won: {formatUnits(BigInt(record.ownWonAmount), TOKEN_DECIMALS)}
+                  Won: {formatAmount(BigInt(record.ownWonAmount), TOKEN_DECIMALS)}
                 </span>
               ) : (
                 <span style={{ color: "red" }}>Lost</span>

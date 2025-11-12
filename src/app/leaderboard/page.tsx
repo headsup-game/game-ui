@@ -7,11 +7,11 @@ import React, { useEffect, useState } from "react";
 import { AlignType } from "rc-table/lib/interface";
 import { useAccount, useEnsName } from "wagmi";
 import { gql, useQuery } from "@apollo/client";
-import { formatUnits } from "viem";
 import { client } from "apolloClient";
 import { useMotionValue, motion } from "framer-motion";
 import { ColumnsType } from "antd/es/table";
 import { TOKEN_DECIMALS, TOKEN_SYMBOL } from "utils/constants";
+import { formatAmount } from "utils/formatter-ui";
 
 const { Title, Text } = Typography;
 
@@ -229,7 +229,7 @@ export default function Leaderboard() {
       render: (points?: string) =>
         points ? (
           <motion.span {...animation}>
-            {formatUnits(BigInt(points), TOKEN_DECIMALS)}
+            {formatAmount(BigInt(points), TOKEN_DECIMALS)}
           </motion.span>
         ) : (
           <motion.span {...animation}>0</motion.span>
@@ -255,11 +255,11 @@ export default function Leaderboard() {
       render: (totalBets?: string) =>
         totalBets ? (
           <motion.span {...animation} style={{ textAlign: "right" }}>
-            {formatUnits(BigInt(totalBets), TOKEN_DECIMALS)} {TOKEN_SYMBOL}
+            {formatAmount(BigInt(totalBets), TOKEN_DECIMALS)} {TOKEN_SYMBOL}
           </motion.span>
         ) : (
           <motion.span {...animation} style={{ textAlign: "right" }}>
-            0.0 {TOKEN_SYMBOL}
+            {formatAmount(0, TOKEN_DECIMALS)} {TOKEN_SYMBOL}
           </motion.span>
         ),
     },
@@ -303,7 +303,7 @@ export default function Leaderboard() {
                 }}
               >
                 Points:{" "}
-                {formatUnits(BigInt(data?.points || "0"), TOKEN_DECIMALS)}
+                {formatAmount(BigInt(data?.points || "0"), TOKEN_DECIMALS)}
               </div>
             </>
           ) : (
@@ -331,7 +331,7 @@ export default function Leaderboard() {
       }),
       render: (totalBets?: string) => (
         <motion.span {...animation} style={{ textAlign: "right" }}>
-          {formatUnits(BigInt(totalBets || "0"), TOKEN_DECIMALS)} {TOKEN_SYMBOL}
+          {formatAmount(BigInt(totalBets || "0"), TOKEN_DECIMALS)} {TOKEN_SYMBOL}
         </motion.span>
       ),
     },

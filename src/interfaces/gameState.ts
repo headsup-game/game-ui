@@ -5,6 +5,7 @@ import { ethers } from "ethers";
 import { Address } from "viem";
 import Ranker from 'handranker';
 import { TOKEN_DECIMALS } from "utils/constants";
+import { formatAmount } from "utils/formatter-ui";
 
 export enum RoundState {
   Initialized,
@@ -205,10 +206,10 @@ export function getGameStateFromRound(previousRound: Round | null, currentRound:
             },
           ]
           : defaultPlayerACards,
-      totalBetAmounts: ethers.formatUnits(round.apesPot, TOKEN_DECIMALS),
+      totalBetAmounts: formatAmount(BigInt(round.apesPot), TOKEN_DECIMALS, true) as string,
       totalNumberOfBets: BigInt(round.totalApesBets),
       payoutMultiplier: Number(round.totalAmount) == (0 | NaN) ? 0 : Number(round.totalAmount) / Number(round.apesPot),
-      totalSelfBetAmount: totalSelfApesAmount ? ethers.formatUnits(totalSelfApesAmount, TOKEN_DECIMALS) : "0.0",
+      totalSelfBetAmount: totalSelfApesAmount ? formatAmount(BigInt(totalSelfApesAmount), TOKEN_DECIMALS, true) as string : formatAmount(0, TOKEN_DECIMALS, true) as string,
     },
     punksData: {
       id: 1,
@@ -231,10 +232,10 @@ export function getGameStateFromRound(previousRound: Round | null, currentRound:
             },
           ]
           : defaultPlayerBCards,
-      totalBetAmounts: ethers.formatUnits(round.punksPot, TOKEN_DECIMALS),
+      totalBetAmounts: formatAmount(BigInt(round.punksPot), TOKEN_DECIMALS, true) as string,
       totalNumberOfBets: BigInt(round.totalPunksBets),
       payoutMultiplier: Number(round.totalAmount) == (0 | NaN) ? 0 : Number(round.totalAmount) / Number(round.punksPot),
-      totalSelfBetAmount: totalSelfPunksAmount ? ethers.formatUnits(totalSelfPunksAmount, TOKEN_DECIMALS) : "0.0",
+      totalSelfBetAmount: totalSelfPunksAmount ? formatAmount(BigInt(totalSelfPunksAmount), TOKEN_DECIMALS, true) as string : formatAmount(0, TOKEN_DECIMALS, true) as string,
     },
     communityCards:
       round.communityCards == null
@@ -287,7 +288,7 @@ export function getGameStateFromRound(previousRound: Round | null, currentRound:
     currentMessage: getCurrentMessage(state),
     blindBetingCloseTimestamp: Number(round.blindCloseTimestamp),
     bettingEndTimestamp: Number(round.closeTimestamp),
-    totalAmountPool: ethers.formatUnits(round.totalAmount, TOKEN_DECIMALS)
+    totalAmountPool: formatAmount(BigInt(round.totalAmount), TOKEN_DECIMALS, true) as string
   };
 }
 

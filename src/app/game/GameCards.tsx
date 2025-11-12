@@ -17,6 +17,7 @@ import { TexasHoldem } from "poker-odds-calc";
 import { Players } from "interfaces/players";
 import { isEqual } from "lodash";
 import { TOKEN_SYMBOL } from "utils/constants";
+import { formatAmount } from "utils/formatter-ui";
 const { Text } = Typography;
 
 interface GameCardsProps {
@@ -153,7 +154,7 @@ const GameCards: React.FC<GameCardsProps> = React.memo(
               className={`${styles.WinPercentageStrip} ${styles.WinPercentageStripRed}`}
             >
               Bets - {redCardsTotalAmount} {TOKEN_SYMBOL} | Payout -{" "}
-              {apesPayout == Infinity ? "∞" : apesPayout.toFixed(2)}x
+              {apesPayout == Infinity ? "∞" : formatAmount(apesPayout, 6, true)}x
             </Flex>
             {/* Card Container */}
             <Flex
@@ -184,7 +185,7 @@ const GameCards: React.FC<GameCardsProps> = React.memo(
             <Flex
               className={`${styles.WinPercentageStrip} ${styles.WinPercentageStripRed}`}
             >
-              Win% - {redWinPercentage.toFixed(2)}
+              Win% - {formatAmount(redWinPercentage, 6, true)}
             </Flex>
           </Flex>
         </div>
@@ -208,7 +209,7 @@ const GameCards: React.FC<GameCardsProps> = React.memo(
               className={`${styles.WinPercentageStrip} ${styles.WinPercentageStripBlue}`}
             >
               Bets - {blueCardsTotalAmout} {TOKEN_SYMBOL} | Payout -{" "}
-              {punksPayout == Infinity ? "∞" : punksPayout.toFixed(2)}x
+              {punksPayout == Infinity ? "∞" : formatAmount(punksPayout, 6, true)}x
             </Flex>
             <Flex
               className={`${styles.GameCardsContainer} ${
@@ -238,7 +239,7 @@ const GameCards: React.FC<GameCardsProps> = React.memo(
             <Flex
               className={`${styles.WinPercentageStrip} ${styles.WinPercentageStripBlue}`}
             >
-              Win% - {blueWinPercentage.toFixed(2)}
+              Win% - {formatAmount(blueWinPercentage, 6, true)}
             </Flex>
           </Flex>
         </div>

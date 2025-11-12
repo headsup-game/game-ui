@@ -21,6 +21,7 @@ import { motion } from "framer-motion";
 import { PokerConfettiContext } from "@components/PokerCardsConfetti";
 import { GiPokerHand } from "react-icons/gi";
 import { TOKEN_SYMBOL } from "utils/constants";
+import { formatAmount } from "utils/formatter-ui";
 
 const { Title, Text } = Typography;
 
@@ -213,9 +214,7 @@ export default function HowToPlay() {
                             textShadow: "0 0 5px currentColor",
                           }}
                         >
-                          {
-                            (step2InputValue * 2.5).toFixed(3) // Potential win calculation
-                          }{" "}
+                          {formatAmount(step2InputValue * 2.5, 6, true)}{" "}
                           {TOKEN_SYMBOL}
                         </span>
                       </p>
@@ -263,7 +262,7 @@ export default function HowToPlay() {
                           textShadow: "0 0 5px currentColor",
                         }}
                       >
-                        {(step2InputValue * 2.5).toFixed(3)} {TOKEN_SYMBOL}
+                        {formatAmount(step2InputValue * 2.5, 6, true)} {TOKEN_SYMBOL}
                       </span>
                     </p>
                   </div>
