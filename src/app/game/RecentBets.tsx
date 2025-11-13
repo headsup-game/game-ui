@@ -1,184 +1,28 @@
 "use client";
 
-import React, { useState } from "react";
-import { Button, ConfigProvider, Flex, Table, Typography, Tooltip } from "antd";
-import Container from "app/components/Container/Container";
+import React, { useState, useEffect } from "react";
+import { ConfigProvider, Flex, Table, Typography, Switch, Pagination } from "antd";
 import styles from "./Game.module.scss";
 import { gql, useQuery } from "@apollo/client";
 import { RoundPage } from "gql/graphql";
 import { GET_CURRENT_ROUND_QUERY } from "graphQueries/getCurrentRound";
 import { GameState, getGameStateFromRound } from "interfaces/gameState";
-import CardSet from "@components/CardSet";
 import { Card } from "interfaces/card";
-import { Pagination } from "antd";
 import { useAccount } from "wagmi";
-import { formatUnits, parseUnits } from "viem";
-import { AlignType } from "rc-table/lib/interface";
 import { TOKEN_DECIMALS } from "utils/constants";
 import { formatAmount } from "utils/formatter-ui";
+import {
+  normalize,
+  isResolvedWinner,
+  toBigInt,
+  formatPL,
+  getPLColor,
+  calculatePLBreakdown,
+  PLBreakdown,
+} from "./recentBetsHelpers";
+import { getDesktopColumns, getTabletColumns, getMobileColumns } from "./recentBetsColumns";
 
 const { Title } = Typography;
-
-// Tooltip component for P/L breakdown
-const PLBreakdownTooltip = ({ breakdown }: { 
-  breakdown: {
-    grossWinningAmount: bigint;
-    rakeGiven: bigint;
-    operatorFeeGiven: bigint;
-    netWinningAmount: bigint;
-    betAmount: bigint;
-  };
-}) => {
-
-  const grossAmount = formatAmount(breakdown.grossWinningAmount);
-  const rakeAmount = formatAmount(breakdown.rakeGiven);
-  const operatorFeeAmount = formatAmount(breakdown.operatorFeeGiven);
-  const totalDeduction = breakdown.rakeGiven + breakdown.operatorFeeGiven;
-  const totalDeductionAmount = formatAmount(totalDeduction);
-  const netAmount = formatAmount(breakdown.netWinningAmount);
-  
-  // Calculate P/L: net winning amount - bet amount
-  const plWei = breakdown.netWinningAmount - breakdown.betAmount;
-  const plAmount = formatAmount(plWei <= BigInt(0) ? -plWei : plWei);
-  const plSign = plWei >= BigInt(0) ? '+' : plWei <= BigInt(0) ? '-' : '';
-
-  const hasFees = breakdown.rakeGiven > BigInt(0) || breakdown.operatorFeeGiven > BigInt(0);
-
-  return (
-    <div style={{
-      padding: '12px 16px',
-      backgroundColor: '#ffffff',
-      borderRadius: '8px',
-      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-      minWidth: '200px',
-    }}>
-      {/* Gross Winning Amount */}
-      <div style={{
-        display: 'flex',
-        gap: '8px',
-        justifyContent: 'space-between',
-        padding: '8px 0',
-        borderBottom: hasFees ? '1px solid #f0f0f0' : 'none',
-      }}>
-        <span style={{ fontSize: '12px', fontWeight: 600, color: '#6C6C89', textTransform: 'uppercase' }}>
-          GROSS WINNING AMOUNT
-        </span>
-        <span style={{ fontSize: '12px', fontWeight: 500, color: '#000' }}>
-          {grossAmount}
-        </span>
-      </div>
-
-      {/* Fees Section */}
-      {hasFees && (
-        <>
-          {/* Fees Header */}
-          <div style={{
-            padding: '8px 0 4px 0',
-            borderBottom: '1px solid #f0f0f0',
-          }}>
-            <span style={{ fontSize: '12px', fontWeight: 600, color: '#6C6C89', textTransform: 'uppercase' }}>
-              FEES
-            </span>
-          </div>
-
-          {/* Rake */}
-          {breakdown.rakeGiven >= BigInt(0) && (
-            <div style={{
-              display: 'flex',
-              gap: '8px',
-              justifyContent: 'space-between',
-              padding: '4px 0',
-              paddingLeft: '12px',
-            }}>
-              <span style={{ fontSize: '12px', fontWeight: 500, color: '#6C6C89' }}>
-                Rake
-              </span>
-              <span style={{ fontSize: '12px', fontWeight: 500, color: '#ef4444' }}>
-                -{rakeAmount}
-              </span>
-            </div>
-          )}
-
-          {/* Operator Fee */}
-          {breakdown.operatorFeeGiven >= BigInt(0) && (
-            <div style={{
-              display: 'flex',
-              gap: '8px',
-              justifyContent: 'space-between',
-              padding: '4px 0',
-              paddingLeft: '12px',
-            }}>
-              <span style={{ fontSize: '12px', fontWeight: 500, color: '#6C6C89' }}>
-                Operator Fee
-              </span>
-              <span style={{ fontSize: '12px', fontWeight: 500, color: '#ef4444' }}>
-                -{operatorFeeAmount}
-              </span>
-            </div>
-          )}
-
-          {/* Total Deduction */}
-          {totalDeduction > BigInt(0) && (
-            <div style={{
-              display: 'flex',
-              gap: '8px',
-              justifyContent: 'space-between',
-              padding: '4px 0 8px 0',
-              paddingLeft: '12px',
-              borderBottom: '1px solid #f0f0f0',
-            }}>
-              <span style={{ fontSize: '12px', fontWeight: 600, color: '#6C6C89' }}>
-                Total Deduction
-              </span>
-              <span style={{ fontSize: '12px', fontWeight: 600, color: '#ef4444' }}>
-                -{totalDeductionAmount}
-              </span>
-            </div>
-          )}
-        </>
-      )}
-
-      {/* Net Winning Amount */}
-      <div style={{
-        display: 'flex',
-        gap: '8px',
-        justifyContent: 'space-between',
-        padding: '8px 0',
-      }}>
-        <span style={{ fontSize: '12px', fontWeight: 600, color: '#6C6C89', textTransform: 'uppercase' }}>
-          NET WINNING AMOUNT
-        </span>
-        <span style={{ fontSize: '12px', fontWeight: 700, color: '#000' }}>
-          {netAmount}
-        </span>
-      </div>
-
-      {/* P/L */}
-      <div style={{
-          display: 'flex',
-          gap: '8px',
-          justifyContent: 'space-between',
-          padding: '8px 0',
-          backgroundColor: '#f3e8ff',
-          margin: '8px -16px -12px -16px',
-          paddingLeft: '16px',
-          paddingRight: '16px',
-          borderRadius: '0 0 8px 8px',
-        }}>
-          <span style={{ fontSize: '12px', fontWeight: 600, color: '#6C6C89', textTransform: 'uppercase' }}>
-            P/L
-          </span>
-          <span style={{ 
-            fontSize: '12px', 
-            fontWeight: 700, 
-            color: plWei >= BigInt(0) ? '#22c55e' : plWei <= BigInt(0) ? '#ef4444' : '#000' 
-          }}>
-            {plSign}{plAmount}
-          </span>
-        </div>
-    </div>
-  );
-};
 
 const GET_USER_DATA = gql`
   query GetUserData($address: String!) {
@@ -197,340 +41,63 @@ const GET_USER_DATA = gql`
   }
 `;
 
-const RecentBets = React.memo(() => {
-  const normalize = (v?: string) => (v || "").toUpperCase();
-  const isResolvedWinner = (w?: string) => {
-    const W = normalize(w);
-    return W === "APES" || W === "PUNKS";
-  };
-  const toWei = (amount?: string) => {
-    try {
-      return parseUnits((amount || "0").toString(), TOKEN_DECIMALS);
-    } catch {
-      return BigInt(0);
-    }
-  };
-  const toBigInt = (val: unknown) => {
-    try {
-      if (typeof val === "bigint") return val;
-      if (typeof val === "string") return BigInt(val);
-      if (typeof val === "number") return BigInt(val);
-      return BigInt(val as any);
-    } catch {
-      return BigInt(0);
-    }
-  };
-  const formatPL = (wei: bigint) => {
-    const sign = wei > BigInt(0) ? "+" : wei < BigInt(0) ? "-" : "";
-    const abs = wei < BigInt(0) ? -wei : wei;
-    const formatted = formatAmount(abs, TOKEN_DECIMALS, true) as string;
-    return `${sign}${formatted}`;
-  };
-
-  // State for table columns and data source
-  const [columns, setColumns] = useState([
-    {
-      title: "Round#",
-      width: "5",
-      align: "center" as AlignType,
-      dataIndex: "roundNumber",
-      key: "roundNumber",
-      render: (roundNumber?: string) =>
-        roundNumber ? <span>{roundNumber}</span> : <span>0</span>,
-    },
-    {
-      title: "Apes",
-      align: "center" as AlignType,
-      dataIndex: "apeCards",
-      key: "apeCards",
-      render: (data: { cards: Card[]; bets: string }) =>
-        Array.isArray(data.cards) ? (
-          <>
-            <CardSet
-              isSmall={true}
-              numberOfCards={data.cards.length}
-              cards={data.cards}
-              cardWidth={50}
-            />
-          </>
-        ) : (
-          <span>No Cards</span>
-        ),
-    },
-    {
-      title: "Apes Pool",
-      align: "center" as AlignType,
-      dataIndex: "totalApesBets",
-      key: "totalApesBets",
-      render: (totalBets?: string) =>
-        totalBets ? (
-          <span style={{ textAlign: "right" }}>{totalBets}</span>
-        ) : (
-          <span style={{ textAlign: "right" }}>0.0</span>
-        ),
-    },
-    {
-      title: "Punks",
-      dataIndex: "punkCards",
-      align: "center" as AlignType,
-      key: "punkCards",
-      render: (data: { cards: Card[]; bets: string }) =>
-        Array.isArray(data.cards) ? (
-          <>
-            <CardSet
-              isSmall={true}
-              numberOfCards={data.cards.length}
-              cards={data.cards}
-              cardWidth={50}
-            />
-          </>
-        ) : (
-          <span>No Cards</span>
-        ),
-    },
-    {
-      title: "Punk Pool",
-      align: "center" as AlignType,
-      dataIndex: "totalPunkBets",
-      key: "totalPunkBets",
-      render: (totalBets?: string) =>
-        totalBets ? <span>{totalBets}</span> : <span>0.0</span>,
-    },
-    {
-      title: "Community Cards",
-      align: "center" as AlignType,
-      dataIndex: "communityCards",
-      key: "communityCards",
-      render: (cards: Card[]) =>
-        Array.isArray(cards) ? (
-          <CardSet
-            isSmall={true}
-            numberOfCards={cards.length}
-            cards={cards}
-            cardWidth={50}
-          />
-        ) : (
-          <span>No Cards</span>
-        ),
-    },
-    {
-      title: "Winner",
-      align: "center" as AlignType,
-      dataIndex: "winner",
-      key: "winner",
-      render: (winner: string) => <span>{winner}</span>,
-    },
-    {
-      title: "Own Bet",
-      dataIndex: "ownBets",
-      align: "center" as AlignType,
-      key: "ownBets",
-      render: (
-        bet: {
-          amount: string;
-          position: string;
-          isWinner: boolean;
-        },
-        record: any
-      ) =>
-        bet ? (
-          <span
-            style={{
-              color: isResolvedWinner(record.winner)
-                ? bet.isWinner
-                  ? "#22c55e"
-                  : "#ef4444"
-                : undefined,
-              fontWeight: isResolvedWinner(record.winner) ? 600 : 400,
-            }}
-          >
-            {bet.amount} on {bet.position}
-          </span>
-        ) : (
-          <span>No Bets</span>
-        ),
-    },
-    {
-      title: "Own P/L",
-      dataIndex: "ownWonAmount",
-      align: "center" as AlignType,
-      width: "10%",
-      key: "ownWonAmount",
-      render: (_: string, record: any) => {
-        const hasBreakdown = record.breakdown && record.breakdown.netWinningAmount != null;
-        
-        const plContent = (
-          <span
-            style={{
-              color:
-                record.ownWonAmountValue > 0
-                  ? "#22c55e"
-                  : record.ownWonAmountValue < 0
-                  ? "#ef4444"
-                  : "#6C6C89",
-              fontWeight: record.ownWonAmountValue !== 0 ? 700 : 400,
-            }}
-          >
-            {record.ownWonAmount}
-          </span>
-        );
-
-        if (hasBreakdown) {
-          return (
-            <Tooltip
-              title={<PLBreakdownTooltip breakdown={record.breakdown} />}
-              placement="left"
-              overlayInnerStyle={{ padding: 0 }}
-            >
-              {plContent}
-            </Tooltip>
-          );
+const GET_USER_PARTICIPANT_ROUNDS = gql`
+  query GetUserParticipantRounds($userId: String!, $limit: Int!) {
+    participants(
+      where: { userId: $userId }
+      orderBy: "timestamp"
+      orderDirection: "desc"
+      limit: $limit
+    ) {
+      items {
+        roundId
+        round {
+          epoch
         }
+      }
+    }
+  }
+`;
 
-        return plContent;
-      },
-    },
-  ]);
+const GET_TOTAL_ROUNDS_QUERY = gql`
+  query GetTotalRounds($where: RoundFilter) {
+    rounds(orderBy: "epoch", orderDirection: "desc", limit: 1, where: $where) {
+      items {
+        epoch
+      }
+    }
+  }
+`;
 
-  const [mobileMediumColumns] = useState([
-    {
-      title: "#",
-      width: "15%",
-      align: "center" as AlignType,
-      dataIndex: "roundNumber",
-      key: "roundNumber",
-      render: (roundNumber?: string) => roundNumber || "0",
-    },
-    {
-      title: "Game",
-      align: "center" as AlignType,
-      width: "55%",
-      key: "gameInfo",
-      render: (_: any, record: any) => (
-        <Flex vertical gap={16}>
-          <Flex justify="space-between">
-            <small>Apes: {record.totalApesBets}</small>
-            <small>Punks: {record.totalPunkBets}</small>
-          </Flex>
-          <CardSet
-            isSmall={true}
-            numberOfCards={record.communityCards.length}
-            cards={record.communityCards}
-            cardWidth={30}
-          />
-          <small>Winner: {record.winner}</small>
-        </Flex>
-      ),
-    },
-    {
-      title: "Your Bet",
-      align: "center" as AlignType,
-      width: "30%",
-      key: "betInfo",
-      render: (_: any, record: any) => (
-        <Flex vertical>
-          {record.ownBets ? (
-            <>
-              <small>{record.ownBets.amount}</small>
-              <small>on {record.ownBets.position}</small>
-              <small>{record.ownWonAmount}</small>
-            </>
-          ) : (
-            <small>No Bet</small>
-          )}
-        </Flex>
-      ),
-    },
-  ]);
+interface RoundDataRow {
+  roundNumber: string;
+  key: string;
+  communityCards: Card[];
+  punkCards: { cards: Card[] };
+  apeCards: { cards: Card[] };
+  ownBets: {
+    amount: string;
+    position: string;
+    isWinner: boolean;
+  } | null;
+  totalPunkBets: string;
+  totalApesBets: string;
+  winner: string;
+  ownWonAmount: string;
+  ownWonAmountValue?: number;
+  breakdown?: PLBreakdown;
+}
 
-  const [mobileSmallColumns] = useState([
-    {
-      title: "Game",
-      align: "center" as AlignType,
-      width: "55%",
-      key: "gameInfo",
-      render: (_: any, record: any) => (
-        <Flex vertical gap={16}>
-          <b style={{ color: "#6C6C89" }}>#{record.roundNumber}</b>
-          <Flex justify="space-between">
-            <small>Apes: {record.totalApesBets}</small>
-            <small>Punks: {record.totalPunkBets}</small>
-          </Flex>
-          <CardSet
-            isSmall={true}
-            numberOfCards={record.communityCards.length}
-            cards={record.communityCards}
-            cardWidth={30}
-          />
-          <small>Winner: {record.winner}</small>
-        </Flex>
-      ),
-    },
-    {
-      title: "Your Bet",
-      align: "center" as AlignType,
-      width: "30%",
-      key: "betInfo",
-      render: (_: any, record: any) => (
-        <Flex vertical>
-          {record.ownBets ? (
-            <>
-              <small>{record.ownBets.amount}</small>
-              <small>on {record.ownBets.position}</small>
-              <small>{record.ownWonAmount}</small>
-            </>
-          ) : (
-            <small>No Bet</small>
-          )}
-        </Flex>
-      ),
-    },
-  ]);
-
+const RecentBets = React.memo(() => {
   const { isConnected, address } = useAccount();
+  
+  const [dataSource, setDataSource] = useState<RoundDataRow[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [showOnlyMyBets, setShowOnlyMyBets] = useState(false);
+  const [whereQuery, setWhereQuery] = useState<{ [key: string]: string }>({});
 
-  const [dataSource, setDataSource] = useState<
-    {
-      roundNumber: string;
-      key: string;
-      communityCards: Card[];
-      punkCards: { cards: Card[]; bets: string };
-      apeCards: { cards: Card[]; bets: string };
-      ownBets: {
-        amount: string;
-        position: string;
-        isWinner: boolean;
-      } | null;
-      totalPunkBets: string;
-      totalApesBets: string;
-      winner: string;
-      ownWonAmount: string;
-      // new: numeric value for coloring/sorting
-      ownWonAmountValue?: number;
-      // breakdown data for tooltip
-      breakdown?: {
-        grossWinningAmount: bigint;
-        rakeGiven: bigint;
-        operatorFeeGiven: bigint;
-        netWinningAmount: bigint;
-        betAmount: bigint;
-      };
-    }[]
-  >([]);
-  const [mobileDataSource, setMobileDataSource] = useState<
-    {
-      roundNumber: string;
-      key: string;
-      communityCards: Card[];
-      totalApesBets: string;
-      totalPunkBets: string;
-      winner: string;
-      ownBets: { amount: string; position: string } | null;
-      ownWonAmount: string;
-      ownWonAmountValue?: number;
-    }[]
-  >([]);
-
+  // Fetch user data for total P/L
   const { data: userTotalsData } = useQuery(GET_USER_DATA, {
     variables: { address: address ?? "" },
     skip: !address,
@@ -540,7 +107,7 @@ const RecentBets = React.memo(() => {
 
   const userTotals = userTotalsData?.users?.items?.[0];
 
-  // Calculate unrealized P/L from all participations (claimed or unclaimed)
+  // Calculate total P/L from all participations
   const totalPLWei = userTotals?.participantions?.items
     ? userTotals.participantions.items.reduce((acc: bigint, participation: any) => {
         const winningAmount = participation.winningAmount != null
@@ -550,159 +117,83 @@ const RecentBets = React.memo(() => {
         return acc + (winningAmount - betAmount);
       }, BigInt(0))
     : BigInt(0);
+  
   const totalPLText = formatPL(totalPLWei);
+  const totalPLSign = totalPLWei > BigInt(0) ? "+" : totalPLWei < BigInt(0) ? "-" : "";
 
-  // Function to handle data from the query
-  const handleRoundData = (data: { rounds: RoundPage }) => {
-    const dataSource: {
-      roundNumber: string;
-      key: string;
-      communityCards: Card[];
-      punkCards: { cards: Card[]; bets: string };
-      apeCards: { cards: Card[]; bets: string };
-      ownBets: {
-        amount: string;
-        position: string;
-        isWinner: boolean;
-      } | null;
-      totalPunkBets: string;
-      totalApesBets: string;
-      winner: string;
-      ownWonAmount: string;
-      ownWonAmountValue?: number;
-      breakdown?: {
-        grossWinningAmount: bigint;
-        rakeGiven: bigint;
-        operatorFeeGiven: bigint;
-        netWinningAmount: bigint;
-        betAmount: bigint;
-      };
-    }[] = [];
+  // Query to get user's participant round IDs when filtering
+  const { data: participantRoundsData } = useQuery(GET_USER_PARTICIPANT_ROUNDS, {
+    variables: { 
+      userId: address ?? "", 
+      limit: 1000
+    },
+    skip: !showOnlyMyBets || !address,
+    fetchPolicy: "cache-and-network",
+    pollInterval: 12000,
+  });
+
+  // Extract round IDs and epochs from participants, sorted by epoch descending
+  const userRounds = participantRoundsData?.participants?.items
+    ?.map((p: any) => ({
+      roundId: p.roundId,
+      epoch: p.round?.epoch ? BigInt(p.round.epoch) : BigInt(0),
+    }))
+    .sort((a: any, b: any) => {
+      if (a.epoch > b.epoch) return -1;
+      if (a.epoch < b.epoch) return 1;
+      return 0;
+    }) || [];
+
+  const userRoundIds = userRounds.map((r: any) => r.roundId);
+
+  // Build where query with round ID filter when showing only user bets
+  const finalWhereQuery = showOnlyMyBets && userRoundIds.length > 0
+    ? { ...whereQuery, id_in: userRoundIds }
+    : whereQuery;
+
+  // Transform round data into table rows
+  const transformRoundData = (data: { rounds: RoundPage }): RoundDataRow[] => {
+    const rows: RoundDataRow[] = [];
+    
     for (const round of data.rounds.items) {
       try {
-        const gameState: GameState = getGameStateFromRound(
-          null,
-          round,
-          address
-        );
+        const gameState: GameState = getGameStateFromRound(null, round, address);
+        if (!gameState) continue;
 
-        if (!gameState) {
-          return;
-        }
-
-        // Define the total bet amounts for both participants
-        const totalPunksBets = gameState.punksData.totalBetAmounts || "0.0";
-        const totalApesBets = gameState.apesData.totalBetAmounts || "0.0";
-
-        const communityCards = gameState.communityCards || [];
-        const apeCards = {
-          cards: gameState.apesData.cards || [],
-          bets: totalApesBets || "0.0.",
-        };
-        const punkCards = {
-          cards: gameState.punksData.cards || [],
-          bets: totalPunksBets || "0.0.",
-        };
-
-        // Extract user's own bet information
-        const ownBet =
-          round.participants?.items.find((bet) => bet.userId == address) ||
-          null;
-
-        // compute P/L
+        const ownBet = round.participants?.items.find((bet) => bet.userId == address) || null;
+        
+        // Calculate P/L
         let ownPLWei = BigInt(0);
-        let ownPLText = "0.0000";
+        let ownPLText = "-";
+        let breakdown: PLBreakdown | undefined;
 
-        // Use per-participation winningAmount from subgraph only
-        const ownBetWinningAmount =
-          ownBet && (ownBet as any)?.winningAmount != null
-            ? toBigInt((ownBet as any).winningAmount)
-            : null;
+        const winningAmount = ownBet && (ownBet as any)?.winningAmount != null 
+          ? toBigInt((ownBet as any).winningAmount) 
+          : null;
 
-        // Calculate breakdown for tooltip
-        let breakdown: {
-          grossWinningAmount: bigint;
-          rakeGiven: bigint;
-          operatorFeeGiven: bigint;
-          netWinningAmount: bigint;
-          betAmount: bigint;
-        } | undefined;
-
-        if (ownBetWinningAmount != null) {
-          // Net P/L = winningAmount - amount
-          const userAmountWei = toBigInt(ownBet?.amount);
-          ownPLWei = ownBetWinningAmount - userAmountWei;
-          ownPLText = formatPL(ownPLWei);
-
-          // Calculate breakdown: gross = net + rake + operatorFee
-          const rakeGiven = ownBet && (ownBet as any)?.rakeGiven != null
-            ? toBigInt((ownBet as any).rakeGiven)
-            : BigInt(0);
-          const operatorFeeGiven = ownBet && (ownBet as any)?.operatorFeeGiven != null
-            ? toBigInt((ownBet as any).operatorFeeGiven)
-            : BigInt(0);
-          const grossWinningAmount = ownBetWinningAmount + rakeGiven + operatorFeeGiven;
-
-          breakdown = {
-            grossWinningAmount,
-            rakeGiven,
-            operatorFeeGiven,
-            netWinningAmount: ownBetWinningAmount,
-            betAmount: userAmountWei,
-          };
-        }
-        // COMMENTED OUT: Client-side fallback calculation (use subgraph winningAmount only)
-        // else if (
-        //   ownBet &&
-        //   isResolvedWinner(gameState.roundWinnerMessageShort)
-        // ) {
-        //   const userAmountWei = toBigInt(ownBet.amount); // wei
-        //   const winner = normalize(round.winner);
-        //   const betOnApes = normalize(ownBet.position) === "APES";
-
-        //   const apesPoolWei = toWei(totalApesBets);
-        //   const punksPoolWei = toWei(totalPunksBets);
-
-        //   const userWon = normalize(ownBet.position) === winner;
-
-        //   if (userWon) {
-        //     const winnerPoolWei = betOnApes ? apesPoolWei : punksPoolWei;
-        //     const loserPoolWei = betOnApes ? punksPoolWei : apesPoolWei;
-
-        //     // If rewardAmount is provided by the API, use it; otherwise distribute loser pool to winners (no-rake fallback).
-        //     const rewardAmountWei = round.rewardAmount
-        //       ? toBigInt(round.rewardAmount)
-        //       : winnerPoolWei + loserPoolWei;
-
-        //     // user reward share
-        //     const userRewardWei =
-        //       (rewardAmountWei * userAmountWei) /
-        //       (winnerPoolWei === BigInt(0) ? BigInt(1) : winnerPoolWei);
-
-        //     ownPLWei = userRewardWei - userAmountWei; // profit over stake
-        //   } else {
-        //     ownPLWei = -userAmountWei; // lost stake
-        //   }
-
-        //   ownPLText = formatPL(ownPLWei);
-        // }
-        else if (!ownBet) {
+        if (winningAmount != null) {
+          const betAmount = toBigInt(ownBet?.amount);
+          ownPLWei = winningAmount - betAmount;
+          const plFormatted = formatPL(ownPLWei);
+          const plSign = ownPLWei > BigInt(0) ? "+" : ownPLWei < BigInt(0) ? "-" : "";
+          ownPLText = plSign + plFormatted;
+          breakdown = calculatePLBreakdown(ownBet);
+        } else if (!ownBet) {
           ownPLText = "-";
         } else {
-          // winningAmount not available yet (round not settled or indexer not updated)
           ownPLText = "-";
           ownPLWei = BigInt(0);
         }
 
-        dataSource.push({
+        rows.push({
           winner: gameState.roundWinnerMessageShort,
           roundNumber: round.epoch,
           key: round.epoch,
-          communityCards: communityCards,
-          punkCards: punkCards,
-          apeCards: apeCards,
-          totalApesBets: totalApesBets,
-          totalPunkBets: totalPunksBets,
+          communityCards: gameState.communityCards || [],
+          punkCards: { cards: gameState.punksData.cards || [] },
+          apeCards: { cards: gameState.apesData.cards || [] },
+          totalApesBets: gameState.apesData.totalBetAmounts || "0.0",
+          totalPunkBets: gameState.punksData.totalBetAmounts || "0.0",
           ownBets: ownBet
             ? {
                 amount: formatAmount(ownBet.amount, TOKEN_DECIMALS, true) as string,
@@ -714,195 +205,154 @@ const RecentBets = React.memo(() => {
             : null,
           ownWonAmount: ownPLText,
           ownWonAmountValue:
-            Number(
-              formatAmount(ownPLWei < BigInt(0) ? -ownPLWei : ownPLWei, TOKEN_DECIMALS, true) as string
-            ) * (ownPLWei < BigInt(0) ? -1 : 1),
+            Number(formatAmount(ownPLWei < BigInt(0) ? -ownPLWei : ownPLWei, TOKEN_DECIMALS, true) as string) *
+            (ownPLWei < BigInt(0) ? -1 : 1),
           breakdown,
         });
       } catch (error) {
-        console.error("Error handling round data:", error);
+        console.error("Error transforming round data:", error);
       }
     }
-    // Ensure data matches expected structure
-    setDataSource(dataSource);
-
-    const mobileDataSource: {
-      roundNumber: string;
-      key: string;
-      communityCards: Card[];
-      totalApesBets: string;
-      totalPunkBets: string;
-      winner: string;
-      ownBets: { amount: string; position: string } | null;
-      ownWonAmount: string;
-      ownWonAmountValue?: number;
-    }[] = [];
-
-    for (const round of data.rounds.items) {
-      try {
-        const gameState: GameState = getGameStateFromRound(
-          null,
-          round,
-          address
-        );
-        if (!gameState) continue;
-
-        // Get user's bet information
-        const ownBet =
-          round.participants?.items.find((bet) => bet.userId == address) ||
-          null;
-
-        // compute P/L - use winningAmount from subgraph only
-        let ownPLWei = BigInt(0);
-        let ownPLText = "0.0000";
-
-        const ownBetWinningAmount =
-          ownBet && (ownBet as any)?.winningAmount != null
-            ? toBigInt((ownBet as any).winningAmount)
-            : null;
-
-        if (ownBetWinningAmount != null) {
-          const userAmountWei = toBigInt(ownBet?.amount);
-          ownPLWei = ownBetWinningAmount - userAmountWei;
-          ownPLText = formatPL(ownPLWei);
-        }
-        // COMMENTED OUT: Client-side fallback calculation (use subgraph winningAmount only)
-        // else if (
-        //   ownBet &&
-        //   isResolvedWinner(gameState.roundWinnerMessageShort)
-        // ) {
-        //   const userAmountWei = toBigInt(ownBet.amount);
-        //   const totalApesBets = gameState.apesData.totalBetAmounts || "0.0";
-        //   const totalPunkBets = gameState.punksData.totalBetAmounts || "0.0";
-        //   const apesPoolWei = toWei(totalApesBets);
-        //   const punksPoolWei = toWei(totalPunkBets);
-
-        //   const winner = normalize(round.winner);
-        //   const betOnApes = normalize(ownBet.position) === "APES";
-        //   const userWon = normalize(ownBet.position) === winner;
-
-        //   if (userWon) {
-        //     const winnerPoolWei = betOnApes ? apesPoolWei : punksPoolWei;
-        //     const loserPoolWei = betOnApes ? punksPoolWei : apesPoolWei;
-
-        //     const rewardAmountWei = round.rewardAmount
-        //       ? toBigInt(round.rewardAmount)
-        //       : winnerPoolWei + loserPoolWei;
-
-        //     const userRewardWei =
-        //       (rewardAmountWei * userAmountWei) /
-        //       (winnerPoolWei === BigInt(0) ? BigInt(1) : winnerPoolWei);
-
-        //     ownPLWei = userRewardWei - userAmountWei;
-        //   } else {
-        //     ownPLWei = -userAmountWei;
-        //   }
-        //   ownPLText = formatPL(ownPLWei);
-        // }
-        else if (!ownBet) {
-          ownPLText = "-";
-        } else {
-          // winningAmount not available yet (round not settled or indexer not updated)
-          ownPLText = "-";
-          ownPLWei = BigInt(0);
-        }
-
-        // Add mobile data
-        mobileDataSource.push({
-          roundNumber: round.epoch,
-          key: round.epoch,
-          communityCards: gameState.communityCards || [],
-          totalApesBets: gameState.apesData.totalBetAmounts || "0.0",
-          totalPunkBets: gameState.punksData.totalBetAmounts || "0.0",
-          winner: gameState.roundWinnerMessageShort,
-          ownBets: ownBet
-            ? {
-                amount: formatAmount(ownBet.amount, TOKEN_DECIMALS, true) as string,
-                position: ownBet.position,
-              }
-            : null,
-          ownWonAmount: ownPLText,
-          ownWonAmountValue:
-            Number(
-              formatAmount(ownPLWei < BigInt(0) ? -ownPLWei : ownPLWei, TOKEN_DECIMALS, true) as string
-            ) * (ownPLWei < BigInt(0) ? -1 : 1),
-        });
-      } catch (error) {
-        console.error("Error handling round data:", error);
-      }
-    }
-
-    setMobileDataSource(mobileDataSource);
+    
+    return rows;
   };
-
-  const [whereQuery, setWhereQuery] = useState<{ [key: string]: string }>({});
-  const [itemsPerPage, setItemsPerPage] = useState(10);
 
   // Apollo query to fetch round data
   const { refetch } = useQuery<{ rounds: RoundPage }>(GET_CURRENT_ROUND_QUERY, {
-    variables: { limit: itemsPerPage, participant: address, where: whereQuery },
-    pollInterval: 12000, // Refetch data every 12000 milliseconds (12 seconds)
-    onCompleted: handleRoundData,
+    variables: { 
+      limit: itemsPerPage, 
+      participant: address, 
+      where: finalWhereQuery 
+    },
+    pollInterval: 12000,
+    onCompleted: (data) => {
+      const rows = transformRoundData(data);
+      setDataSource(rows);
+    },
     notifyOnNetworkStatusChange: true,
+    skip: showOnlyMyBets && userRoundIds.length === 0 && !!address,
   });
 
-  const totalItems =
-    useQuery<{ rounds: RoundPage }>(
-      gql`
-        query GetTotalRounds {
-          rounds(orderBy: "epoch", orderDirection: "desc", limit: 1) {
-            items {
-              epoch
-            }
-          }
-        }
-      `,
-      { pollInterval: 12000 }
-    ).data?.rounds.items[0].epoch || 0;
-  const [currentPage, setCurrentPage] = useState(1);
+  // Query to get total rounds count
+  const { data: totalRoundsData } = useQuery<{ rounds: RoundPage }>(
+    GET_TOTAL_ROUNDS_QUERY,
+    {
+      variables: {
+        where: showOnlyMyBets && userRoundIds.length > 0
+          ? { id_in: userRoundIds }
+          : undefined,
+      },
+      pollInterval: 12000,
+      skip: showOnlyMyBets && userRoundIds.length === 0,
+    }
+  );
 
-  function handlePageChange(page: number, pageSize: number) {
-    const startEpoch = totalItems - (page - 1) * pageSize;
-    const endEpoch = Math.max(startEpoch - pageSize, 1);
+  // Calculate total items based on filter state
+  const totalItems = showOnlyMyBets
+    ? userRoundIds.length
+    : totalRoundsData?.rounds.items[0]?.epoch || 0;
 
-    setWhereQuery({
-      epoch_lte: String(startEpoch + 1),
-      epoch_gte: String(endEpoch),
-    });
+  // Reset to page 1 when filter changes
+  useEffect(() => {
+    setCurrentPage(1);
+    if (!showOnlyMyBets) {
+      setWhereQuery({});
+    } else if (showOnlyMyBets && userRoundIds.length > 0) {
+      const pageRoundIds = userRoundIds.slice(0, itemsPerPage);
+      setWhereQuery({ id_in: pageRoundIds });
+    }
+  }, [showOnlyMyBets, userRoundIds.length, itemsPerPage]);
+
+  // Refetch when filter state or round IDs change
+  useEffect(() => {
+    if (!showOnlyMyBets || (showOnlyMyBets && userRoundIds.length > 0)) {
+      refetch();
+    }
+  }, [showOnlyMyBets, userRoundIds.length, refetch, whereQuery]);
+
+  // Handle page change
+  const handlePageChange = (page: number, pageSize: number) => {
+    if (showOnlyMyBets && userRoundIds.length > 0) {
+      const startIndex = (page - 1) * pageSize;
+      const endIndex = startIndex + pageSize;
+      const pageRoundIds = userRoundIds.slice(startIndex, endIndex);
+      setWhereQuery({ id_in: pageRoundIds });
+    } else {
+      const startEpoch = totalItems - (page - 1) * pageSize;
+      const endEpoch = Math.max(startEpoch - pageSize, 1);
+      setWhereQuery({
+        epoch_lte: String(startEpoch + 1),
+        epoch_gte: String(endEpoch),
+      });
+    }
 
     setCurrentPage(page);
     setItemsPerPage(pageSize);
     refetch();
-  }
+  };
 
   return (
     <div>
-      <Flex justify="space-between" align="center">
-        <Title level={5} className={styles.RecentBetsTitle}>
+      <Flex justify="space-between" align="center" wrap="wrap" gap={16} style={{ margin: "16px 0" }}>
+        <Title level={5} className={styles.RecentBetsTitle} style={{ margin: 0 }}>
           Recent Rounds
         </Title>
-        <div style={{ fontSize: 12 }}>
-          <span
+        <Flex gap={24} align="center" wrap="wrap">
+          <Flex 
+            align="center" 
+            gap={10}
             style={{
-              color:
-                totalPLWei > BigInt(0)
-                  ? "#22c55e"
-                  : totalPLWei < BigInt(0)
-                  ? "#ef4444"
-                  : "#6C6C89",
-              fontWeight: 600,
+              padding: "8px 12px",
+              backgroundColor: "#f5f5f5",
+              borderRadius: "8px",
+              border: "1px solid #e8e8e8",
             }}
           >
-            Total P/L: {totalPLText}
-          </span>
-        </div>
+            <span style={{ fontSize: 13, color: "#6C6C89", fontWeight: 500 }}>
+              Show only my bets
+            </span>
+            <Switch
+              checked={showOnlyMyBets}
+              onChange={setShowOnlyMyBets}
+              size="default"
+            />
+          </Flex>
+          <div
+            style={{
+              padding: "8px 16px",
+              backgroundColor: totalPLWei > BigInt(0) 
+                ? "#f0fdf4" 
+                : totalPLWei < BigInt(0) 
+                ? "#fef2f2" 
+                : "#f5f5f5",
+              borderRadius: "8px",
+              border: `1px solid ${
+                totalPLWei > BigInt(0)
+                  ? "#dcfce7"
+                  : totalPLWei < BigInt(0)
+                  ? "#fee2e2"
+                  : "#e8e8e8"
+              }`,
+            }}
+          >
+            <span
+              style={{
+                fontSize: 13,
+                color: getPLColor(totalPLWei),
+                fontWeight: 600,
+              }}
+            >
+              Total P/L: {totalPLSign}{totalPLText}
+            </span>
+          </div>
+        </Flex>
       </Flex>
 
       <ConfigProvider>
         <div className="hidden lg:block">
           <Table
             dataSource={dataSource}
-            columns={columns}
+            columns={getDesktopColumns()}
             pagination={false}
             rowClassName={(record: any) =>
               record?.ownBets ? styles.OwnBetRow : ""
@@ -911,8 +361,8 @@ const RecentBets = React.memo(() => {
         </div>
         <div className="hidden md:block lg:hidden">
           <Table
-            dataSource={mobileDataSource}
-            columns={mobileMediumColumns}
+            dataSource={dataSource}
+            columns={getTabletColumns()}
             pagination={false}
             rowClassName={(record: any) =>
               record?.ownBets ? styles.OwnBetRow : ""
@@ -921,8 +371,8 @@ const RecentBets = React.memo(() => {
         </div>
         <div className="block md:hidden">
           <Table
-            dataSource={mobileDataSource}
-            columns={mobileSmallColumns}
+            dataSource={dataSource}
+            columns={getMobileColumns()}
             pagination={false}
             rowClassName={(record: any) =>
               record?.ownBets ? styles.OwnBetRow : ""
