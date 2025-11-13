@@ -77,6 +77,7 @@ const BetForm: React.FC<BetFormProps> = React.memo(
     useEffect(() => {
       if (hasPlacedBet && confirmedBetPlayer !== Players.None) {
         handlePlayerSelection(confirmedBetPlayer);
+        BetForm.setFieldsValue({ side: confirmedBetPlayer });
         if (confirmedBetAmount > 0) {
           setBetAmount(confirmedBetAmount);
           BetForm.setFieldsValue({ amount: confirmedBetAmount });
@@ -119,12 +120,15 @@ const BetForm: React.FC<BetFormProps> = React.memo(
     const handlePlayerChange = useCallback((e) => {
       const selectedPlayer = e.target.value;
       handlePlayerSelection(selectedPlayer);
-    }, [handlePlayerSelection]);
+      BetForm.setFieldsValue({ side: selectedPlayer });
+    }, [handlePlayerSelection, BetForm]);
 
     // Reset form when round changes
     useEffect(() => {
       if (selectedPlayer === Players.None) {
         BetForm.setFieldsValue({ side: undefined });
+      } else {
+        BetForm.setFieldsValue({ side: selectedPlayer });
       }
     }, [roundId, selectedPlayer, BetForm]);
 
@@ -265,7 +269,7 @@ const BetForm: React.FC<BetFormProps> = React.memo(
           rules={[
             {
               required: true,
-              message: "Please enter an amount",
+              message: "Please select a side",
             },
           ]}
         >
