@@ -189,7 +189,20 @@ const BetwinModal = ({
       <Flex vertical gap={24}>
         <Flex align="center" justify="space-between">
           <Flex className={styles.ListHeading}>Your Win/Loss</Flex>
-          <Flex className={`${styles.ListValue} ${styles.ListValueGreen}`}>
+          <Flex className={`${styles.ListValue} ${
+            (() => {
+              const amount = gameState.selfRoundWinningAmount;
+              // Check if it's positive (starts with +), negative (starts with -), or zero/neutral
+              if (amount.startsWith('+')) {
+                return styles.ListValueGreen;
+              } else if (amount.startsWith('-')) {
+                return styles.ListValueRed;
+              } else {
+                // Zero (0.0, 0) or neutral - no special color class, uses default white
+                return '';
+              }
+            })()
+          }`}>
             {gameState.selfRoundWinningAmount}
           </Flex>
         </Flex>

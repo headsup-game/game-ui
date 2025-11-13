@@ -213,7 +213,7 @@ const BetForm: React.FC<BetFormProps> = React.memo(
                   fontSize: "18px",
                 }}
               >
-                {formatAmount(multiplier, 6, true)}x
+                {formatAmount(Number(multiplier.toFixed(3)), 6, true)}x
               </b>
             </Flex>
           ) : hasPlacedBet ? (

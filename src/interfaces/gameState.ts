@@ -136,6 +136,58 @@ export function getGameStateFromRound(previousRound: Round | null, currentRound:
   const totalSelfApesAmount = round.participants?.items.find((bet) => bet.position === Position.Apes && bet.userId === address)?.amount
   const totalSelfPunksAmount = round.participants?.items.find((bet) => bet.position === Position.Punks && bet.userId === address)?.amount
 
+  // Calculate selfRoundWinningAmount (net profit/loss)
+  let selfRoundWinningAmount = '0.0';
+  if (address && round.participants?.items) {
+    // Find all participant records for this user (they might have bet on both Apes and Punks)
+    const userParticipants = round.participants.items.filter((bet) => bet.userId === address);
+    
+    if (userParticipants.length > 0) {
+      let totalWinningAmountWei = BigInt(0);
+      let totalBetAmountWei = BigInt(0);
+      let hasWinningAmount = false;
+      
+      for (const participant of userParticipants) {
+        // Get winningAmount (cast to any since it's not in TypeScript types but exists in GraphQL response)
+        const winningAmount = (participant as any)?.winningAmount;
+        if (winningAmount != null) {
+          hasWinningAmount = true;
+          try {
+            totalWinningAmountWei += typeof winningAmount === 'bigint' 
+              ? winningAmount 
+              : BigInt(winningAmount.toString());
+          } catch {
+            // Ignore invalid values
+          }
+        }
+        
+        // Sum up bet amounts
+        if (participant.amount != null) {
+          try {
+            totalBetAmountWei += typeof participant.amount === 'bigint'
+              ? participant.amount
+              : BigInt(participant.amount.toString());
+          } catch {
+            // Ignore invalid values
+          }
+        }
+      }
+      
+      // Only calculate if winningAmount is available (round has been settled)
+      if (hasWinningAmount) {
+        // Calculate net P/L: winningAmount - betAmount
+        const netPLWei = totalWinningAmountWei - totalBetAmountWei;
+        
+        // Format with sign (similar to formatPL in RecentBets.tsx)
+        const sign = netPLWei > BigInt(0) ? '+' : netPLWei < BigInt(0) ? '-' : '';
+        const absAmount = netPLWei < BigInt(0) ? -netPLWei : netPLWei;
+        const formatted = formatAmount(absAmount, TOKEN_DECIMALS, true) as string;
+        selfRoundWinningAmount = `${sign}${formatted}`;
+      }
+      // If winningAmount is not available yet, keep as '0.0' (round not settled)
+    }
+  }
+
   const winningCards = round.winningHands == null
     ? defaultCommunityCards
     : [
@@ -279,7 +331,7 @@ export function getGameStateFromRound(previousRound: Round | null, currentRound:
         ],
     winningCards: winningCards,
     winningHandRank: winningHandRank,
-    selfRoundWinningAmount: '0.0',
+    selfRoundWinningAmount: selfRoundWinningAmount,
     roundWinner: roundWinner,
     roundWinnerMessage: getRoundWinnerMessage(roundWinner, false, winningHandRank),
     roundWinnerMessageShort: getRoundWinnerMessage(roundWinner, true, winningHandRank),
