@@ -176,7 +176,7 @@ const BetForm: React.FC<BetFormProps> = React.memo(
                   onClick={switchToCorrectNetwork}
                   style={{ color: "#4d9fff", padding: "0 8px" }}
                 >
-                  Switch to Base Sepolia
+                  Switch to QIE Testnet
                 </Button>
               </Flex>
             )}

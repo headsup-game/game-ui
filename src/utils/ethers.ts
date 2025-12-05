@@ -1,9 +1,9 @@
-import { createPublicClient, createWalletClient, http } from 'viem';
-import { mainnet } from 'wagmi/chains';
+import { createPublicClient, http } from 'viem';
+import { qieTestnet } from './qieChain';
 
 const provider = createPublicClient({
-  chain: mainnet,
-  transport: http(),
+  chain: qieTestnet,
+  transport: http('https://rpc1testnet.qie.digital'),
 });
 
 export default provider;

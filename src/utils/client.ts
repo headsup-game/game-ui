@@ -1,15 +1,15 @@
 import { createPublicClient, createWalletClient, custom, http } from 'viem';
-import { monadTestnet } from 'viem/chains';
+import { qieTestnet } from './qieChain';
 
 export const publicClient = createPublicClient({
-  chain: monadTestnet,
-  transport: http(),
+  chain: qieTestnet,
+  transport: http('https://rpc1testnet.qie.digital'),
 });
 
 let walletClient;
 if (typeof window !== 'undefined' && window.ethereum) {
   walletClient = createWalletClient({
-    chain: monadTestnet,
+    chain: qieTestnet,
     transport: custom(window.ethereum),
   });
 }

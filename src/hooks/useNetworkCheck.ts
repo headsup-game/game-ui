@@ -1,5 +1,5 @@
 import { useAccount, useChainId, useSwitchChain } from 'wagmi';
-import { baseSepolia } from 'viem/chains';
+import { qieTestnet } from '../utils/qieChain';
 import { useEffect } from 'react';
 
 export function useNetworkCheck() {
@@ -7,19 +7,19 @@ export function useNetworkCheck() {
   const { isConnected } = useAccount();
   const { switchChain } = useSwitchChain();
 
-  const isCorrectNetwork = chainId === baseSepolia.id;
+  const isCorrectNetwork = chainId === qieTestnet.id;
 
   useEffect(() => {
     if (isConnected && !isCorrectNetwork && switchChain) {
-      // Automatically attempt to switch to Base Sepolia
-      switchChain({ chainId: baseSepolia.id });
+      // Automatically attempt to switch to QIE Testnet
+      switchChain({ chainId: qieTestnet.id });
     }
   }, [isConnected, isCorrectNetwork, switchChain]);
 
   return {
     isCorrectNetwork,
     currentChainId: chainId,
-    expectedChainId: baseSepolia.id,
-    switchToCorrectNetwork: () => switchChain?.({ chainId: baseSepolia.id }),
+    expectedChainId: qieTestnet.id,
+    switchToCorrectNetwork: () => switchChain?.({ chainId: qieTestnet.id }),
   };
 }
