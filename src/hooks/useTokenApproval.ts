@@ -1,6 +1,6 @@
 import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 import { erc20Abi } from '../utils/erc20Abi';
-import { DARK_TOKEN_ADDRESS, CONTRACT_ADDRESS, MAX_UINT256 } from '../utils/constants';
+import { QIE_TOKEN_ADDRESS, CONTRACT_ADDRESS, MAX_UINT256 } from '../utils/constants';
 import { useState, useEffect } from 'react';
 
 export function useTokenApproval() {
@@ -10,7 +10,7 @@ export function useTokenApproval() {
 
   // Check current allowance
   const { data: allowance, refetch: refetchAllowance } = useReadContract({
-    address: DARK_TOKEN_ADDRESS as `0x${string}`,
+    address: QIE_TOKEN_ADDRESS as `0x${string}`,
     abi: erc20Abi,
     functionName: 'allowance',
     args: address ? [address, CONTRACT_ADDRESS as `0x${string}`] : undefined,
@@ -60,7 +60,7 @@ export function useTokenApproval() {
     try {
       setIsApproving(true);
       const hash = await writeContractAsync({
-        address: DARK_TOKEN_ADDRESS as `0x${string}`,
+        address: QIE_TOKEN_ADDRESS as `0x${string}`,
         abi: erc20Abi,
         functionName: 'approve',
         args: [CONTRACT_ADDRESS as `0x${string}`, BigInt(MAX_UINT256)],

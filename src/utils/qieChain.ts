@@ -13,7 +13,7 @@ export const qieTestnet = defineChain({
       http: ['https://rpc1testnet.qie.digital'],
     },
     public: {
-      http: ['https://rpc1testnet.qie.digital', 'https://testnetqierpc1.digital'],
+      http: ['https://rpc1testnet.qie.digital', 'https://rpc2testnet.qie.digital'],
     },
   },
   blockExplorers: {
